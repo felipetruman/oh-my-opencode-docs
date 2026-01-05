@@ -54,6 +54,9 @@ back_to_top_text: "Back to top"
 # Footer
 footer_content: "Oh My OpenCode Documentation - Generated from DeepWiki"
 
+# Permalink style
+permalink: pretty
+
 # Defaults
 defaults:
   - scope:
