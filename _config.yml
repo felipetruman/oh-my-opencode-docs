@@ -1,0 +1,71 @@
+# Site settings
+title: Oh My OpenCode
+description: AI Agent Orchestration Plugin for OpenCode - Multi-agent workflows, parallel execution, and production-grade reliability
+baseurl: "" # Change to "/repo-name" if hosting at github.io/repo-name
+url: ""
+
+# Theme
+remote_theme: just-the-docs/just-the-docs@v0.10.0
+
+# Plugins
+plugins:
+  - jekyll-remote-theme
+  - jekyll-seo-tag
+
+# Color scheme
+color_scheme: dark
+
+# Logo
+logo: "/assets/images/logo.png"
+
+# Aux links (top right)
+aux_links:
+  "GitHub":
+    - "https://github.com/code-yeongyu/oh-my-opencode"
+
+aux_links_new_tab: true
+
+# Navigation structure
+nav_enabled: true
+nav_sort: case_insensitive
+
+# Search
+search_enabled: true
+search:
+  heading_level: 2
+  previews: 3
+  preview_words_before: 5
+  preview_words_after: 10
+  tokenizer_separator: /[\s/]+/
+  rel_url: true
+  button: false
+
+# Mermaid diagrams
+mermaid:
+  version: "11.4.1"
+
+# Heading anchor links
+heading_anchors: true
+
+# Back to top link
+back_to_top: true
+back_to_top_text: "Back to top"
+
+# Footer
+footer_content: "Oh My OpenCode Documentation - Generated from DeepWiki"
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: "default"
+
+# Exclude files
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - .git
+  - .gitignore
