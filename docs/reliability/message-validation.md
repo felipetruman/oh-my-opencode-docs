@@ -1,8 +1,8 @@
 ---
 layout: default
 title: 메시지 검증 (Message Validation)
-parent: 안정성 (Reliability)
-nav_order: 1
+parent: "신뢰성 (Reliability)"
+nav_order: 3
 ---
 
 # 메시지 검증 (Message Validation)

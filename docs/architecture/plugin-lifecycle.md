@@ -1,7 +1,7 @@
 ---
 layout: default
 title: 플러그인 생명주기 (Plugin Lifecycle)
-parent: Architecture
+parent: "아키텍처"
 nav_order: 1
 ---
 

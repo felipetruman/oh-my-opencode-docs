@@ -1,7 +1,7 @@
 ---
 layout: default
 title: 고급 주제
-parent: Advanced Topics
+parent: "고급 주제"
 nav_order: 1
 ---
 

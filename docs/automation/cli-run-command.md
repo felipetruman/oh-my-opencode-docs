@@ -1,8 +1,8 @@
 ---
 layout: default
 title: CLI Run 명령
-parent: 자동화
-nav_order: 1
+parent: "자동화 (Automation)"
+nav_order: 3
 ---
 
 # CLI Run 명령

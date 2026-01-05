@@ -1,8 +1,8 @@
 ---
 layout: default
 title: 작업 실행 및 폴링
-parent: 백그라운드 실행
-nav_order: 1
+parent: "백그라운드 실행 (Background Execution)"
+nav_order: 3
 ---
 
 # 작업 실행 및 폴링 (Task Execution and Polling)

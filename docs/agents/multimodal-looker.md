@@ -1,8 +1,8 @@
 ---
 layout: default
 title: Multimodal Looker
-parent: Agents
-nav_order: 1
+parent: "에이전트 (Agents)"
+nav_order: 12
 ---
 
 # Multimodal Looker (멀티모달 루커)

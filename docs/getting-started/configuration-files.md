@@ -1,8 +1,8 @@
 ---
 layout: default
 title: 설정 파일 (Configuration Files)
-parent: 시작하기 (Getting Started)
-nav_order: 2
+parent: "시작하기"
+nav_order: 3
 ---
 
 # 설정 파일 (Configuration Files)

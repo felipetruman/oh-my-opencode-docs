@@ -1,8 +1,8 @@
 ---
 layout: default
 title: 병렬 실행 패턴 (Parallel Execution Patterns)
-parent: 고급 주제 (Advanced Topics)
-nav_order: 1
+parent: "고급 주제"
+nav_order: 5
 ---
 
 # 병렬 실행 패턴 (Parallel Execution Patterns)

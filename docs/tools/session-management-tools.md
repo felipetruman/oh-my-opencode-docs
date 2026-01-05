@@ -1,8 +1,8 @@
 ---
 layout: default
 title: 세션 관리 도구 (Session Management Tools)
-parent: Tools
-nav_order: 1
+parent: "도구 (Tools)"
+nav_order: 5
 ---
 
 # 세션 관리 도구 (Session Management Tools)

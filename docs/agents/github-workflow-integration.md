@@ -1,8 +1,8 @@
 ---
 layout: default
 title: GitHub 워크플로우 통합
-parent: Agents
-nav_order: 1
+parent: "에이전트 (Agents)"
+nav_order: 5
 ---
 
 # GitHub 워크플로우 통합 (GitHub Workflow Integration)

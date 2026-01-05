@@ -1,8 +1,8 @@
 ---
 layout: default
 title: Librarian 에이전트
-parent: 에이전트
-nav_order: 1
+parent: "에이전트 (Agents)"
+nav_order: 8
 ---
 
 # Librarian 에이전트

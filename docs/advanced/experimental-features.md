@@ -1,8 +1,8 @@
 ---
 layout: default
 title: 실험적 기능 (Experimental Features)
-parent: 고급 주제 (Advanced Topics)
-nav_order: 1
+parent: "고급 주제"
+nav_order: 2
 ---
 
 # 실험적 기능 (Experimental Features)

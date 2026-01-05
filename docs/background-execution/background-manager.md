@@ -2,7 +2,7 @@
 layout: default
 title: 백그라운드 매니저 (Background Manager)
 parent: 백그라운드 실행 (Background Execution)
-nav_order: 1
+nav_order: 2
 ---
 
 # 백그라운드 매니저 (Background Manager)

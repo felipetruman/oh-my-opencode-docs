@@ -1,8 +1,8 @@
 ---
 layout: default
 title: Oracle Agent
-parent: Agents
-nav_order: 1
+parent: "에이전트 (Agents)"
+nav_order: 7
 ---
 
 # Oracle Agent

@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Claude Code 호환성
-parent: Compatibility
+parent: "호환성"
 nav_order: 1
 ---
 

@@ -1,8 +1,8 @@
 ---
 layout: default
 title: 에이전트 설정 (Agent Configuration)
-parent: Agents
-nav_order: 1
+parent: "에이전트 (Agents)"
+nav_order: 13
 ---
 
 # 에이전트 설정 (Agent Configuration)

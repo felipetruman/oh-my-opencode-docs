@@ -1,8 +1,8 @@
 ---
 layout: default
 title: CI/CD 파이프라인
-parent: 개발
-nav_order: 1
+parent: "개발 (Development)"
+nav_order: 3
 ---
 
 # CI/CD 파이프라인

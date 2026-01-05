@@ -2,7 +2,7 @@
 layout: default
 title: 컨텍스트 주입 훅 (Context Injection Hooks)
 parent: Hooks
-nav_order: 1
+nav_order: 2
 ---
 
 # 컨텍스트 주입 훅 (Context Injection Hooks)

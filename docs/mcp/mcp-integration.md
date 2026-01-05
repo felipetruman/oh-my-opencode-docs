@@ -1,8 +1,8 @@
 ---
 layout: default
 title: MCP 통합
-parent: MCP Integration
-nav_order: 1
+parent: "MCP 통합"
+nav_order: 2
 ---
 
 # MCP 통합 (MCP Integration)

@@ -1,8 +1,8 @@
 ---
 layout: default
 title: 훅 참조(Hook Reference)
-parent: 참조(Reference)
-nav_order: 1
+parent: "레퍼런스"
+nav_order: 5
 ---
 
 # 훅 참조(Hook Reference)

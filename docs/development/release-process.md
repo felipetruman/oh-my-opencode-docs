@@ -1,8 +1,8 @@
 ---
 layout: default
 title: 릴리스 프로세스
-parent: 개발
-nav_order: 1
+parent: "개발 (Development)"
+nav_order: 4
 ---
 
 # 릴리스 프로세스 (Release Process)

@@ -1,8 +1,8 @@
 ---
 layout: default
 title: 설정 마이그레이션 (Configuration Migration)
-parent: Compatibility
-nav_order: 1
+parent: "호환성"
+nav_order: 2
 ---
 
 # 설정 마이그레이션 (Configuration Migration)

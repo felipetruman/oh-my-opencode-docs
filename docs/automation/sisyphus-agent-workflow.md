@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Sisyphus 에이전트 워크플로우 (Sisyphus Agent Workflow)
-parent: Automation
+parent: "자동화 (Automation)"
 nav_order: 1
 ---
 

@@ -1,8 +1,8 @@
 ---
 layout: default
 title: 이벤트 처리 (Event Handling)
-parent: Architecture
-nav_order: 1
+parent: "아키텍처"
+nav_order: 3
 ---
 
 # 이벤트 처리 (Event Handling)

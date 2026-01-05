@@ -1,8 +1,8 @@
 ---
 layout: default
 title: 의존성 관리
-parent: Development
-nav_order: 1
+parent: "개발 (Development)"
+nav_order: 5
 ---
 
 # 의존성 관리 (Dependency Management)

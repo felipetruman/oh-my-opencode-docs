@@ -2,7 +2,7 @@
 layout: default
 title: 설정 시스템
 parent: 아키텍처
-nav_order: 1
+nav_order: 2
 ---
 
 # 설정 시스템 (Configuration System)

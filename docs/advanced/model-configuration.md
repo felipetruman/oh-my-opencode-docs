@@ -2,7 +2,7 @@
 layout: default
 title: 모델 구성
 parent: 고급 주제
-nav_order: 1
+nav_order: 4
 ---
 
 # 모델 구성 (Model Configuration)

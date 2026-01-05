@@ -1,8 +1,8 @@
 ---
 layout: default
 title: LSP 도구
-parent: 도구
-nav_order: 1
+parent: "도구 (Tools)"
+nav_order: 2
 ---
 
 # 향상된 기본 도구 (Enhanced Base Tools)

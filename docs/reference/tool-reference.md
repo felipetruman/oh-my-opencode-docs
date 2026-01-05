@@ -1,8 +1,8 @@
 ---
 layout: default
 title: 도구 레퍼런스 (Tool Reference)
-parent: Reference
-nav_order: 1
+parent: "레퍼런스"
+nav_order: 4
 ---
 
 # 도구 레퍼런스 (Tool Reference)

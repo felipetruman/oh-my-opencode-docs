@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Reliability System
-parent: Reliability
+parent: "신뢰성 (Reliability)"
 nav_order: 1
 ---
 

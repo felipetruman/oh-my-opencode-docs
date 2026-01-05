@@ -1,7 +1,7 @@
 ---
 layout: default
 title: 백그라운드 실행 시스템
-parent: 백그라운드 실행
+parent: "백그라운드 실행 (Background Execution)"
 nav_order: 1
 ---
 

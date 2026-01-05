@@ -1,8 +1,8 @@
 ---
 layout: default
 title: Build System
-parent: Development
-nav_order: 1
+parent: "개발 (Development)"
+nav_order: 2
 ---
 
 # Build System (빌드 시스템)

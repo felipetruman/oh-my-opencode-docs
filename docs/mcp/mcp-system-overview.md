@@ -1,7 +1,7 @@
 ---
 layout: default
 title: MCP 시스템 개요 (MCP System Overview)
-parent: MCP 통합 (MCP Integration)
+parent: "MCP 통합"
 nav_order: 1
 ---
 

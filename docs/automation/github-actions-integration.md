@@ -1,8 +1,8 @@
 ---
 layout: default
 title: GitHub Actions 통합
-parent: 자동화
-nav_order: 1
+parent: "자동화 (Automation)"
+nav_order: 2
 ---
 
 # GitHub Actions 통합

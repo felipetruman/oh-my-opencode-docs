@@ -1,8 +1,8 @@
 ---
 layout: default
 title: 특화 에이전트 (Specialized Agents)
-parent: Agents
-nav_order: 1
+parent: "에이전트 (Agents)"
+nav_order: 6
 ---
 
 # 특화 에이전트 (Specialized Agents)

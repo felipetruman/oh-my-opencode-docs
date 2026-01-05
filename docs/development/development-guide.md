@@ -1,7 +1,7 @@
 ---
 layout: default
 title: 개발 가이드
-parent: 개발
+parent: "개발 (Development)"
 nav_order: 1
 ---
 

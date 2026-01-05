@@ -1,8 +1,8 @@
 ---
 layout: default
 title: 내장 MCP (Built-in MCPs)
-parent: MCP 통합 (MCP Integration)
-nav_order: 1
+parent: "MCP 통합"
+nav_order: 3
 ---
 
 # 내장 MCP (Built-in MCPs)

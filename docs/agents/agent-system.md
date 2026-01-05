@@ -1,7 +1,7 @@
 ---
 layout: default
 title: 에이전트 시스템 (Agent System)
-parent: Agents
+parent: "에이전트 (Agents)"
 nav_order: 1
 ---
 

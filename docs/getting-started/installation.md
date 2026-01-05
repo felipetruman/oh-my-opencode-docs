@@ -2,7 +2,7 @@
 layout: default
 title: 설치
 parent: 시작하기
-nav_order: 2
+nav_order: 1
 ---
 
 # 설치 (Installation)

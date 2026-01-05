@@ -1,8 +1,8 @@
 ---
 layout: default
 title: Workflow Phases
-parent: Agents
-nav_order: 1
+parent: "에이전트 (Agents)"
+nav_order: 3
 ---
 
 # 워크플로우 단계 (Workflow Phases)

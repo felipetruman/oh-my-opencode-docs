@@ -1,7 +1,7 @@
 ---
 layout: default
 title: 도구 시스템 (Tool System)
-parent: Tools
+parent: "도구 (Tools)"
 nav_order: 1
 ---
 

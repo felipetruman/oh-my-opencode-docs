@@ -1,8 +1,8 @@
 ---
 layout: default
 title: 설정 스키마 레퍼런스
-parent: Reference
-nav_order: 1
+parent: "레퍼런스"
+nav_order: 2
 ---
 
 # 설정 스키마 레퍼런스 (Configuration Schema Reference)

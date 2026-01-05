@@ -1,8 +1,8 @@
 ---
 layout: default
 title: Todo Continuation Enforcer
-parent: Reliability
-nav_order: 1
+parent: "신뢰성 (Reliability)"
+nav_order: 4
 ---
 
 # Todo Continuation Enforcer

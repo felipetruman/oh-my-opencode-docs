@@ -2,7 +2,7 @@
 layout: default
 title: Frontend UI UX 엔지니어 (Frontend UI UX Engineer)
 parent: 에이전트 (Agents)
-nav_order: 1
+nav_order: 10
 ---
 
 # Frontend UI/UX Engineer

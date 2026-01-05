@@ -1,8 +1,8 @@
 ---
 layout: default
 title: 키워드 모드 (Keyword Modes)
-parent: Advanced Topics
-nav_order: 1
+parent: "고급 주제"
+nav_order: 3
 ---
 
 # 키워드 모드 (Keyword Modes)

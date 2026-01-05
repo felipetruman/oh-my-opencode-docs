@@ -1,8 +1,8 @@
 ---
 layout: default
 title: 핵심 아키텍처 (Core Architecture)
-parent: Architecture
-nav_order: 1
+parent: "아키텍처"
+nav_order: 4
 ---
 
 # 핵심 아키텍처 (Core Architecture)

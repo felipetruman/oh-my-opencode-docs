@@ -2,7 +2,7 @@
 layout: default
 title: 알림 시스템 (Notification System)
 parent: 백그라운드 실행 (Background Execution)
-nav_order: 1
+nav_order: 4
 ---
 
 # 알림 시스템 (Notification System)

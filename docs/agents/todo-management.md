@@ -1,8 +1,8 @@
 ---
 layout: default
 title: 할 일 관리 (Todo Management)
-parent: Agents
-nav_order: 1
+parent: "에이전트 (Agents)"
+nav_order: 4
 ---
 
 # 할 일 관리 (Todo Management)

@@ -1,8 +1,8 @@
 ---
 layout: default
 title: Sisyphus Orchestrator
-parent: Agents
-nav_order: 1
+parent: "에이전트 (Agents)"
+nav_order: 2
 ---
 
 # Sisyphus Orchestrator (시지프스 오케스트레이터)

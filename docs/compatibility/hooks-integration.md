@@ -1,8 +1,8 @@
 ---
 layout: default
 title: Hooks 통합
-parent: Compatibility
-nav_order: 1
+parent: "호환성"
+nav_order: 3
 ---
 
 # Hooks 통합

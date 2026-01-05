@@ -1,8 +1,8 @@
 ---
 layout: default
 title: AST Grep 도구
-parent: 도구
-nav_order: 1
+parent: "도구 (Tools)"
+nav_order: 3
 ---
 
 # AST-Grep 도구

@@ -1,8 +1,8 @@
 ---
 layout: default
 title: 세션 복구 (Session Recovery)
-parent: Reliability
-nav_order: 1
+parent: "신뢰성 (Reliability)"
+nav_order: 2
 ---
 
 # 세션 복구 (Session Recovery)

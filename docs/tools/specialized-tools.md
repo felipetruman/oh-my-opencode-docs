@@ -2,7 +2,7 @@
 layout: default
 title: 특화 도구 (Specialized Tools)
 parent: 도구 (Tools)
-nav_order: 1
+nav_order: 6
 ---
 
 # 특화 도구 (Specialized Tools)

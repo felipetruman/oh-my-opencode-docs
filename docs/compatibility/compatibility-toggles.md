@@ -1,8 +1,8 @@
 ---
 layout: default
 title: 호환성 토글 (Compatibility Toggles)
-parent: Compatibility
-nav_order: 1
+parent: "호환성"
+nav_order: 4
 ---
 
 # 호환성 토글 (Compatibility Toggles)

@@ -1,7 +1,7 @@
 ---
 layout: default
 title: 참조 (Reference)
-parent: 참조 (Reference)
+parent: "레퍼런스"
 nav_order: 1
 ---
 

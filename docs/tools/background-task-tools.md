@@ -1,8 +1,8 @@
 ---
 layout: default
 title: 백그라운드 작업 도구 (Background Task Tools)
-parent: Tools
-nav_order: 1
+parent: "도구 (Tools)"
+nav_order: 4
 ---
 
 # 백그라운드 작업 도구 (Background Task Tools)
