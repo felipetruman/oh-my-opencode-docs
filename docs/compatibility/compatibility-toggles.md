@@ -1,35 +1,35 @@
 ---
 layout: default
-title: Compatibility Toggles
+title: 호환성 토글 (Compatibility Toggles)
 parent: Compatibility
 nav_order: 1
 ---
 
-# Compatibility Toggles
+# 호환성 토글 (Compatibility Toggles)
 
-> **Relevant source files**
+> **관련 소스 파일**
 > * [README.ja.md](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.ja.md)
 > * [README.ko.md](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.ko.md)
 > * [README.md](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md)
 > * [README.zh-cn.md](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.zh-cn.md)
 > * [src/shared/config-path.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/shared/config-path.ts)
 
-This page documents the `claude_code` configuration object that allows selective disabling of Claude Code compatibility features. Use these toggles to maintain fine-grained control over which Claude Code assets are loaded while preserving oh-my-opencode's built-in functionality.
+이 페이지는 Claude Code 호환성 기능을 선택적으로 비활성화할 수 있는 `claude_code` 설정 객체에 대해 설명합니다. 이 토글을 사용하면 oh-my-opencode의 내장 기능을 유지하면서 어떤 Claude Code 에셋(assets)을 로드할지 세밀하게 제어할 수 있습니다.
 
-For information about how Claude Code configurations are loaded, see [Configuration Migration](/code-yeongyu/oh-my-opencode/9.1-configuration-migration). For details on hook execution, see [Hooks Integration](/code-yeongyu/oh-my-opencode/9.2-hooks-integration).
+Claude Code 설정이 로드되는 방식에 대한 정보는 [설정 마이그레이션 (Configuration Migration)](/code-yeongyu/oh-my-opencode/9.1-configuration-migration)을 참조하십시오. 훅(hook) 실행에 대한 자세한 내용은 [훅 통합 (Hooks Integration)](/code-yeongyu/oh-my-opencode/9.2-hooks-integration)을 참조하십시오.
 
-## Purpose
+## 목적 (Purpose)
 
-The compatibility toggle system enables users to:
+호환성 토글 시스템을 통해 사용자는 다음을 수행할 수 있습니다:
 
-* Disable specific Claude Code features without affecting others
-* Maintain compatibility with existing Claude Code workflows while selectively opting out
-* Prevent conflicts when both Claude Code and oh-my-opencode assets exist
-* Preserve built-in oh-my-opencode features while disabling external Claude Code assets
+* 다른 기능에 영향을 주지 않고 특정 Claude Code 기능을 비활성화
+* 기존 Claude Code 워크플로우와의 호환성을 유지하면서 선택적으로 제외
+* Claude Code와 oh-my-opencode 에셋이 모두 존재할 때 발생하는 충돌 방지
+* 외부 Claude Code 에셋을 비활성화하면서 oh-my-opencode의 내장 기능 보존
 
-## Configuration Structure
+## 설정 구조 (Configuration Structure)
 
-The `claude_code` object is defined in the oh-my-opencode configuration file with five boolean toggles:
+`claude_code` 객체는 oh-my-opencode 설정 파일에서 5개의 불리언(boolean) 토글로 정의됩니다:
 
 ```json
 {
@@ -43,27 +43,27 @@ The `claude_code` object is defined in the oh-my-opencode configuration file wit
 }
 ```
 
-**Default behavior:** All toggles default to `true` (enabled). Omitting the `claude_code` object entirely enables full Claude Code compatibility.
+**기본 동작:** 모든 토글의 기본값은 `true`(활성화)입니다. `claude_code` 객체를 완전히 생략하면 Claude Code의 모든 호환성 기능이 활성화됩니다.
 
-Sources: [README.md L640-L665](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L640-L665)
+출처: [README.md L640-L665](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L640-L665)
 
-## Toggle Reference
+## 토글 참조 (Toggle Reference)
 
-### MCP Toggle
+### MCP 토글
 
 ```mermaid
 flowchart TD
 
-MCPDisabled["MCP Loader Skips Claude Paths"]
-User2["~/.claude/.mcp.json<br>(SKIPPED)"]
-Proj2["./.mcp.json<br>(SKIPPED)"]
-Local2["./.claude/.mcp.json<br>(SKIPPED)"]
-Builtin2["Built-in MCPs<br>context7/websearch_exa/grep_app<br>(STILL LOADED)"]
-MCPEnabled["MCP Loader Active"]
+MCPDisabled["MCP 로더가 Claude 경로를 건너뜀"]
+User2["~/.claude/.mcp.json<br>(건너뜀)"]
+Proj2["./.mcp.json<br>(건너뜀)"]
+Local2["./.claude/.mcp.json<br>(건너뜀)"]
+Builtin2["내장 MCP<br>context7/websearch_exa/grep_app<br>(여전히 로드됨)"]
+MCPEnabled["MCP 로더 활성화"]
 User1["~/.claude/.mcp.json"]
 Proj1["./.mcp.json"]
 Local1["./.claude/.mcp.json"]
-Builtin1["Built-in MCPs<br>context7/websearch_exa/grep_app"]
+Builtin1["내장 MCP<br>context7/websearch_exa/grep_app"]
 
 subgraph subGraph1 ["mcp: false"]
     MCPDisabled
@@ -71,13 +71,13 @@ subgraph subGraph1 ["mcp: false"]
     Proj2
     Local2
     Builtin2
-    MCPDisabled -.->|"skips"| User2
-    MCPDisabled -.->|"skips"| Proj2
-    MCPDisabled -.->|"skips"| Local2
+    MCPDisabled -.->|"건너뜀"| User2
+    MCPDisabled -.->|"건너뜀"| Proj2
+    MCPDisabled -.->|"건너뜀"| Local2
     MCPDisabled -.-> Builtin2
 end
 
-subgraph subGraph0 ["mcp: true (default)"]
+subgraph subGraph0 ["mcp: true (기본값)"]
     MCPEnabled
     User1
     Proj1
@@ -90,33 +90,33 @@ subgraph subGraph0 ["mcp: true (default)"]
 end
 ```
 
-**Purpose:** Controls loading of external MCP server configurations from Claude Code directories.
+**목적:** Claude Code 디렉토리로부터 외부 MCP(Model Context Protocol) 서버 설정의 로딩을 제어합니다.
 
-**When `false`:**
+**`false`일 때:**
 
-* Skips `~/.claude/.mcp.json`
-* Skips `./.mcp.json`
-* Skips `./.claude/.mcp.json`
+* `~/.claude/.mcp.json` 건너뜀
+* `./.mcp.json` 건너뜀
+* `./.claude/.mcp.json` 건너뜀
 
-**Unaffected:**
+**영향받지 않음:**
 
-* Built-in MCPs: `context7`, `websearch_exa`, `grep_app` (always loaded unless disabled via `disabled_mcps`)
+* 내장 MCP: `context7`, `websearch_exa`, `grep_app` (`disabled_mcps`를 통해 비활성화하지 않는 한 항상 로드됨)
 
-**Use case:** Disable when you want to use only oh-my-opencode's curated MCPs and avoid loading user-defined Claude Code MCP configurations that might conflict or duplicate functionality.
+**사용 사례:** oh-my-opencode에서 제공하는 엄선된 MCP만 사용하고 싶거나, 기능이 충돌하거나 중복될 수 있는 사용자 정의 Claude Code MCP 설정을 로드하지 않으려는 경우에 비활성화합니다.
 
-Sources: [README.md L642-L665](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L642-L665)
+출처: [README.md L642-L665](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L642-L665)
 
-### Commands Toggle
+### 명령어(Commands) 토글
 
 ```mermaid
 flowchart TD
 
-CmdDisabled["Command Loader Skips Claude Paths"]
-Claude2["~/.claude/commands/*.md<br>(SKIPPED)"]
-ClaudeProj2["./.claude/commands/*.md<br>(SKIPPED)"]
-OC2["~/.config/opencode/command/<br>(STILL LOADED)"]
-OCProj2["./.opencode/command/<br>(STILL LOADED)"]
-CmdEnabled["Command Loader Active"]
+CmdDisabled["명령어 로더가 Claude 경로를 건너뜀"]
+Claude2["~/.claude/commands/*.md<br>(건너뜀)"]
+ClaudeProj2["./.claude/commands/*.md<br>(건너뜀)"]
+OC2["~/.config/opencode/command/<br>(여전히 로드됨)"]
+OCProj2["./.opencode/command/<br>(여전히 로드됨)"]
+CmdEnabled["명령어 로더 활성화"]
 Claude1["~/.claude/commands/*.md"]
 ClaudeProj1["./.claude/commands/*.md"]
 OC1["~/.config/opencode/command/"]
@@ -128,13 +128,13 @@ subgraph subGraph1 ["commands: false"]
     ClaudeProj2
     OC2
     OCProj2
-    CmdDisabled -.->|"skips"| Claude2
-    CmdDisabled -.->|"skips"| ClaudeProj2
+    CmdDisabled -.->|"건너뜀"| Claude2
+    CmdDisabled -.->|"건너뜀"| ClaudeProj2
     CmdDisabled -.-> OC2
     CmdDisabled -.-> OCProj2
 end
 
-subgraph subGraph0 ["commands: true (default)"]
+subgraph subGraph0 ["commands: true (기본값)"]
     CmdEnabled
     Claude1
     ClaudeProj1
@@ -147,47 +147,47 @@ subgraph subGraph0 ["commands: true (default)"]
 end
 ```
 
-**Purpose:** Controls loading of slash command definitions from Claude Code directories.
+**목적:** Claude Code 디렉토리로부터 슬래시 명령어(slash command) 정의의 로딩을 제어합니다.
 
-**When `false`:**
+**`false`일 때:**
 
-* Skips `~/.claude/commands/*.md`
-* Skips `./.claude/commands/*.md`
+* `~/.claude/commands/*.md` 건너뜀
+* `./.claude/commands/*.md` 건너뜀
 
-**Unaffected:**
+**영향받지 않음:**
 
-* `~/.config/opencode/command/` (OpenCode global commands)
-* `./.opencode/command/` (OpenCode project commands)
+* `~/.config/opencode/command/` (OpenCode 전역 명령어)
+* `./.opencode/command/` (OpenCode 프로젝트 명령어)
 
-**Use case:** Disable when you have conflicting command names between Claude Code and OpenCode, or when you want to maintain command definitions only in OpenCode directories.
+**사용 사례:** Claude Code와 OpenCode 간에 명령어 이름이 충돌하거나, OpenCode 디렉토리에서만 명령어 정의를 관리하고 싶을 때 비활성화합니다.
 
-Sources: [README.md L642-L665](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L642-L665)
+출처: [README.md L642-L665](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L642-L665)
 
-### Skills Toggle
+### 스킬(Skills) 토글
 
 ```mermaid
 flowchart TD
 
-SkillDisabled["Skill Loader Inactive"]
-UserSkills2["~/.claude/skills/*/SKILL.md<br>(SKIPPED)"]
-ProjSkills2["./.claude/skills/*/SKILL.md<br>(SKIPPED)"]
-SkillTool2["skill tool unavailable"]
-SkillEnabled["Skill Loader Active"]
+SkillDisabled["스킬 로더 비활성화"]
+UserSkills2["~/.claude/skills/*/SKILL.md<br>(건너뜀)"]
+ProjSkills2["./.claude/skills/*/SKILL.md<br>(건너뜀)"]
+SkillTool2["skill 도구 사용 불가"]
+SkillEnabled["스킬 로더 활성화"]
 UserSkills["~/.claude/skills/*/SKILL.md"]
 ProjSkills["./.claude/skills/*/SKILL.md"]
-SkillTool["skill tool available"]
+SkillTool["skill 도구 사용 가능"]
 
 subgraph subGraph1 ["skills: false"]
     SkillDisabled
     UserSkills2
     ProjSkills2
     SkillTool2
-    SkillDisabled -.->|"skips"| UserSkills2
-    SkillDisabled -.->|"skips"| ProjSkills2
-    SkillDisabled -.->|"disables"| SkillTool2
+    SkillDisabled -.->|"건너뜀"| UserSkills2
+    SkillDisabled -.->|"건너뜀"| ProjSkills2
+    SkillDisabled -.->|"비활성화"| SkillTool2
 end
 
-subgraph subGraph0 ["skills: true (default)"]
+subgraph subGraph0 ["skills: true (기본값)"]
     SkillEnabled
     UserSkills
     ProjSkills
@@ -198,47 +198,47 @@ subgraph subGraph0 ["skills: true (default)"]
 end
 ```
 
-**Purpose:** Controls loading of directory-based skills with `SKILL.md` files.
+**목적:** `SKILL.md` 파일이 포함된 디렉토리 기반 스킬의 로딩을 제어합니다.
 
-**When `false`:**
+**`false`일 때:**
 
-* Skips `~/.claude/skills/*/SKILL.md`
-* Skips `./.claude/skills/*/SKILL.md`
-* Disables the `skill` tool entirely
+* `~/.claude/skills/*/SKILL.md` 건너뜀
+* `./.claude/skills/*/SKILL.md` 건너뜀
+* `skill` 도구 자체가 비활성화됨
 
-**Unaffected:**
+**영향받지 않음:**
 
-* None (no equivalent OpenCode skill system)
+* 없음 (OpenCode에는 이에 상응하는 스킬 시스템이 없음)
 
-**Use case:** Disable when you don't use Claude Code skills or want to prevent agents from invoking skill-based workflows.
+**사용 사례:** Claude Code 스킬을 사용하지 않거나 에이전트가 스킬 기반 워크플로우를 호출하는 것을 방지하고 싶을 때 비활성화합니다.
 
-Sources: [README.md L642-L665](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L642-L665)
+출처: [README.md L642-L665](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L642-L665)
 
-### Agents Toggle
+### 에이전트(Agents) 토글
 
 ```mermaid
 flowchart TD
 
-AgentDisabled["Agent Loader Skips Claude Paths"]
-UserAgents2["~/.claude/agents/*.md<br>(SKIPPED)"]
-ProjAgents2["./.claude/agents/*.md<br>(SKIPPED)"]
-BuiltinAgents2["Built-in agents<br>oracle/librarian/explore<br>frontend/docwriter/multimodal<br>(STILL AVAILABLE)"]
-AgentEnabled["Agent Loader Active"]
+AgentDisabled["에이전트 로더가 Claude 경로를 건너뜀"]
+UserAgents2["~/.claude/agents/*.md<br>(건너뜀)"]
+ProjAgents2["./.claude/agents/*.md<br>(건너뜀)"]
+BuiltinAgents2["내장 에이전트<br>oracle/librarian/explore<br>frontend/docwriter/multimodal<br>(여전히 사용 가능)"]
+AgentEnabled["에이전트 로더 활성화"]
 UserAgents["~/.claude/agents/*.md"]
 ProjAgents["./.claude/agents/*.md"]
-BuiltinAgents["Built-in agents<br>oracle/librarian/explore<br>frontend/docwriter/multimodal"]
+BuiltinAgents["내장 에이전트<br>oracle/librarian/explore<br>frontend/docwriter/multimodal"]
 
 subgraph subGraph1 ["agents: false"]
     AgentDisabled
     UserAgents2
     ProjAgents2
     BuiltinAgents2
-    AgentDisabled -.->|"skips"| UserAgents2
-    AgentDisabled -.->|"skips"| ProjAgents2
+    AgentDisabled -.->|"건너뜀"| UserAgents2
+    AgentDisabled -.->|"건너뜀"| ProjAgents2
     AgentDisabled -.-> BuiltinAgents2
 end
 
-subgraph subGraph0 ["agents: true (default)"]
+subgraph subGraph0 ["agents: true (기본값)"]
     AgentEnabled
     UserAgents
     ProjAgents
@@ -249,32 +249,32 @@ subgraph subGraph0 ["agents: true (default)"]
 end
 ```
 
-**Purpose:** Controls loading of custom agent definitions from Claude Code directories.
+**목적:** Claude Code 디렉토리로부터 커스텀 에이전트 정의의 로딩을 제어합니다.
 
-**When `false`:**
+**`false`일 때:**
 
-* Skips `~/.claude/agents/*.md`
-* Skips `./.claude/agents/*.md`
+* `~/.claude/agents/*.md` 건너뜀
+* `./.claude/agents/*.md` 건너뜀
 
-**Unaffected:**
+**영향받지 않음:**
 
-* Built-in agents: `oracle`, `librarian`, `explore`, `frontend-ui-ux-engineer`, `document-writer`, `multimodal-looker` (configured via `agents` section or `disabled_agents`)
+* 내장 에이전트: `oracle`, `librarian`, `explore`, `frontend-ui-ux-engineer`, `document-writer`, `multimodal-looker` (`agents` 섹션 또는 `disabled_agents`를 통해 설정됨)
 
-**Use case:** Disable when you have custom Claude Code agents that conflict with oh-my-opencode's agent orchestration, or when you want to rely exclusively on built-in agents.
+**사용 사례:** oh-my-opencode의 에이전트 오케스트레이션과 충돌하는 커스텀 Claude Code 에이전트가 있거나, 내장 에이전트만 사용하고 싶을 때 비활성화합니다.
 
-Sources: [README.md L642-L665](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L642-L665)
+출처: [README.md L642-L665](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L642-L665)
 
-### Hooks Toggle
+### 훅(Hooks) 토글
 
 ```mermaid
 flowchart TD
 
-HookDisabled["Hook Executor Inactive"]
-UserHooks2["~/.claude/settings.json<br>(SKIPPED)"]
-ProjHooks2["./.claude/settings.json<br>(SKIPPED)"]
-LocalHooks2["./.claude/settings.local.json<br>(SKIPPED)"]
-Events2["PreToolUse/PostToolUse<br>UserPromptSubmit/Stop<br>(NOT EXECUTED)"]
-HookEnabled["Hook Executor Active"]
+HookDisabled["훅 실행기 비활성화"]
+UserHooks2["~/.claude/settings.json<br>(건너뜀)"]
+ProjHooks2["./.claude/settings.json<br>(건너뜀)"]
+LocalHooks2["./.claude/settings.local.json<br>(건너뜀)"]
+Events2["PreToolUse/PostToolUse<br>UserPromptSubmit/Stop<br>(실행되지 않음)"]
+HookEnabled["훅 실행기 활성화"]
 UserHooks["~/.claude/settings.json"]
 ProjHooks["./.claude/settings.json"]
 LocalHooks["./.claude/settings.local.json"]
@@ -286,13 +286,13 @@ subgraph subGraph1 ["hooks: false"]
     ProjHooks2
     LocalHooks2
     Events2
-    HookDisabled -.->|"skips"| UserHooks2
-    HookDisabled -.->|"skips"| ProjHooks2
-    HookDisabled -.->|"disables"| LocalHooks2
-    HookDisabled -.->|"skips"| Events2
+    HookDisabled -.->|"건너뜀"| UserHooks2
+    HookDisabled -.->|"건너뜀"| ProjHooks2
+    HookDisabled -.->|"비활성화"| LocalHooks2
+    HookDisabled -.->|"건너뜀"| Events2
 end
 
-subgraph subGraph0 ["hooks: true (default)"]
+subgraph subGraph0 ["hooks: true (기본값)"]
     HookEnabled
     UserHooks
     ProjHooks
@@ -305,26 +305,26 @@ subgraph subGraph0 ["hooks: true (default)"]
 end
 ```
 
-**Purpose:** Controls execution of Claude Code hooks from settings files.
+**목적:** 설정 파일로부터 Claude Code 훅(hooks)의 실행을 제어합니다.
 
-**When `false`:**
+**`false`일 때:**
 
-* Skips `~/.claude/settings.json`
-* Skips `./.claude/settings.json`
-* Skips `./.claude/settings.local.json`
-* Disables execution of `PreToolUse`, `PostToolUse`, `UserPromptSubmit`, and `Stop` hooks
+* `~/.claude/settings.json` 건너뜀
+* `./.claude/settings.json` 건너뜀
+* `./.claude/settings.local.json` 건너뜀
+* `PreToolUse`, `PostToolUse`, `UserPromptSubmit`, `Stop` 훅의 실행이 비활성화됨
 
-**Unaffected:**
+**영향받지 않음:**
 
-* None (no equivalent OpenCode hook system in settings.json format)
+* 없음 (settings.json 형식의 OpenCode 훅 시스템은 별도로 존재하지 않음)
 
-**Use case:** Disable when Claude Code hooks cause conflicts, performance issues, or unwanted side effects. Note that this only disables Claude Code's `settings.json` hooks, not oh-my-opencode's internal hooks (controlled via `disabled_hooks`).
+**사용 사례:** Claude Code 훅이 충돌, 성능 문제 또는 원치 않는 부작용을 일으킬 때 비활성화합니다. 이는 Claude Code의 `settings.json` 훅만 비활성화하며, oh-my-opencode의 내부 훅(`disabled_hooks`를 통해 제어)은 비활성화하지 않습니다.
 
-Sources: [README.md L642-L665](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L642-L665)
+출처: [README.md L642-L665](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L642-L665)
 
-## Configuration Examples
+## 설정 예시 (Configuration Examples)
 
-### Example 1: Disable All Claude Code Features
+### 예시 1: 모든 Claude Code 기능 비활성화
 
 ```json
 {
@@ -338,9 +338,9 @@ Sources: [README.md L642-L665](https://github.com/code-yeongyu/oh-my-opencode/bl
 }
 ```
 
-**Effect:** Complete isolation from Claude Code. Only oh-my-opencode's built-in features are active.
+**효과:** Claude Code로부터 완전히 격리됩니다. oh-my-opencode의 내장 기능만 활성화됩니다.
 
-### Example 2: Use Claude Code Commands but Disable Everything Else
+### 예시 2: Claude Code 명령어만 사용하고 나머지는 비활성화
 
 ```json
 {
@@ -354,9 +354,9 @@ Sources: [README.md L642-L665](https://github.com/code-yeongyu/oh-my-opencode/bl
 }
 ```
 
-**Effect:** Slash commands from `~/.claude/commands/` and `./.claude/commands/` remain available, but no MCPs, skills, agents, or hooks from Claude Code are loaded.
+**효과:** `~/.claude/commands/` 및 `./.claude/commands/`의 슬래시 명령어는 계속 사용할 수 있지만, Claude Code의 MCP, 스킬, 에이전트 또는 훅은 로드되지 않습니다.
 
-### Example 3: Enable Hooks but Disable External Definitions
+### 예시 3: 훅은 활성화하되 외부 정의는 비활성화
 
 ```json
 {
@@ -370,15 +370,15 @@ Sources: [README.md L642-L665](https://github.com/code-yeongyu/oh-my-opencode/bl
 }
 ```
 
-**Effect:** Claude Code hooks execute normally, but no external MCPs, commands, skills, or agents are loaded. Useful for maintaining workflow automation while using only built-in features.
+**효과:** Claude Code 훅은 정상적으로 실행되지만, 외부 MCP, 명령어, 스킬 또는 에이전트는 로드되지 않습니다. 내장 기능만 사용하면서 워크플로우 자동화를 유지하려는 경우에 유용합니다.
 
-### Example 4: Full Compatibility (Default)
+### 예시 4: 전체 호환성 (기본값)
 
 ```
 {}
 ```
 
-or
+또는
 
 ```json
 {
@@ -392,33 +392,33 @@ or
 }
 ```
 
-**Effect:** All Claude Code compatibility features enabled. Maximum compatibility for users migrating from Claude Code.
+**효과:** 모든 Claude Code 호환성 기능이 활성화됩니다. Claude Code에서 마이그레이션하는 사용자에게 최대의 호환성을 제공합니다.
 
-Sources: [README.md L642-L665](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L642-L665)
+출처: [README.md L642-L665](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L642-L665)
 
-## Toggle Impact Summary
+## 토글 영향 요약 (Toggle Impact Summary)
 
 ```mermaid
 flowchart TD
 
-Start["claude_code object"]
-MCP["mcp toggle"]
-CMD["commands toggle"]
-SKL["skills toggle"]
-AGT["agents toggle"]
-HKS["hooks toggle"]
-MCPPaths["Load ~/.claude/.mcp.json<br>./.mcp.json<br>./.claude/.mcp.json"]
-MCPSkip["Skip Claude MCP paths"]
-CMDPaths["Load ~/.claude/commands/<br>./.claude/commands/"]
-CMDSkip["Skip Claude command paths"]
-SKLPaths["Load ~/.claude/skills/<br>./.claude/skills/"]
-SKLSkip["Skip Claude skills<br>Disable skill tool"]
-AGTPaths["Load ~/.claude/agents/"]
-AGTSkip["Skip Claude agent paths"]
-HKSPaths["Execute hooks from<br>~/.claude/settings.json"]
-HKSSkip["Skip hook execution"]
+Start["claude_code 객체"]
+MCP["mcp 토글"]
+CMD["commands 토글"]
+SKL["skills 토글"]
+AGT["agents 토글"]
+HKS["hooks 토글"]
+MCPPaths["~/.claude/.mcp.json<br>./.mcp.json<br>./.claude/.mcp.json 로드"]
+MCPSkip["Claude MCP 경로 건너뜀"]
+CMDPaths["~/.claude/commands/<br>./.claude/commands/ 로드"]
+CMDSkip["Claude 명령어 경로 건너뜀"]
+SKLPaths["~/.claude/skills/<br>./.claude/skills/ 로드"]
+SKLSkip["Claude 스킬 건너뜀<br>skill 도구 비활성화"]
+AGTPaths["~/.claude/agents/ 로드"]
+AGTSkip["Claude 에이전트 경로 건너뜀"]
+HKSPaths["~/.claude/settings.json의<br>훅 실행"]
+HKSSkip["훅 실행 건너뜀"]
 
-subgraph subGraph0 ["Configuration Decision Tree"]
+subgraph subGraph0 ["설정 결정 트리"]
     Start
     MCP
     CMD
@@ -453,34 +453,34 @@ subgraph subGraph0 ["Configuration Decision Tree"]
 end
 ```
 
-| Toggle | Disabled Paths | Preserved Features |
+| 토글 | 비활성화되는 경로 | 유지되는 기능 |
 | --- | --- | --- |
-| `mcp: false` | `~/.claude/.mcp.json``./.mcp.json``./.claude/.mcp.json` | Built-in MCPs (`context7`, `websearch_exa`, `grep_app`) |
-| `commands: false` | `~/.claude/commands/*.md``./.claude/commands/*.md` | `~/.config/opencode/command/``./.opencode/command/` |
-| `skills: false` | `~/.claude/skills/*/SKILL.md``./.claude/skills/*/SKILL.md``skill` tool | None |
-| `agents: false` | `~/.claude/agents/*.md``./.claude/agents/*.md` | Built-in agents (`oracle`, `librarian`, `explore`, `frontend-ui-ux-engineer`, `document-writer`, `multimodal-looker`) |
-| `hooks: false` | `~/.claude/settings.json``./.claude/settings.json``./.claude/settings.local.json`Hook execution (`PreToolUse`, `PostToolUse`, `UserPromptSubmit`, `Stop`) | None |
+| `mcp: false` | `~/.claude/.mcp.json`<br>`./.mcp.json`<br>`./.claude/.mcp.json` | 내장 MCP (`context7`, `websearch_exa`, `grep_app`) |
+| `commands: false` | `~/.claude/commands/*.md`<br>`./.claude/commands/*.md` | `~/.config/opencode/command/`<br>`./.opencode/command/` |
+| `skills: false` | `~/.claude/skills/*/SKILL.md`<br>`./.claude/skills/*/SKILL.md`<br>`skill` 도구 | 없음 |
+| `agents: false` | `~/.claude/agents/*.md`<br>`./.claude/agents/*.md` | 내장 에이전트 (`oracle`, `librarian`, `explore`, `frontend-ui-ux-engineer`, `document-writer`, `multimodal-looker`) |
+| `hooks: false` | `~/.claude/settings.json`<br>`./.claude/settings.json`<br>`./.claude/settings.local.json`<br>훅 실행 (`PreToolUse`, `PostToolUse`, `UserPromptSubmit`, `Stop`) | 없음 |
 
-Sources: [README.md L642-L665](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L642-L665)
+출처: [README.md L642-L665](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L642-L665)
 
-## Configuration File Locations
+## 설정 파일 위치 (Configuration File Locations)
 
-Compatibility toggles can be configured in either location:
+호환성 토글은 다음 두 위치 중 하나에서 설정할 수 있습니다:
 
-1. **User-level:** `~/.config/opencode/oh-my-opencode.json` (or `%APPDATA%\opencode\oh-my-opencode.json` on Windows)
-2. **Project-level:** `.opencode/oh-my-opencode.json`
+1. **사용자 레벨:** `~/.config/opencode/oh-my-opencode.json` (Windows의 경우 `%APPDATA%\opencode\oh-my-opencode.json`)
+2. **프로젝트 레벨:** `.opencode/oh-my-opencode.json`
 
-Project-level configuration takes precedence over user-level configuration. When both files exist, project settings override user settings for the `claude_code` object.
+프로젝트 레벨 설정이 사용자 레벨 설정보다 우선합니다. 두 파일이 모두 존재하는 경우, `claude_code` 객체에 대해 프로젝트 설정이 사용자 설정을 덮어씁니다.
 
-Sources: [src/shared/config-path.ts L1-L48](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/shared/config-path.ts#L1-L48)
+출처: [src/shared/config-path.ts L1-L48](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/shared/config-path.ts#L1-L48)
 
  [README.md L698-L706](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L698-L706)
 
-## Interaction with Other Configuration Options
+## 다른 설정 옵션과의 상호작용 (Interaction with Other Configuration Options)
 
-The `claude_code` toggles are independent from other oh-my-opencode configuration options:
+`claude_code` 토글은 다른 oh-my-opencode 설정 옵션과 독립적입니다:
 
-### Built-in Feature Toggles
+### 내장 기능 토글
 
 ```json
 {
@@ -494,11 +494,11 @@ The `claude_code` toggles are independent from other oh-my-opencode configuratio
 }
 ```
 
-* `disabled_agents`: Controls oh-my-opencode's built-in agents (unaffected by `claude_code.agents`)
-* `disabled_mcps`: Controls oh-my-opencode's built-in MCPs (unaffected by `claude_code.mcp`)
-* `disabled_hooks`: Controls oh-my-opencode's internal hooks (unaffected by `claude_code.hooks`)
+* `disabled_agents`: oh-my-opencode의 내장 에이전트를 제어합니다 (`claude_code.agents`의 영향을 받지 않음).
+* `disabled_mcps`: oh-my-opencode의 내장 MCP를 제어합니다 (`claude_code.mcp`의 영향을 받지 않음).
+* `disabled_hooks`: oh-my-opencode의 내부 훅을 제어합니다 (`claude_code.hooks`의 영향을 받지 않음).
 
-### Sisyphus Agent Configuration
+### Sisyphus 에이전트 설정
 
 ```json
 {
@@ -511,23 +511,23 @@ The `claude_code` toggles are independent from other oh-my-opencode configuratio
 }
 ```
 
-The `sisyphus_agent.disabled` setting controls oh-my-opencode's Sisyphus orchestrator, while `claude_code.agents: false` only prevents loading of custom Claude Code agent definitions from `~/.claude/agents/`.
+`sisyphus_agent.disabled` 설정은 oh-my-opencode의 Sisyphus 오케스트레이터를 제어하는 반면, `claude_code.agents: false`는 `~/.claude/agents/`로부터 커스텀 Claude Code 에이전트 정의가 로드되는 것만 방지합니다.
 
-Sources: [README.md L779-L869](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L779-L869)
+출처: [README.md L779-L869](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L779-L869)
 
-## Best Practices
+## 권장 사항 (Best Practices)
 
-### Migration Strategy
+### 마이그레이션 전략
 
-When migrating from Claude Code to oh-my-opencode:
+Claude Code에서 oh-my-opencode로 마이그레이션할 때:
 
-1. **Start with full compatibility:** Omit the `claude_code` object initially
-2. **Test incrementally:** Disable one feature at a time to identify conflicts
-3. **Document dependencies:** Note which Claude Code assets are critical to your workflow
+1. **전체 호환성으로 시작:** 처음에는 `claude_code` 객체를 생략합니다.
+2. **점진적 테스트:** 충돌을 식별하기 위해 한 번에 하나의 기능씩 비활성화해 봅니다.
+3. **의존성 문서화:** 워크플로우에 중요한 Claude Code 에셋이 무엇인지 기록해 둡니다.
 
-### Performance Optimization
+### 성능 최적화
 
-Disable unused features to reduce startup time and memory usage:
+시작 시간과 메모리 사용량을 줄이려면 사용하지 않는 기능을 비활성화하십시오:
 
 ```json
 {
@@ -541,12 +541,12 @@ Disable unused features to reduce startup time and memory usage:
 }
 ```
 
-### Conflict Resolution
+### 충돌 해결
 
-If experiencing conflicts between Claude Code and oh-my-opencode features:
+Claude Code와 oh-my-opencode 기능 간에 충돌이 발생하는 경우:
 
-1. Disable the Claude Code feature via `claude_code` toggle
-2. Migrate critical functionality to oh-my-opencode configuration
-3. Test with `claude_code` toggle re-enabled to verify resolution
+1. `claude_code` 토글을 통해 해당 Claude Code 기능을 비활성화합니다.
+2. 중요한 기능을 oh-my-opencode 설정으로 마이그레이션합니다.
+3. `claude_code` 토글을 다시 활성화하여 문제가 해결되었는지 테스트합니다.
 
-Sources: [README.md L640-L665](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L640-L665)
+출처: [README.md L640-L665](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L640-L665)

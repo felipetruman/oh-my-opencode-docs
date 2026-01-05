@@ -1,13 +1,13 @@
 ---
 layout: default
-title: Context Injection Hooks
+title: 컨텍스트 주입 훅 (Context Injection Hooks)
 parent: Hooks
 nav_order: 1
 ---
 
-# Context Injection Hooks
+# 컨텍스트 주입 훅 (Context Injection Hooks)
 
-> **Relevant source files**
+> **관련 소스 파일**
 > * [README.ja.md](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.ja.md)
 > * [README.ko.md](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.ko.md)
 > * [README.md](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md)
@@ -18,30 +18,30 @@ nav_order: 1
 > * [src/index.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts)
 > * [src/shared/config-path.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/shared/config-path.ts)
 
-This document describes the context injection hooks that automatically enrich agent context with project-specific information. These hooks inject relevant documentation and rules when agents interact with files, eliminating the need for manual context management.
+이 문서는 프로젝트별 정보로 에이전트 컨텍스트를 자동으로 보강하는 컨텍스트 주입 훅(Context Injection Hooks)에 대해 설명합니다. 이 훅들은 에이전트가 파일과 상호작용할 때 관련 문서와 규칙을 주입하여, 수동으로 컨텍스트를 관리할 필요를 없애줍니다.
 
-For information about context window management and token limits, see [7.4 Context Management Hooks](/code-yeongyu/oh-my-opencode/7.4-context-management-hooks). For general hook configuration, see [7.7 Other Hooks](/code-yeongyu/oh-my-opencode/7.7-other-hooks).
+컨텍스트 창 관리 및 토큰 제한에 대한 정보는 [7.4 컨텍스트 관리 훅](/code-yeongyu/oh-my-opencode/7.4-context-management-hooks)을 참조하십시오. 일반적인 훅 설정에 대해서는 [7.7 기타 훅](/code-yeongyu/oh-my-opencode/7.7-other-hooks)을 참조하십시오.
 
 ---
 
-## Purpose and Scope
+## 목적 및 범위 (Purpose and Scope)
 
-Context injection hooks provide automatic, intelligent context enrichment by:
+컨텍스트 주입 훅은 다음과 같은 기능을 통해 자동적이고 지능적인 컨텍스트 보강을 제공합니다:
 
-* Walking directory trees to collect hierarchical `AGENTS.md` files
-* Injecting project documentation from `README.md` files
-* Loading conditional coding rules based on file patterns
-* Caching injected context to avoid redundant operations within a session
+* 디렉토리 트리를 탐색하여 계층적인 `AGENTS.md` 파일 수집
+* `README.md` 파일에서 프로젝트 문서 주입
+* 파일 패턴에 기반한 조건부 코딩 규칙 로드
+* 세션 내 중복 작업을 방지하기 위해 주입된 컨텍스트 캐싱
 
-These hooks operate transparently during file read operations and tool executions, ensuring agents always have relevant contextual information without cluttering the conversation history.
+이 훅들은 파일 읽기 작업 및 도구 실행 중에 투명하게 작동하며, 대화 기록을 어지럽히지 않으면서 에이전트가 항상 관련 컨텍스트 정보를 가질 수 있도록 보장합니다.
 
-**Sources:** [README.md L538-L568](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L538-L568)
+**출처:** [README.md L538-L568](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L538-L568)
 
  [src/index.ts L254-L281](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L254-L281)
 
 ---
 
-## System Architecture
+## 시스템 아키텍처 (System Architecture)
 
 ```mermaid
 flowchart TD
@@ -116,15 +116,15 @@ subgraph subGraph0 ["File Operation Events"]
 end
 ```
 
-**Diagram: Context Injection System Architecture**
+**다이어그램: 컨텍스트 주입 시스템 아키텍처**
 
-The system operates in three phases:
+시스템은 세 단계로 작동합니다:
 
-1. **Event Detection**: File read operations and tool executions trigger injection hooks
-2. **Context Discovery**: Directory tree walking finds relevant files, glob matching filters rules
-3. **Session Caching**: Injected contexts are tracked to ensure once-per-session injection
+1. **이벤트 감지 (Event Detection)**: 파일 읽기 작업 및 도구 실행이 주입 훅을 트리거합니다.
+2. **컨텍스트 발견 (Context Discovery)**: 디렉토리 트리 탐색을 통해 관련 파일을 찾고, glob 매칭으로 규칙을 필터링합니다.
+3. **세션 캐싱 (Session Caching)**: 주입된 컨텍스트를 추적하여 세션당 한 번만 주입되도록 보장합니다.
 
-**Sources:** [src/index.ts L254-L281](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L254-L281)
+**출처:** [src/index.ts L254-L281](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L254-L281)
 
  [src/index.ts L558-L567](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L558-L567)
 
@@ -132,39 +132,39 @@ The system operates in three phases:
 
 ---
 
-## Directory AGENTS.md Injector
+## 디렉토리 AGENTS.md 주입기 (Directory AGENTS.md Injector)
 
-### Overview
+### 개요
 
-The `directory-agents-injector` hook automatically injects hierarchical project context by walking the directory tree from a target file up to the project root, collecting all `AGENTS.md` files encountered along the path.
+`directory-agents-injector` 훅은 대상 파일에서 프로젝트 루트까지 디렉토리 트리를 탐색하며 경로상에 있는 모든 `AGENTS.md` 파일을 수집하여 계층적인 프로젝트 컨텍스트를 자동으로 주입합니다.
 
-### Directory Tree Walking Strategy
+### 디렉토리 트리 탐색 전략
 
-When a file is accessed, the injector:
+파일에 액세스할 때 주입기는 다음과 같이 동작합니다:
 
-1. Starts at the file's parent directory
-2. Walks upward toward the project root
-3. Collects all `AGENTS.md` files in each directory
-4. Stops at the project root (workspace directory)
-5. Injects files in root-to-leaf order (project-wide → specific)
+1. 파일의 부모 디렉토리에서 시작합니다.
+2. 프로젝트 루트를 향해 상위로 탐색합니다.
+3. 각 디렉토리에 있는 모든 `AGENTS.md` 파일을 수집합니다.
+4. 프로젝트 루트(워크스페이스 디렉토리)에서 중단합니다.
+5. 루트에서 리프(Root-to-leaf) 순서로 파일을 주입합니다 (프로젝트 전체 → 특정 디렉토리).
 
-**Example hierarchy:**
+**계층 구조 예시:**
 
 ```markdown
 project/
-├── AGENTS.md              # Injected first (project-wide)
+├── AGENTS.md              # 가장 먼저 주입됨 (프로젝트 전체)
 ├── src/
-│   ├── AGENTS.md          # Injected second (src-specific)
+│   ├── AGENTS.md          # 두 번째로 주입됨 (src 전용)
 │   └── components/
-│       ├── AGENTS.md      # Injected third (component-specific)
-│       └── Button.tsx     # Target file
+│       ├── AGENTS.md      # 세 번째로 주입됨 (컴포넌트 전용)
+│       └── Button.tsx     # 대상 파일
 ```
 
-When an agent reads `Button.tsx`, all three `AGENTS.md` files are injected in the order shown.
+에이전트가 `Button.tsx`를 읽을 때, 표시된 순서대로 세 개의 `AGENTS.md` 파일이 모두 주입됩니다.
 
-**Sources:** [README.md L538-L549](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L538-L549)
+**출처:** [README.md L538-L549](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L538-L549)
 
-### Injection Order and Content Structure
+### 주입 순서 및 콘텐츠 구조
 
 ```mermaid
 sequenceDiagram
@@ -185,26 +185,26 @@ sequenceDiagram
   note over p1: Subsequent file reads skip already-injected paths
 ```
 
-**Diagram: AGENTS.md Injection Sequence**
+**다이어그램: AGENTS.md 주입 시퀀스**
 
-**Sources:** [README.md L538-L549](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L538-L549)
+**출처:** [README.md L538-L549](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L538-L549)
 
-### Session-Level Caching
+### 세션 레벨 캐싱
 
-Each directory's `AGENTS.md` is injected **once per session**. The hook maintains a `Set<string>` of injected file paths to prevent redundant injections when multiple files from the same directory are accessed.
+각 디렉토리의 `AGENTS.md`는 **세션당 한 번**만 주입됩니다. 이 훅은 주입된 파일 경로의 `Set<string>`을 유지하여 동일한 디렉토리의 여러 파일에 액세스할 때 발생하는 중복 주입을 방지합니다.
 
-**Caching Behavior:**
+**캐싱 동작:**
 
-| First File Read | Second File Read (Same Directory) | Injection Result |
+| 첫 번째 파일 읽기 | 두 번째 파일 읽기 (동일 디렉토리) | 주입 결과 |
 | --- | --- | --- |
-| `src/utils/helper.ts` | `src/utils/formatter.ts` | `src/AGENTS.md` injected only once |
-| `src/components/Button.tsx` | `src/hooks/useData.ts` | `src/AGENTS.md` already cached, skipped |
+| `src/utils/helper.ts` | `src/utils/formatter.ts` | `src/AGENTS.md`가 한 번만 주입됨 |
+| `src/components/Button.tsx` | `src/hooks/useData.ts` | `src/AGENTS.md`가 이미 캐시되어 건너뜀 |
 
-**Sources:** [README.md L538-L549](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L538-L549)
+**출처:** [README.md L538-L549](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L538-L549)
 
-### Hook Configuration
+### 훅 설정
 
-The hook is enabled by default and can be disabled via configuration:
+이 훅은 기본적으로 활성화되어 있으며 설정을 통해 비활성화할 수 있습니다:
 
 ```json
 {
@@ -212,51 +212,51 @@ The hook is enabled by default and can be disabled via configuration:
 }
 ```
 
-**Configuration reference:** [src/config/schema.ts L53](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L53-L53)
+**설정 참조:** [src/config/schema.ts L53](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L53-L53)
 
  [src/index.ts L254-L256](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L254-L256)
 
-**Sources:** [src/index.ts L254-L256](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L254-L256)
+**출처:** [src/index.ts L254-L256](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L254-L256)
 
  [src/config/schema.ts L45-L68](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L45-L68)
 
 ---
 
-## Directory README.md Injector
+## 디렉토리 README.md 주입기 (Directory README.md Injector)
 
-### Overview
+### 개요
 
-The `directory-readme-injector` hook operates identically to the AGENTS.md injector but targets `README.md` files. It provides project and module-level documentation context to agents.
+`directory-readme-injector` 훅은 AGENTS.md 주입기와 동일하게 작동하지만 `README.md` 파일을 대상으로 합니다. 이는 에이전트에게 프로젝트 및 모듈 레벨의 문서 컨텍스트를 제공합니다.
 
-### Behavior and Hierarchy
+### 동작 및 계층 구조
 
-The injection follows the same directory tree walking pattern:
+주입은 동일한 디렉토리 트리 탐색 패턴을 따릅니다:
 
 ```markdown
 project/
-├── README.md              # Project documentation
+├── README.md              # 프로젝트 문서
 ├── src/
-│   ├── README.md          # Source code documentation
+│   ├── README.md          # 소스 코드 문서
 │   └── api/
-│       ├── README.md      # API module documentation
-│       └── handler.ts     # Target file
+│       ├── README.md      # API 모듈 문서
+│       └── handler.ts     # 대상 파일
 ```
 
-When `handler.ts` is accessed, all three `README.md` files are injected in root-to-leaf order.
+`handler.ts`에 액세스할 때, 세 개의 `README.md` 파일이 모두 루트에서 리프 순서로 주입됩니다.
 
-**Sources:** [README.md L538-L549](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L538-L549)
+**출처:** [README.md L538-L549](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L538-L549)
 
-### Typical Use Cases
+### 일반적인 사용 사례
 
-| README.md Location | Content Purpose |
+| README.md 위치 | 콘텐츠 목적 |
 | --- | --- |
-| Project root | Project overview, setup instructions, architecture summary |
-| Module directories | Module-specific documentation, API contracts, examples |
-| Feature directories | Feature descriptions, implementation notes, dependencies |
+| 프로젝트 루트 | 프로젝트 개요, 설치 지침, 아키텍처 요약 |
+| 모듈 디렉토리 | 모듈별 문서, API 규약, 예시 |
+| 기능(Feature) 디렉토리 | 기능 설명, 구현 노트, 의존성 |
 
-**Sources:** [README.md L538-L549](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L538-L549)
+**출처:** [README.md L538-L549](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L538-L549)
 
-### Hook Configuration
+### 훅 설정
 
 ```json
 {
@@ -264,49 +264,49 @@ When `handler.ts` is accessed, all three `README.md` files are injected in root-
 }
 ```
 
-**Configuration reference:** [src/config/schema.ts L54](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L54-L54)
+**설정 참조:** [src/config/schema.ts L54](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L54-L54)
 
  [src/index.ts L257-L259](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L257-L259)
 
-**Sources:** [src/index.ts L257-L259](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L257-L259)
+**출처:** [src/index.ts L257-L259](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L257-L259)
 
  [src/config/schema.ts L45-L68](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L45-L68)
 
 ---
 
-## Conditional Rules Injector
+## 조건부 규칙 주입기 (Conditional Rules Injector)
 
-### Overview
+### 개요
 
-The `rules-injector` hook loads context-aware coding rules from markdown files when their glob patterns match the current file operation. This enables automatic injection of language-specific, directory-specific, or file-type-specific guidelines.
+`rules-injector` 훅은 현재 파일 작업과 glob 패턴이 일치할 때 마크다운 파일에서 컨텍스트 인식 코딩 규칙을 로드합니다. 이를 통해 언어별, 디렉토리별 또는 파일 유형별 가이드라인을 자동으로 주입할 수 있습니다.
 
-### Rule File Format
+### 규칙 파일 형식
 
-Rules are defined in markdown files with YAML frontmatter:
+규칙은 YAML 프론트매터(frontmatter)가 포함된 마크다운 파일에 정의됩니다:
 
 ```typescript
 ---
 globs: ["*.ts", "src/**/*.js"]
 description: "TypeScript/JavaScript coding rules"
 ---
-- Use PascalCase for interface names
-- Use camelCase for function names
-- Prefer const over let
+- 인터페이스 이름에는 PascalCase를 사용하십시오.
+- 함수 이름에는 camelCase를 사용하십시오.
+- let보다 const를 선호하십시오.
 ```
 
-**Frontmatter fields:**
+**프론트매터 필드:**
 
-| Field | Type | Purpose |
+| 필드 | 타입 | 목적 |
 | --- | --- | --- |
-| `globs` | `string[]` | Glob patterns to match against file paths |
-| `description` | `string` | Human-readable rule description |
-| `alwaysApply` | `boolean` | If `true`, inject regardless of file path |
+| `globs` | `string[]` | 파일 경로와 매칭할 Glob 패턴 |
+| `description` | `string` | 사람이 읽을 수 있는 규칙 설명 |
+| `alwaysApply` | `boolean` | `true`인 경우 파일 경로에 관계없이 주입 |
 
-**Sources:** [README.md L550-L564](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L550-L564)
+**출처:** [README.md L550-L564](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L550-L564)
 
-### Search Paths and Priority
+### 검색 경로 및 우선순위
 
-The injector searches for rules in multiple locations:
+주입기는 여러 위치에서 규칙을 검색합니다:
 
 ```mermaid
 flowchart TD
@@ -350,54 +350,54 @@ subgraph subGraph0 ["Search Path Priority"]
 end
 ```
 
-**Diagram: Rules Discovery and Matching Flow**
+**다이어그램: 규칙 발견 및 매칭 흐름**
 
-**Directory walking strategy:**
+**디렉토리 탐색 전략:**
 
-1. Start at file's directory
-2. Walk upward to project root (checking `.claude/rules/` in each directory)
-3. Include user-level rules from `~/.claude/rules/`
-4. Match each rule file against current file path
-5. Inject matched rules (once per session)
+1. 파일의 디렉토리에서 시작합니다.
+2. 프로젝트 루트까지 상위로 탐색합니다 (각 디렉토리의 `.claude/rules/` 확인).
+3. `~/.claude/rules/`의 사용자 레벨 규칙을 포함합니다.
+4. 각 규칙 파일을 현재 파일 경로와 매칭합니다.
+5. 매칭된 규칙을 주입합니다 (세션당 한 번).
 
-**Sources:** [README.md L550-L564](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L550-L564)
+**출처:** [README.md L550-L564](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L550-L564)
 
-### Glob Pattern Examples
+### Glob 패턴 예시
 
-| Glob Pattern | Matches | Use Case |
+| Glob 패턴 | 매칭 대상 | 사용 사례 |
 | --- | --- | --- |
-| `*.ts` | All TypeScript files | TypeScript-specific rules |
-| `src/**/*.test.ts` | Test files in src/ | Testing conventions |
-| `**/*.tsx` | React components | React/JSX guidelines |
-| `api/**/*` | API directory files | API design rules |
+| `*.ts` | 모든 TypeScript 파일 | TypeScript 전용 규칙 |
+| `src/**/*.test.ts` | src/ 내의 테스트 파일 | 테스트 컨벤션 |
+| `**/*.tsx` | React 컴포넌트 | React/JSX 가이드라인 |
+| `api/**/*` | API 디렉토리 파일 | API 설계 규칙 |
 
-**Sources:** [README.md L550-L564](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L550-L564)
+**출처:** [README.md L550-L564](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L550-L564)
 
-### alwaysApply Flag
+### alwaysApply 플래그
 
-Rules with `alwaysApply: true` are injected for every file operation, regardless of path:
+`alwaysApply: true` 설정이 된 규칙은 경로에 관계없이 모든 파일 작업에 대해 주입됩니다:
 
 ```yaml
 ---
 alwaysApply: true
 description: "Universal coding standards"
 ---
-- Write clear commit messages
-- Keep functions under 50 lines
-- Document public APIs
+- 명확한 커밋 메시지를 작성하십시오.
+- 함수를 50라인 이하로 유지하십시오.
+- 공개 API를 문서화하십시오.
 ```
 
-This is useful for project-wide conventions that apply universally.
+이는 보편적으로 적용되는 프로젝트 전반의 컨벤션에 유용합니다.
 
-**Sources:** [README.md L550-L564](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L550-L564)
+**출처:** [README.md L550-L564](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L550-L564)
 
-### Session Caching
+### 세션 캐싱
 
-Like other context injectors, the rules injector maintains a `Set<string>` of injected rule files to prevent duplicate injections within a session.
+다른 컨텍스트 주입기와 마찬가지로, 규칙 주입기는 주입된 규칙 파일의 `Set<string>`을 유지하여 세션 내 중복 주입을 방지합니다.
 
-**Sources:** [README.md L550-L564](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L550-L564)
+**출처:** [README.md L550-L564](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L550-L564)
 
-### Hook Configuration
+### 훅 설정
 
 ```json
 {
@@ -405,21 +405,21 @@ Like other context injectors, the rules injector maintains a `Set<string>` of in
 }
 ```
 
-**Configuration reference:** [src/config/schema.ts L58](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L58-L58)
+**설정 참조:** [src/config/schema.ts L58](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L58-L58)
 
  [src/index.ts L278-L280](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L278-L280)
 
-**Sources:** [src/index.ts L278-L280](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L278-L280)
+**출처:** [src/index.ts L278-L280](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L278-L280)
 
  [src/config/schema.ts L45-L68](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L45-L68)
 
 ---
 
-## Implementation Details
+## 구현 세부 사항 (Implementation Details)
 
-### Hook Registration
+### 훅 등록
 
-All three context injection hooks are registered in the plugin initialization phase:
+세 가지 컨텍스트 주입 훅은 모두 플러그인 초기화 단계에서 등록됩니다:
 
 ```javascript
 // src/index.ts:254-280
@@ -434,30 +434,30 @@ const rulesInjector = isHookEnabled("rules-injector")
   : null;
 ```
 
-**Sources:** [src/index.ts L254-L280](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L254-L280)
+**출처:** [src/index.ts L254-L280](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L254-L280)
 
-### Event Handler Integration
+### 이벤트 핸들러 통합
 
-The hooks respond to session events through the plugin's event handler:
+훅은 플러그인의 이벤트 핸들러를 통해 세션 이벤트에 응답합니다:
 
 ```javascript
 // src/index.ts:558-567
 event: async (input) => {
-  // ... other hooks
+  // ... 기타 훅
   await directoryAgentsInjector?.event(input);
   await directoryReadmeInjector?.event(input);
   await rulesInjector?.event(input);
-  // ... more hooks
+  // ... 추가 훅
 }
 ```
 
-This ensures context injection occurs automatically during file operations without explicit agent requests.
+이를 통해 에이전트의 명시적인 요청 없이도 파일 작업 중에 컨텍스트 주입이 자동으로 발생합니다.
 
-**Sources:** [src/index.ts L558-L567](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L558-L567)
+**출처:** [src/index.ts L558-~567](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L558-L567)
 
-### Configuration Schema
+### 설정 스키마
 
-Hook names are defined in the configuration schema:
+훅 이름은 설정 스키마에 정의되어 있습니다:
 
 ```javascript
 // src/config/schema.ts:45-68
@@ -471,105 +471,105 @@ export const HookNameSchema = z.enum([
 ])
 ```
 
-**Sources:** [src/config/schema.ts L45-L68](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L45-L68)
+**출처:** [src/config/schema.ts L45-L68](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L45-L68)
 
-### Hook Factory Functions
+### 훅 팩토리 함수
 
-Each hook is created by a factory function that accepts the plugin context:
+각 훅은 플러그인 컨텍스트를 인자로 받는 팩토리 함수에 의해 생성됩니다:
 
-| Function | Returns | Purpose |
+| 함수 | 반환값 | 목적 |
 | --- | --- | --- |
-| `createDirectoryAgentsInjectorHook(ctx)` | Hook instance | AGENTS.md injection logic |
-| `createDirectoryReadmeInjectorHook(ctx)` | Hook instance | README.md injection logic |
-| `createRulesInjectorHook(ctx)` | Hook instance | Conditional rules injection logic |
+| `createDirectoryAgentsInjectorHook(ctx)` | 훅 인스턴스 | AGENTS.md 주입 로직 |
+| `createDirectoryReadmeInjectorHook(ctx)` | 훅 인스턴스 | README.md 주입 로직 |
+| `createRulesInjectorHook(ctx)` | 훅 인스턴스 | 조건부 규칙 주입 로직 |
 
-**Sources:** [src/hooks/index.ts L7-L8](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/index.ts#L7-L8)
+**출처:** [src/hooks/index.ts L7-L8](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/index.ts#L7-L8)
 
  [src/hooks/index.ts L15](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/index.ts#L15-L15)
 
 ---
 
-## Interaction with Other Hooks
+## 다른 훅과의 상호작용 (Interaction with Other Hooks)
 
-### Context Management Hooks
+### 컨텍스트 관리 훅
 
-Context injection hooks work in coordination with [7.4 Context Management Hooks](/code-yeongyu/oh-my-opencode/7.4-context-management-hooks):
+컨텍스트 주입 훅은 [7.4 컨텍스트 관리 훅](/code-yeongyu/oh-my-opencode/7.4-context-management-hooks)과 협력하여 작동합니다:
 
-* **Tool Output Truncator**: May truncate injected content if context window fills
-* **Preemptive Compaction**: Preserves injected context during summarization via [Compaction Context Injector](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/Compaction Context Injector)
+* **도구 출력 절단기 (Tool Output Truncator)**: 컨텍스트 창이 가득 차면 주입된 콘텐츠를 잘라낼 수 있습니다.
+* **선제적 압축 (Preemptive Compaction)**: [Compaction Context Injector](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/Compaction Context Injector)를 통해 요약 과정 중에도 주입된 컨텍스트를 보존합니다.
 
-**Sources:** [src/index.ts L272-L277](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L272-L277)
+**출처:** [src/index.ts L272-L277](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L272-L277)
 
-### Reliability Hooks
+### 신뢰성 훅
 
-The context injection system complements:
+컨텍스트 주입 시스템은 다음을 보완합니다:
 
-* **Session Recovery** ([7.1](/code-yeongyu/oh-my-opencode/7.1-session-recovery)): Injected context is re-established after recovery
-* **Todo Continuation Enforcer** ([7.3](/code-yeongyu/oh-my-opencode/7.3-todo-continuation-enforcer)): Maintains context across multi-step tasks
+* **세션 복구 (Session Recovery)** ([7.1](/code-yeongyu/oh-my-opencode/7.1-session-recovery)): 복구 후 주입된 컨텍스트가 재설정됩니다.
+* **할 일 연속성 강제 도구 (Todo Continuation Enforcer)** ([7.3](/code-yeongyu/oh-my-opencode/7.3-todo-continuation-enforcer)): 다단계 작업 전반에 걸쳐 컨텍스트를 유지합니다.
 
-**Sources:** [src/index.ts L238-L321](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L238-L321)
+**출처:** [src/index.ts L238-L321](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L238-L321)
 
 ---
 
-## Best Practices
+## 권장 사항 (Best Practices)
 
-### AGENTS.md Organization
+### AGENTS.md 구성
 
-**Recommended structure:**
+**권장 구조:**
 
 ```javascript
 project/
-├── AGENTS.md                  # Project vision, high-level architecture
+├── AGENTS.md                  # 프로젝트 비전, 상위 수준 아키텍처
 ├── src/
-│   ├── AGENTS.md              # Code organization, module boundaries
+│   ├── AGENTS.md              # 코드 구성, 모듈 경계
 │   ├── features/
 │   │   └── auth/
-│   │       ├── AGENTS.md      # Auth-specific patterns, security rules
+│   │       ├── AGENTS.md      # 인증 전용 패턴, 보안 규칙
 │   │       └── login.ts
 │   └── utils/
-│       ├── AGENTS.md          # Utility conventions, pure function rules
+│       ├── AGENTS.md          # 유틸리티 컨벤션, 순수 함수 규칙
 │       └── format.ts
 ```
 
-**Content guidelines:**
+**콘텐츠 가이드라인:**
 
-* **Project root**: Vision, conventions, setup requirements
-* **Module level**: Module responsibilities, dependencies, interfaces
-* **Feature level**: Feature-specific patterns, gotchas, examples
+* **프로젝트 루트**: 비전, 컨벤션, 설정 요구 사항
+* **모듈 레벨**: 모듈의 책임, 의존성, 인터페이스
+* **기능 레벨**: 기능별 패턴, 주의 사항, 예시
 
-### Rules File Organization
+### 규칙 파일 구성
 
-**Recommended naming:**
+**권장 명명 규칙:**
 
 ```markdown
 ~/.claude/rules/
-├── typescript.md              # Language-specific rules
-├── testing.md                 # Test conventions
-├── api-design.md              # API guidelines
-└── security.md                # Security requirements (alwaysApply: true)
+├── typescript.md              # 언어별 규칙
+├── testing.md                 # 테스트 컨벤션
+├── api-design.md              # API 가이드라인
+└── security.md                # 보안 요구 사항 (alwaysApply: true)
 ```
 
-**Glob pattern tips:**
+**Glob 패턴 팁:**
 
-* Use `**/*` for recursive matching
-* Be specific with file extensions to avoid over-matching
-* Test patterns with real file paths before deployment
+* 재귀적 매칭을 위해 `**/*`를 사용하십시오.
+* 과도한 매칭을 피하기 위해 파일 확장자를 구체적으로 지정하십시오.
+* 배포 전에 실제 파일 경로로 패턴을 테스트하십시오.
 
-### Performance Considerations
+### 성능 고려 사항
 
-* **Directory depth**: Deep nesting increases scanning time
-* **File count**: Minimize rule files (consolidate when possible)
-* **Session caching**: Subsequent file operations in cached directories have zero overhead
+* **디렉토리 깊이**: 계층이 너무 깊어지면 탐색 시간이 증가할 수 있습니다.
+* **파일 수**: 규칙 파일을 최소화하십시오 (가능한 경우 통합).
+* **세션 캐싱**: 캐시된 디렉토리에서의 후속 파일 작업은 오버헤드가 거의 없습니다.
 
-**Sources:** [README.md L538-L568](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L538-L568)
+**출처:** [README.md L538-L568](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L538-L568)
 
 ---
 
-## Configuration Reference
+## 설정 참조 (Configuration Reference)
 
-### Disabling Specific Injectors
+### 특정 주입기 비활성화
 
-Disable individual hooks while keeping others active:
+다른 훅은 활성 상태로 유지하면서 개별 훅만 비활성화할 수 있습니다:
 
 ```json
 {
@@ -579,11 +579,11 @@ Disable individual hooks while keeping others active:
 }
 ```
 
-This configuration disables README.md injection but keeps AGENTS.md and rules active.
+이 설정은 README.md 주입은 비활성화하지만 AGENTS.md와 규칙 주입은 활성 상태로 유지합니다.
 
-### Disabling All Context Injection
+### 모든 컨텍스트 주입 비활성화
 
-Disable all three hooks for minimal context injection:
+최소한의 컨텍스트 주입을 위해 세 가지 훅을 모두 비활성화합니다:
 
 ```json
 {
@@ -595,23 +595,23 @@ Disable all three hooks for minimal context injection:
 }
 ```
 
-**Sources:** [src/config/schema.ts L45-L68](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L45-L68)
+**출처:** [src/config/schema.ts L45-L68](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L45-L68)
 
  [src/index.ts L221-L222](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L221-L222)
 
 ---
 
-## Summary
+## 요약
 
-Context injection hooks provide automatic, hierarchical context enrichment without manual intervention:
+컨텍스트 주입 훅은 수동 개입 없이 자동화된 계층적 컨텍스트 보강을 제공합니다:
 
-* **AGENTS.md Injector**: Project-wide → directory-specific guidance
-* **README.md Injector**: Documentation at every level
-* **Rules Injector**: Conditional, file-type-specific coding rules
+* **AGENTS.md 주입기**: 프로젝트 전체 → 디렉토리별 가이드 제공
+* **README.md 주입기**: 모든 레벨에서의 문서화 지원
+* **규칙 주입기**: 조건부, 파일 유형별 코딩 규칙 적용
 
-All three hooks operate transparently with session-level caching to minimize overhead while ensuring agents always have relevant contextual information.
+세 가지 훅 모두 세션 레벨 캐싱을 통해 투명하게 작동하여 오버헤드를 최소화하는 동시에 에이전트가 항상 관련 컨텍스트 정보를 보유하도록 보장합니다.
 
-**Sources:** [README.md L538-L568](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L538-L568)
+**출처:** [README.md L538-L568](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L538-L568)
 
  [src/index.ts L254-L280](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L254-L280)
 

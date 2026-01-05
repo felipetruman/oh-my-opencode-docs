@@ -1,10 +1,10 @@
 ---
 layout: default
-title: Background Execution
+title: 백그라운드 실행 (Background Execution)
 nav_order: 6
 has_children: true
 ---
 
-# Background Execution System
+# 백그라운드 실행 시스템 (Background Execution System)
 
-Parallel agent execution and task management.
+에이전트 병렬 실행 및 작업 관리를 지원합니다.

@@ -1,10 +1,10 @@
 ---
 layout: default
-title: Advanced Topics
+title: 고급 주제
 nav_order: 12
 has_children: true
 ---
 
-# Advanced Topics
+# 고급 주제 (Advanced Topics)
 
-Experimental features, keyword modes, and parallel execution patterns.
+실험적 기능, 키워드 모드(keyword modes) 및 병렬 실행 패턴(parallel execution patterns)에 대해 설명합니다.

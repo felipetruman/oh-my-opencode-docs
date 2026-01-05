@@ -1,346 +1,313 @@
 ---
 layout: default
-title: Dependency Management
+title: 의존성 관리
 parent: Development
 nav_order: 1
 ---
 
-# Dependency Management
+# 의존성 관리 (Dependency Management)
 
-> **Relevant source files**
+> **관련 소스 파일**
 > * [bun.lock](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/bun.lock)
 > * [package.json](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json)
 > * [src/cli/config-manager.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts)
 > * [src/shared/jsonc-parser.test.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/shared/jsonc-parser.test.ts)
 > * [src/shared/jsonc-parser.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/shared/jsonc-parser.ts)
 
-This document covers the dependency structure, package management strategy, and dynamic plugin installation workflow for oh-my-opencode. It focuses on the project's use of Bun as a package manager, the categorization of dependencies, and the automated installation of external authentication plugins.
+이 문서는 oh-my-opencode의 의존성 구조, 패키지 관리 전략 및 동적 플러그인 설치 워크플로우를 다룹니다. 특히 패키지 매니저로서의 Bun 사용, 의존성 분류, 그리고 외부 인증 플러그인의 자동 설치 프로세스에 중점을 둡니다.
 
-For information about the build process that uses these dependencies, see [Build System](/code-yeongyu/oh-my-opencode/12.1-build-system). For CI/CD automation that validates dependencies, see [CI/CD Pipeline](/code-yeongyu/oh-my-opencode/12.2-cicd-pipeline).
+이러한 의존성을 사용하는 빌드 프로세스에 대한 정보는 [Build System](/code-yeongyu/oh-my-opencode/12.1-build-system)을 참조하십시오. 의존성을 검증하는 CI/CD 자동화에 대해서는 [CI/CD Pipeline](/code-yeongyu/oh-my-opencode/12.2-cicd-pipeline)을 참조하십시오.
 
-## Package Manager: Bun
+## 패키지 매니저: Bun
 
-oh-my-opencode uses [Bun](https://bun.sh) as its package manager and runtime, rather than npm or yarn. This choice provides several advantages:
+oh-my-opencode는 npm이나 yarn 대신 [Bun](https://bun.sh)을 패키지 매니저 및 런타임(runtime)으로 사용합니다. 이 선택은 다음과 같은 몇 가지 장점을 제공합니다:
 
-* **Fast installation**: Bun's native implementation provides faster dependency resolution and installation
-* **Built-in TypeScript support**: No need for ts-node or tsx for running TypeScript directly
-* **Compatible lockfile**: [bun.lock L1-L132](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/bun.lock#L1-L132)  uses a JSON format that tracks exact versions and integrity hashes
+* **빠른 설치**: Bun의 네이티브 구현은 더 빠른 의존성 해결 및 설치를 제공합니다.
+* **내장된 TypeScript 지원**: TypeScript를 직접 실행하기 위해 `ts-node`나 `tsx`가 필요하지 않습니다.
+* **호환 가능한 락파일(lockfile)**: [bun.lock L1-L132](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/bun.lock#L1-L132)은 정확한 버전과 무결성 해시를 추적하는 JSON 형식을 사용합니다.
 
-The project explicitly uses Bun commands in build scripts [package.json L26-L31](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L26-L31)
+이 프로젝트는 빌드 스크립트 [package.json L26-L31](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L26-L31) 및 설치 워크플로우 [src/cli/config-manager.ts L294-L306](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L294-L306)에서 명시적으로 Bun 명령어를 사용합니다.
 
- and the installation workflow [src/cli/config-manager.ts L294-L306](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L294-L306)
+**출처:** [package.json L1-L78](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L1-L78), [bun.lock L1-L132](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/bun.lock#L1-L132)
 
-**Sources:** [package.json L1-L78](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L1-L78)
+## 의존성 분류
 
- [bun.lock L1-L132](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/bun.lock#L1-L132)
+### 의존성 구조 개요
 
-## Dependency Categories
-
-### Dependency Structure Overview
-
+```json
+// package.json의 의존성 구조 예시
+{
+  "dependencies": { ... },
+  "devDependencies": { ... },
+  "trustedDependencies": [ ... ]
+}
 ```
 
-```
+**출처:** [package.json L52-L77](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L52-L77)
 
-**Sources:** [package.json L52-L77](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L52-L77)
+### 프로덕션 의존성 (Production Dependencies)
 
-### Production Dependencies
+이러한 의존성들은 oh-my-opencode가 OpenCode 플러그인 또는 CLI 도구로 실행될 때 런타임에 필요합니다:
 
-These dependencies are required at runtime when oh-my-opencode is executing as an OpenCode plugin or CLI tool:
-
-| Package | Version | Purpose |
+| 패키지 | 버전 | 용도 |
 | --- | --- | --- |
-| `@opencode-ai/plugin` | ^1.0.162 | Plugin API types and utilities |
-| `@opencode-ai/sdk` | ^1.0.162 | Core OpenCode SDK for session management |
-| `@ast-grep/cli` | ^0.40.0 | CLI for AST-based code search (25 languages) |
-| `@ast-grep/napi` | ^0.40.0 | Native bindings for AST manipulation |
-| `@clack/prompts` | ^0.11.0 | Interactive CLI prompts for installation |
-| `@code-yeongyu/comment-checker` | ^0.6.1 | Native binary for detecting code comments |
-| `@openauthjs/openauth` | ^0.4.3 | OAuth flow implementation for auth plugins |
-| `commander` | ^14.0.2 | CLI command parsing and routing |
-| `hono` | ^4.10.4 | Lightweight HTTP server for OAuth callbacks |
-| `jsonc-parser` | ^3.3.1 | JSONC parsing with comment/trailing comma support |
-| `picocolors` | ^1.1.1 | Terminal color output |
-| `picomatch` | ^4.0.2 | Glob pattern matching for conditional rules |
-| `xdg-basedir` | ^5.1.0 | Cross-platform config directory resolution |
-| `zod` | ^4.1.8 | Runtime type validation for configurations |
+| `@opencode-ai/plugin` | ^1.0.162 | 플러그인 API 타입 및 유틸리티 |
+| `@opencode-ai/sdk` | ^1.0.162 | 세션 관리를 위한 핵심 OpenCode SDK |
+| `@ast-grep/cli` | ^0.40.0 | AST 기반 코드 검색을 위한 CLI (25개 언어 지원) |
+| `@ast-grep/napi` | ^0.40.0 | AST 조작을 위한 네이티브 바인딩 |
+| `@clack/prompts` | ^0.11.0 | 설치를 위한 대화형 CLI 프롬프트 |
+| `@code-yeongyu/comment-checker` | ^0.6.1 | 코드 주석 감지를 위한 네이티브 바이너리 |
+| `@openauthjs/openauth` | ^0.4.3 | 인증 플러그인을 위한 OAuth 흐름 구현 |
+| `commander` | ^14.0.2 | CLI 명령어 파싱 및 라우팅 |
+| `hono` | ^4.10.4 | OAuth 콜백을 위한 경량 HTTP 서버 |
+| `jsonc-parser` | ^3.3.1 | 주석 및 트레일링 콤마를 지원하는 JSONC 파싱 |
+| `picocolors` | ^1.1.1 | 터미널 컬러 출력 |
+| `picomatch` | ^4.0.2 | 조건부 규칙을 위한 글로브(Glob) 패턴 매칭 |
+| `xdg-basedir` | ^5.1.0 | 크로스 플랫폼 설정 디렉토리 확인 |
+| `zod` | ^4.1.8 | 설정을 위한 런타임 타입 검증 |
 
-**Sources:** [package.json L52-L66](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L52-L66)
+**출처:** [package.json L52-L66](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L52-L66)
 
-### Development Dependencies
+### 개발 의존성 (Development Dependencies)
 
-These dependencies are used only during development and build processes:
+이러한 의존성들은 개발 및 빌드 프로세스 중에만 사용됩니다:
 
-| Package | Version | Purpose |
+| 패키지 | 버전 | 용도 |
 | --- | --- | --- |
-| `bun-types` | latest | Type definitions for Bun runtime APIs |
-| `typescript` | ^5.7.3 | TypeScript compiler for type checking and declaration generation |
-| `@types/picomatch` | ^3.0.2 | Type definitions for picomatch |
+| `bun-types` | latest | Bun 런타임 API를 위한 타입 정의 |
+| `typescript` | ^5.7.3 | 타입 체크 및 선언 파일 생성을 위한 TypeScript 컴파일러 |
+| `@types/picomatch` | ^3.0.2 | picomatch를 위한 타입 정의 |
 
-The build process [package.json L26](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L26-L26)
+빌드 프로세스 [package.json L26](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L26-L26)는 타입 체크(`tsc --noEmit`) 및 선언 파일 생성(`tsc --emitDeclarationOnly`)을 위해 TypeScript를 사용하며, 실제 JavaScript 번들링은 Bun이 처리합니다.
 
- uses TypeScript for type checking (`tsc --noEmit`) and declaration file generation (`tsc --emitDeclarationOnly`), while Bun handles the actual JavaScript bundling.
+**출처:** [package.json L68-L72](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L68-L72)
 
-**Sources:** [package.json L68-L72](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L68-L72)
+### 신뢰할 수 있는 의존성 (Trusted Dependencies)
 
-### Trusted Dependencies
+oh-my-opencode는 특정 의존성을 신뢰할 수 있는 것으로 명시적으로 표시하여 [package.json L73-L77](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L73-L77) 설치 후 스크립트(post-install scripts)를 실행할 수 있도록 허용합니다. 이는 설치 중 임의의 코드 실행을 방지하는 Bun의 보안 기능입니다:
 
-oh-my-opencode explicitly marks certain dependencies as trusted [package.json L73-L77](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L73-L77)
-
- allowing them to run post-install scripts. This is a security feature in Bun that prevents arbitrary code execution during installation:
-
+```json
+"trustedDependencies": [
+  "@ast-grep/cli",
+  "@ast-grep/napi",
+  "@code-yeongyu/comment-checker"
+]
 ```
 
+이 패키지들은 다음과 같은 이유로 신뢰 설정이 필요합니다:
+
+* **플랫폼별 네이티브 바이너리 다운로드**: 설치 중에 플랫폼별 바이너리를 다운로드합니다 (AST-grep 및 comment-checker는 darwin-arm64, linux-x64-gnu, win32-x64-msvc 등을 위한 별도 패키지가 있습니다).
+* **설치 후 스크립트 실행**: 네이티브 애드온 설정을 위해 스크립트를 실행합니다.
+
+락파일 [bun.lock L36-L70](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/bun.lock#L36-L70)은 각 플랫폼 변체에 대한 선택적 의존성을 보여주며, 올바른 네이티브 바이너리가 설치되도록 보장합니다.
+
+**출처:** [package.json L73-L77](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L73-L77), [bun.lock L36-L70](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/bun.lock#L36-L70)
+
+## 주요 의존성 심층 분석
+
+### OpenCode SDK 통합
+
+`@opencode-ai/sdk` 및 `@opencode-ai/plugin` 패키지는 플러그인 시스템의 기반을 형성합니다:
+
+```json
+"@opencode-ai/plugin": "^1.0.162",
+"@opencode-ai/sdk": "^1.0.162"
 ```
 
-These packages require trust because they:
+버전 제약 조건 `^1.0.162`는 패치 및 마이너 업데이트를 허용하지만 메이저 버전은 고정합니다. [package.json L58-L59](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L58-L59)에서 볼 수 있듯이 두 패키지는 동일한 버전으로 동기화되어 유지됩니다.
 
-* **Download platform-specific native binaries** during installation (AST-grep and comment-checker have separate packages for darwin-arm64, linux-x64-gnu, win32-x64-msvc, etc.)
-* **Execute post-install scripts** to set up native addons
+**출처:** [package.json L58-L59](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L58-L59), [bun.lock L80-L82](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/bun.lock#L80-L82)
 
-The lockfile [bun.lock L36-L70](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/bun.lock#L36-L70)
+### AST-Grep 네이티브 바인딩
 
- shows the optional dependencies for each platform variant, ensuring the correct native binary is installed.
+AST-grep은 코드 조작을 위한 CLI 및 프로그래밍 방식의 접근을 모두 제공합니다:
 
-**Sources:** [package.json L73-L77](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L73-L77)
-
- [bun.lock L36-L70](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/bun.lock#L36-L70)
-
-## Key Dependencies Deep Dive
-
-### OpenCode SDK Integration
-
-The `@opencode-ai/sdk` and `@opencode-ai/plugin` packages form the foundation of the plugin system:
-
+```json
+"@ast-grep/cli": "^0.40.0",
+"@ast-grep/napi": "^0.40.0"
 ```
 
+빌드 명령어 [package.json L26](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L26-L26)의 `--external @ast-grep/napi` 플래그는 네이티브 바인딩이 번들링되지 않도록 하여, 네이티브 모듈 해결 문제를 방지합니다.
+
+**출처:** [package.json L26](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L26-L26), [package.json L53-L54](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L53-L54), [bun.lock L36-L70](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/bun.lock#L36-L70)
+
+### 인증 및 OAuth 스택
+
+Gemini (Antigravity) 및 ChatGPT (Codex) 인증 플러그인을 위한 OAuth 구현은 최소한의 HTTP 서버를 사용합니다:
+
+```json
+"@openauthjs/openauth": "^0.4.3",
+"hono": "^4.10.4"
 ```
 
-The version constraint `^1.0.162` allows patch and minor updates but locks the major version. Both packages are maintained in sync as [package.json L58-L59](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L58-L59)
+`google-auth.ts` 모듈은 외부 인증 플러그인이 OAuth 서버 구현을 재사용할 수 있도록 별도로 내보내집니다 [package.json L19-L22](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L19-L22).
 
- shows the same version.
+**출처:** [package.json L57](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L57-L57), [package.json L61](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L61-L61), [package.json L19-L22](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L19-L22), [bun.lock L78](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/bun.lock#L78-L78)
 
-**Sources:** [package.json L58-L59](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L58-L59)
+### 설정 파싱
 
- [bun.lock L80-L82](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/bun.lock#L80-L82)
+주석이 포함된 사용자 친화적인 설정 파일을 위해 JSONC 지원은 필수적입니다:
 
-### AST-Grep Native Bindings
-
-AST-grep provides both CLI and programmatic access to code manipulation:
-
+```json
+"jsonc-parser": "^3.3.1"
 ```
 
-```
+구현부 [src/shared/jsonc-parser.ts L9-L24](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/shared/jsonc-parser.ts#L9-L24)는 라이브러리의 API를 래핑하여 설정 파일에 대한 엄격한 에러 핸들링을 제공합니다.
 
-The `--external @ast-grep/napi` flag in the build command [package.json L26](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L26-L26)
+**출처:** [package.json L62](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L62-L62), [src/shared/jsonc-parser.ts L1-L67](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/shared/jsonc-parser.ts#L1-L67)
 
- ensures the native binding is not bundled, preventing issues with native module resolution.
+## 버전 관리 전략
 
-**Sources:** [package.json L26](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L26-L26)
+### 버전 제약 패턴
 
- [package.json L53-L54](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L53-L54)
+oh-my-opencode는 시맨틱 버저닝(Semantic Versioning) 제약 조건을 사용합니다:
 
- [bun.lock L36-L70](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/bun.lock#L36-L70)
-
-### Authentication and OAuth Stack
-
-The OAuth implementation for Gemini (Antigravity) and ChatGPT (Codex) auth plugins uses a minimal HTTP server:
-
-```
-
-```
-
-The `google-auth.ts` module is exported separately [package.json L19-L22](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L19-L22)
-
- to allow external auth plugins to reuse the OAuth server implementation.
-
-**Sources:** [package.json L57](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L57-L57)
-
- [package.json L61](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L61-L61)
-
- [package.json L19-L22](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L19-L22)
-
- [bun.lock L78](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/bun.lock#L78-L78)
-
-### Configuration Parsing
-
-JSONC support is critical for user-friendly configuration files with comments:
-
-```
-
-```
-
-The implementation [src/shared/jsonc-parser.ts L9-L24](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/shared/jsonc-parser.ts#L9-L24)
-
- wraps the library's API to provide strict error handling for configuration files.
-
-**Sources:** [package.json L62](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L62-L62)
-
- [src/shared/jsonc-parser.ts L1-L67](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/shared/jsonc-parser.ts#L1-L67)
-
-## Version Management Strategy
-
-### Version Constraint Patterns
-
-oh-my-opencode uses semantic versioning constraints:
-
-| Constraint | Example | Allows | Used For |
+| 제약 조건 | 예시 | 허용 범위 | 용도 |
 | --- | --- | --- | --- |
-| `^` (caret) | `^1.0.162` | Minor and patch | Most dependencies |
-| `latest` | `latest` | All updates | Development tools (bun-types) |
+| `^` (캐럿) | `^1.0.162` | 마이너 및 패치 | 대부분의 의존성 |
+| `latest` | `latest` | 모든 업데이트 | 개발 도구 (bun-types) |
 
-The caret (`^`) constraint is used for all production dependencies, allowing automatic patch and minor updates but preventing breaking changes from major version bumps.
+캐럿(`^`) 제약 조건은 모든 프로덕션 의존성에 사용되어, 자동 패치 및 마이너 업데이트를 허용하면서도 메이저 버전 업그레이드로 인한 파괴적 변경(breaking changes)을 방지합니다.
 
-**Sources:** [package.json L52-L66](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L52-L66)
+**출처:** [package.json L52-L66](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L52-L66)
 
-### Dynamic Version Resolution
+### 동적 버전 해결
 
-The CLI installation process fetches the latest versions of auth plugins dynamically:
+CLI 설치 프로세스는 인증 플러그인의 최신 버전을 동적으로 가져옵니다:
 
+```typescript
+async function getLatestVersion(packageName: string): Promise<string>
 ```
 
+이 함수 [src/cli/config-manager.ts L17-L26](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L17-L26)는 NPM 레지스트리를 쿼리하여 최신 배포 버전을 가져옴으로써, 사용자가 설정 중에 항상 최신 인증 플러그인 버전을 설치하도록 보장합니다.
+
+**출처:** [src/cli/config-manager.ts L17-L26](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L17-L26)
+
+### 락파일 및 무결성
+
+`bun.lock` 파일 [bun.lock L1-L132](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/bun.lock#L1-L132)은 다음을 유지합니다:
+
+* **정확한 버전**: 모든 의존성 및 전이적 의존성(transitive dependency) 고정
+* **무결성 해시**: 패키지 검증을 위한 SHA-512 체크섬
+* **플랫폼 제약**: OS 및 CPU 아키텍처 요구 사항
+* **선택적 의존성**: 플랫폼별 네이티브 바이너리
+
+락파일 엔트리 구조 예시:
+
+```json
+"@ast-grep/napi-darwin-arm64@0.40.0": {
+  "resolution": "https://registry.npmjs.org/@ast-grep/napi-darwin-arm64/-/napi-darwin-arm64-0.40.0.tgz",
+  "integrity": "sha512-..."
+}
 ```
 
-This function [src/cli/config-manager.ts L17-L26](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L17-L26)
+**출처:** [bun.lock L36](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/bun.lock#L36-L36)
 
- queries the NPM registry to get the latest published version, ensuring users always install the newest auth plugin versions during setup.
+## 동적 플러그인 설치
 
-**Sources:** [src/cli/config-manager.ts L17-L26](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L17-L26)
+### 인증 플러그인 설치 흐름
 
-### Lockfile and Integrity
+`oh-my-opencode install` 명령어는 감지된 구독 정보를 기반으로 인증 플러그인을 동적으로 설치합니다:
 
-The `bun.lock` file [bun.lock L1-L132](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/bun.lock#L1-L132)
-
- maintains:
-
-* **Exact versions**: Every dependency and transitive dependency pinned
-* **Integrity hashes**: SHA-512 checksums for package verification
-* **Platform constraints**: OS and CPU architecture requirements
-* **Optional dependencies**: Platform-specific native binaries
-
-Example lockfile entry structure:
-
+```typescript
+async function addAuthPlugins(config: any, subscriptions: string[])
 ```
 
+**출처:** [src/cli/config-manager.ts L243-L271](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L243-L271), [src/cli/config-manager.ts L294-L306](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L294-L306)
+
+### 인증 플러그인 버전 관리
+
+`addAuthPlugins` 함수 [src/cli/config-manager.ts L243-L271](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L243-L271)는 두 가지 다른 전략을 구현합니다:
+
+#### Antigravity (Gemini) - 최신 버전
+
+```typescript
+const version = await getLatestVersion('@opencode-ai/antigravity');
+pkgJson.dependencies['@opencode-ai/antigravity'] = `^${version}`;
 ```
 
-**Sources:** [bun.lock L36](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/bun.lock#L36-L36)
+이는 NPM에서 최신 버전을 가져와 명시적으로 고정합니다.
 
-## Dynamic Plugin Installation
+#### Codex (ChatGPT) - GitHub 핫픽스
 
-### Auth Plugin Installation Flow
-
-The `oh-my-opencode install` command dynamically installs authentication plugins based on detected subscriptions:
-
+```typescript
+pkgJson.dependencies['@opencode-ai/codex'] = CHATGPT_HOTFIX_URL;
 ```
 
+ChatGPT 플러그인은 [src/cli/config-manager.ts L15](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L15-L15)에 정의된 특수 GitHub 참조를 사용합니다:
+
+```typescript
+const CHATGPT_HOTFIX_URL = "github:code-yeongyu/opencode-auth-chatgpt#main";
 ```
 
-**Sources:** [src/cli/config-manager.ts L243-L271](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L243-L271)
+이 핫픽스는 `setupChatGPTHotfix()` [src/cli/config-manager.ts L273-L292](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L273-L292)를 통해 적용되며, OpenCode 설정 디렉토리 [src/cli/config-manager.ts L10](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L10-L10)에 직접적인 GitHub 의존성을 가진 `package.json`을 생성합니다.
 
- [src/cli/config-manager.ts L294-L306](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L294-L306)
+**출처:** [src/cli/config-manager.ts L243-L292](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L243-L292)
 
-### Auth Plugin Version Management
+### 프로바이더 설정 주입
 
-The `addAuthPlugins` function [src/cli/config-manager.ts L243-L271](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L243-L271)
+플러그인 설치 후, 시스템은 `opencode.json`에 프로바이더 설정을 주입합니다:
 
- implements two different strategies:
-
-#### Antigravity (Gemini) - Latest Version
-
+```typescript
+config.providers.push({
+  id: "antigravity",
+  module: "@opencode-ai/antigravity",
+  // ... 모델 사양
+});
 ```
 
+Antigravity 설정 [src/cli/config-manager.ts L308-L349](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L308-L349)은 다음을 포함한 완전한 모델 사양을 정의합니다:
+
+* Thinking 지원 플래그
+* 첨부 파일 기능
+* 컨텍스트 및 출력 토큰 제한
+* 입력/출력 모달리티 (텍스트, 이미지, PDF)
+
+Codex 설정 [src/cli/config-manager.ts L351-L362](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L351-L362)는 추론 모델(o3, o4-mini)을 위한 thinking 플래그와 함께 OpenAI 모델을 지정합니다.
+
+**출처:** [src/cli/config-manager.ts L308-L391](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L308-L391)
+
+## 설치 워크플로우
+
+### 전체 의존성 설치 프로세스
+
+```mermaid
+graph TD
+    A[사용자 구독 감지] --> B[package.json 생성]
+    B --> C[인증 플러그인 버전 해결]
+    C --> D[runBunInstall 실행]
+    D --> E[opencode.json 업데이트]
 ```
 
-This fetches the latest version from NPM and pins it explicitly.
+`runBunInstall()` 함수 [src/cli/config-manager.ts L294-L306](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L294-L306)은 OpenCode 설정 디렉토리에서 Bun 하위 프로세스를 생성합니다:
 
-#### Codex (ChatGPT) - GitHub Hotfix
-
+```typescript
+const proc = Bun.spawn(["bun", "install"], {
+  cwd: OPENCODE_CONFIG_DIR,
+  // ...
+});
 ```
 
-```
+이는 메인 oh-my-opencode 설치와는 별개로 OpenCode 설정 디렉토리에 로컬로 인증 플러그인을 설치합니다.
 
-The ChatGPT plugin uses a special GitHub reference defined in [src/cli/config-manager.ts L15](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L15-L15)
+**출처:** [src/cli/config-manager.ts L294-L306](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L294-L306), [src/cli/config-manager.ts L7-L11](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L7-L11)
 
-:
+## 의존성 업데이트 전략
 
-```
+### CI에서의 자동 업데이트
 
-```
+CI 워크플로우(섹션 12.2 참조)는 모든 커밋에 대해 테스트와 타입 체크를 실행하여 현재 의존성 버전과의 호환성을 보장합니다. 스키마 생성 단계 [package.json L27](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L27-L27) 또한 CI 중에 실행되어 설정 타입 정의가 일관되게 유지되는지 검증합니다.
 
-This hotfix is applied via `setupChatGPTHotfix()` [src/cli/config-manager.ts L273-L292](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L273-L292)
+### 수동 버전 업데이트
 
- which creates a `package.json` in the OpenCode config directory [src/cli/config-manager.ts L10](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L10-L10)
+의존성을 업데이트하려면:
 
- with a direct GitHub dependency.
+1. 필요한 경우 **package.json 제약 조건을 업데이트**합니다.
+2. **`bun update`를 실행**하여 새 버전을 해결합니다.
+3. `bun.lock`에서 **락파일 변경 사항을 확인**합니다.
+4. `bun test` [package.json L31](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L31-L31)로 **테스트 수트를 실행**합니다.
+5. `bun run typecheck` [package.json L30](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L30-L30)으로 **타입 체크를 실행**합니다.
 
-**Sources:** [src/cli/config-manager.ts L243-L292](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L243-L292)
+이 프로젝트는 개발 중에 SDK가 빠르게 진화하므로 호환성을 보장하기 위해 OpenCode SDK 버전을 정밀하게 고정(`^1.0.162`)합니다.
 
-### Provider Configuration Injection
-
-After installing plugins, the system injects provider configuration into `opencode.json`:
-
-```
-
-```
-
-The Antigravity configuration [src/cli/config-manager.ts L308-L349](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L308-L349)
-
- defines complete model specifications including:
-
-* Thinking support flags
-* Attachment capabilities
-* Context and output token limits
-* Input/output modalities (text, image, PDF)
-
-The Codex configuration [src/cli/config-manager.ts L351-L362](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L351-L362)
-
- specifies OpenAI models with thinking flags for reasoning models (o3, o4-mini).
-
-**Sources:** [src/cli/config-manager.ts L308-L391](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L308-L391)
-
-## Installation Workflow
-
-### Complete Dependency Installation Process
-
-```
-
-```
-
-The `runBunInstall()` function [src/cli/config-manager.ts L294-L306](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L294-L306)
-
- spawns a Bun subprocess in the OpenCode config directory:
-
-```
-
-```
-
-This installs the auth plugins locally in the OpenCode configuration directory, separate from the main oh-my-opencode installation.
-
-**Sources:** [src/cli/config-manager.ts L294-L306](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L294-L306)
-
- [src/cli/config-manager.ts L7-L11](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L7-L11)
-
-## Dependency Update Strategy
-
-### Automated Updates in CI
-
-The CI workflow [referenced in section 12.2] runs tests and typechecks on every commit, ensuring compatibility with the current dependency versions. The schema generation step [package.json L27](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L27-L27)
-
- also runs during CI, validating that configuration type definitions remain consistent.
-
-### Manual Version Updates
-
-To update dependencies:
-
-1. **Update package.json constraints** if needed
-2. **Run `bun update`** to resolve new versions
-3. **Verify lockfile changes** in `bun.lock`
-4. **Run test suite** with `bun test` [package.json L31](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L31-L31)
-5. **Run typecheck** with `bun run typecheck` [package.json L30](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L30-L30)
-
-The project pins OpenCode SDK versions precisely (`^1.0.162`) to ensure compatibility, as the SDK evolves rapidly during development.
-
-**Sources:** [package.json L25-L31](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L25-L31)
-
- [package.json L58-L59](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L58-L59)
+**출처:** [package.json L25-L31](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L25-L31), [package.json L58-L59](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/package.json#L58-L59)

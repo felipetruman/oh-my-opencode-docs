@@ -1,243 +1,241 @@
 ---
 layout: default
-title: Other Hooks
+title: 기타 훅 (Other Hooks)
 parent: Hooks
 nav_order: 1
 ---
 
-# Other Hooks
+# 기타 훅 (Other Hooks)
 
-> **Relevant source files**
+> **관련 소스 파일**
 > * [assets/oh-my-opencode.schema.json](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/assets/oh-my-opencode.schema.json)
 > * [src/config/schema.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts)
 > * [src/hooks/index.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/index.ts)
 > * [src/index.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts)
 
-## Purpose and Scope
+## 목적 및 범위 (Purpose and Scope)
 
-This page documents hooks not covered in other reliability system sections. These hooks enhance user experience, quality assurance, and system integration:
+이 페이지는 다른 안정성 시스템 섹션에서 다루지 않은 훅(Hook)들에 대해 설명합니다. 이 훅들은 사용자 경험(UX), 품질 보증(QA) 및 시스템 통합을 향상시킵니다.
 
-**User-Facing Hooks**: Auto-update checker, startup toast, keyword detector, agent usage reminder
-**Quality Assurance Hooks**: Comment checker, empty task response detector
-**Integration Hooks**: Session notification, background notification, think mode, Claude Code hooks
+**사용자 대면 훅 (User-Facing Hooks)**: 자동 업데이트 확인(Auto-update checker), 시작 토스트(Startup toast), 키워드 탐지기(Keyword detector), 에이전트 사용 알림(Agent usage reminder)
+**품질 보증 훅 (Quality Assurance Hooks)**: 주석 확인기(Comment checker), 빈 작업 응답 탐지기(Empty task response detector)
+**통합 훅 (Integration Hooks)**: 세션 알림(Session notification), 백그라운드 알림(Background notification), 생각 모드(Think mode), Claude Code 훅
 
-For error recovery hooks, see page 7.1 (Session Recovery). For message validation, see page 7.2. For task continuation, see page 7.3. For context management, see page 7.4. For context injection, see page 7.5. For non-interactive environment, see page 7.6.
+오류 복구 훅에 대해서는 7.1페이지(세션 복구)를 참조하십시오. 메시지 검증은 7.2페이지, 작업 연속성은 7.3페이지, 컨텍스트(Context) 관리는 7.4페이지, 컨텍스트 주입은 7.5페이지, 비대화형 환경은 7.6페이지를 참조하십시오.
 
 ---
 
-## Auto-Update Checker Hook
+## 자동 업데이트 확인 훅 (Auto-Update Checker Hook)
 
-The `auto-update-checker` hook monitors npm for new plugin versions and invalidates the local package cache to trigger automatic updates on OpenCode restart.
+`auto-update-checker` 훅은 npm에서 새로운 플러그인 버전을 모니터링하고, 로컬 패키지 캐시를 무효화하여 OpenCode 재시작 시 자동 업데이트가 실행되도록 트리거합니다.
 
-### Update Detection Flow
-
-```
+### 업데이트 탐지 흐름 (Update Detection Flow)
 
 ```
 
-**Diagram: Auto-Update Checker Decision Tree**
+```
 
-Sources: [src/hooks/auto-update-checker/index.ts L8-L69](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/auto-update-checker/index.ts#L8-L69)
+**다이어그램: 자동 업데이트 확인 결정 트리 (Auto-Update Checker Decision Tree)**
+
+출처: [src/hooks/auto-update-checker/index.ts L8-L69](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/auto-update-checker/index.ts#L8-L69)
 
  [src/hooks/auto-update-checker/checker.ts L173-L205](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/auto-update-checker/checker.ts#L173-L205)
 
-### Version Detection Strategies
+### 버전 탐지 전략 (Version Detection Strategies)
 
-The hook implements four version detection strategies with fallback logic:
+이 훅은 폴백(Fallback, 대체 작동) 로직을 포함한 네 가지 버전 탐지 전략을 구현합니다.
 
-| Strategy | Location | Priority | Use Case |
+| 전략 (Strategy) | 위치 | 우선순위 | 사용 사례 |
 | --- | --- | --- | --- |
-| **Local Dev** | `file://` in `opencode.json` | Highest | Development with `bun link` |
-| **Pinned Version** | `oh-my-opencode@1.2.3` in config | High | Lock to specific version |
-| **Cached Package** | `~/.cache/opencode/node_modules/oh-my-opencode/package.json` | Medium | Normal installation |
-| **Current Module** | Walk up from `import.meta.url` | Lowest | Fallback resolution |
+| **로컬 개발 (Local Dev)** | `opencode.json` 내의 `file://` | 가장 높음 | `bun link`를 사용한 개발 환경 |
+| **고정 버전 (Pinned Version)** | 설정 내의 `oh-my-opencode@1.2.3` | 높음 | 특정 버전으로 고정 |
+| **캐시된 패키지 (Cached Package)** | `~/.cache/opencode/node_modules/oh-my-opencode/package.json` | 중간 | 일반적인 설치 환경 |
+| **현재 모듈 (Current Module)** | `import.meta.url`에서 상위로 탐색 | 가장 낮음 | 폴백 해결 |
 
-Sources: [src/hooks/auto-update-checker/checker.ts L15-L150](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/auto-update-checker/checker.ts#L15-L150)
+출처: [src/hooks/auto-update-checker/checker.ts L15-L150](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/auto-update-checker/checker.ts#L15-L150)
 
-### Configuration Search Paths
+### 설정 검색 경로 (Configuration Search Paths)
 
-The hook searches for OpenCode configuration in priority order:
-
-```
+이 훅은 다음 우선순위에 따라 OpenCode 설정을 검색합니다.
 
 ```
 
-**Diagram: Configuration Detection Flow**
+```
 
-Sources: [src/hooks/auto-update-checker/checker.ts L19-L126](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/auto-update-checker/checker.ts#L19-L126)
+**다이어그램: 설정 탐지 흐름 (Configuration Detection Flow)**
+
+출처: [src/hooks/auto-update-checker/checker.ts L19-L126](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/auto-update-checker/checker.ts#L19-L126)
 
  [src/hooks/auto-update-checker/constants.ts L29-L42](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/auto-update-checker/constants.ts#L29-L42)
 
-### Cache Invalidation Mechanism
+### 캐시 무효화 메커니즘 (Cache Invalidation Mechanism)
 
-When an update is detected, the hook invalidates the cached plugin to force OpenCode to re-download:
-
-```
+업데이트가 탐지되면, 훅은 캐시된 플러그인을 무효화하여 OpenCode가 다시 다운로드하도록 강제합니다.
 
 ```
 
-The `invalidatePackage()` function performs two operations:
+```
 
-1. **Remove Plugin Directory**: Deletes `~/.cache/opencode/node_modules/oh-my-opencode/`
-2. **Remove Dependency Entry**: Removes `oh-my-opencode` from `~/.cache/opencode/package.json` dependencies
+`invalidatePackage()` 함수는 두 가지 작업을 수행합니다.
 
-Sources: [src/hooks/auto-update-checker/cache.ts L6-L41](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/auto-update-checker/cache.ts#L6-L41)
+1. **플러그인 디렉토리 제거**: `~/.cache/opencode/node_modules/oh-my-opencode/` 삭제
+2. **의존성 항목 제거**: `~/.cache/opencode/package.json` 의존성에서 `oh-my-opencode` 제거
 
-### Toast Notification Variants
+출처: [src/hooks/auto-update-checker/cache.ts L6-L41](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/auto-update-checker/cache.ts#L6-L41)
 
-The hook displays different toast messages based on detection results:
+### 토스트 알림 변형 (Toast Notification Variants)
 
-| Condition | Title | Message | Duration | Variant |
+이 훅은 탐지 결과에 따라 다른 토스트(Toast) 메시지를 표시합니다.
+
+| 조건 | 제목 | 메시지 | 지속 시간 | 변형 (Variant) |
 | --- | --- | --- | --- | --- |
-| **Update Available** | `OhMyOpenCode {latestVersion}` | `OpenCode is now on Steroids. oMoMoMoMo...\nv{latestVersion} available. Restart OpenCode to apply.` | 8000ms | info |
-| **Up to Date** | `OhMyOpenCode {currentVersion}` | `OpenCode is now on Steroids. oMoMoMoMo...` | 5000ms | info |
-| **Local Dev** | `OhMyOpenCode {devVersion}` | `OpenCode is now on Steroids. oMoMoMoMo...` | 5000ms | info |
-| **Pinned** | `OhMyOpenCode {pinnedVersion}` | `OpenCode is now on Steroids. oMoMoMoMo...` | 5000ms | info |
+| **업데이트 가능** | `OhMyOpenCode {latestVersion}` | `OpenCode is now on Steroids. oMoMoMoMo...\nv{latestVersion} available. Restart OpenCode to apply.` | 8000ms | info |
+| **최신 상태** | `OhMyOpenCode {currentVersion}` | `OpenCode is now on Steroids. oMoMoMoMo...` | 5000ms | info |
+| **로컬 개발** | `OhMyOpenCode {devVersion}` | `OpenCode is now on Steroids. oMoMoMoMo...` | 5000ms | info |
+| **버전 고정** | `OhMyOpenCode {pinnedVersion}` | `OpenCode is now on Steroids. oMoMoMoMo...` | 5000ms | info |
 
-Sources: [src/hooks/auto-update-checker/index.ts L52-L83](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/auto-update-checker/index.ts#L52-L83)
+출처: [src/hooks/auto-update-checker/index.ts L52-L83](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/auto-update-checker/index.ts#L52-L83)
 
-### Hook Initialization and Configuration
-
-```
+### 훅 초기화 및 설정 (Hook Initialization and Configuration)
 
 ```
 
-The hook accepts an `AutoUpdateCheckerOptions` object with `showStartupToast` flag. When `startup-toast` is disabled in configuration, version toasts are suppressed even if `auto-update-checker` is enabled.
+```
 
-Sources: [src/index.ts L232-L236](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L232-L236)
+이 훅은 `showStartupToast` 플래그를 포함한 `AutoUpdateCheckerOptions` 객체를 허용합니다. 설정에서 `startup-toast`가 비활성화되면, `auto-update-checker`가 활성화되어 있더라도 버전 토스트가 표시되지 않습니다.
+
+출처: [src/index.ts L232-L236](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L232-L236)
 
  [src/hooks/auto-update-checker/types.ts L25-L27](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/auto-update-checker/types.ts#L25-L27)
 
 ---
 
-## Startup Toast Hook
+## 시작 토스트 훅 (Startup Toast Hook)
 
-The `startup-toast` hook is not a separate hook but a configuration flag for `auto-update-checker`. When enabled, it displays a welcome toast on the first main session creation showing the current plugin version.
+`startup-toast` 훅은 별도의 훅이 아니라 `auto-update-checker`를 위한 설정 플래그입니다. 활성화되면 첫 번째 메인 세션이 생성될 때 현재 플러그인 버전을 보여주는 환영 토스트를 표시합니다.
 
-### Toast Control Logic
-
-```
+### 토스트 제어 로직 (Toast Control Logic)
 
 ```
 
-**Diagram: Startup Toast Control Flow**
+```
 
-The startup toast appears for all detection results (update available, up to date, local dev, pinned) unless explicitly disabled.
+**다이어그램: 시작 토스트 제어 흐름 (Startup Toast Control Flow)**
 
-Sources: [src/index.ts L232-L236](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L232-L236)
+시작 토스트는 명시적으로 비활성화되지 않는 한 모든 탐지 결과(업데이트 가능, 최신 상태, 로컬 개발, 버전 고정)에 대해 나타납니다.
+
+출처: [src/index.ts L232-L236](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L232-L236)
 
  [src/hooks/auto-update-checker/index.ts L9-L83](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/auto-update-checker/index.ts#L9-L83)
 
 ---
 
-## Keyword Detector Hook
+## 키워드 탐지 훅 (Keyword Detector Hook)
 
-The `keyword-detector` hook analyzes user messages for special keywords and injects optimization suggestions into the conversation. It operates on `chat.message` and `event` lifecycle hooks.
+`keyword-detector` 훅은 사용자 메시지에서 특수 키워드를 분석하고 대화에 최적화 제안을 주입합니다. 이 훅은 `chat.message` 및 `event` 생명주기(Lifecycle) 훅에서 작동합니다.
 
-### Detected Keywords and Actions
-
-```
+### 탐지된 키워드 및 동작 (Detected Keywords and Actions)
 
 ```
 
-**Diagram: Keyword Detection and Response Mapping**
+```
 
-Sources: [src/index.ts L237-L395](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L237-L395)
+**다이어그램: 키워드 탐지 및 응답 매핑 (Keyword Detection and Response Mapping)**
 
-### Hook Implementation Structure
+출처: [src/index.ts L237-L395](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L237-L395)
 
-The keyword detector implements two lifecycle methods:
+### 훅 구현 구조 (Hook Implementation Structure)
 
-| Method | Trigger | Purpose |
+키워드 탐지기는 두 가지 생명주기 메서드를 구현합니다.
+
+| 메서드 | 트리거 | 목적 |
 | --- | --- | --- |
-| `chat.message` | User submits message | Pre-process keywords before agent sees them |
-| `event` | Session events | React to session state changes |
+| `chat.message` | 사용자가 메시지 제출 | 에이전트가 메시지를 보기 전에 키워드 전처리 |
+| `event` | 세션 이벤트 | 세션 상태 변경에 반응 |
 
-The hook likely injects system prompts or modifies agent instructions based on detected keywords, though the exact implementation is in an unloaded file.
+이 훅은 탐지된 키워드를 기반으로 시스템 프롬프트(System prompt)를 주입하거나 에이전트 지침을 수정할 가능성이 높으나, 정확한 구현은 로드되지 않은 파일에 있습니다.
 
-Sources: [src/index.ts L237-L282](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L237-L282)
+출처: [src/index.ts L237-L282](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L237-L282)
 
 ---
 
-## Agent Usage Reminder Hook
+## 에이전트 사용 알림 훅 (Agent Usage Reminder Hook)
 
-The `agent-usage-reminder` hook suggests specialized agents when user queries match specific patterns. It operates on `event` and `tool.execute.after` lifecycle hooks.
+`agent-usage-reminder` 훅은 사용자 쿼리가 특정 패턴과 일치할 때 전문화된 에이전트 사용을 제안합니다. 이 훅은 `event` 및 `tool.execute.after` 생명주기 훅에서 작동합니다.
 
-### Hook Lifecycle Integration
-
-```
+### 훅 생명주기 통합 (Hook Lifecycle Integration)
 
 ```
 
-**Diagram: Agent Usage Reminder Trigger Points**
+```
 
-Sources: [src/index.ts L240-L530](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L240-L530)
+**다이어그램: 에이전트 사용 알림 트리거 포인트 (Agent Usage Reminder Trigger Points)**
 
-### Context-Aware Suggestion Patterns
+출처: [src/index.ts L240-L530](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L240-L530)
 
-The hook monitors conversation context and tool usage patterns to suggest specialized agents at opportune moments:
+### 컨텍스트 인식 제안 패턴 (Context-Aware Suggestion Patterns)
 
-| Pattern Detected | Suggested Agent | Rationale |
+이 훅은 대화 컨텍스트와 도구 사용 패턴을 모니터링하여 적절한 시점에 전문 에이전트를 제안합니다.
+
+| 탐지된 패턴 | 제안된 에이전트 | 근거 |
 | --- | --- | --- |
-| Multiple `grep` calls with low results | `explore` | Parallel codebase exploration more efficient |
-| Questions about external libraries | `librarian` | GitHub and documentation research needed |
-| Architecture or design questions | `oracle` | Expert technical guidance required |
-| UI/UX implementation requests | `frontend` | Specialized frontend engineer required |
+| 결과가 적은 다수의 `grep` 호출 | `explore` | 병렬 코드베이스 탐색이 더 효율적임 |
+| 외부 라이브러리에 대한 질문 | `librarian` | GitHub 및 문서 조사가 필요함 |
+| 아키텍처 또는 설계 질문 | `oracle` | 전문가 수준의 기술 가이드가 필요함 |
+| UI/UX 구현 요청 | `frontend` | 전문 프론트엔드 엔지니어가 필요함 |
 
-The reminder hook prevents redundant suggestions by tracking which agents have already been mentioned in the conversation.
+알림 훅은 대화에서 이미 언급된 에이전트를 추적하여 중복 제안을 방지합니다.
 
-Sources: [src/index.ts L240-L242](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L240-L242)
+출처: [src/index.ts L240-L242](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L240-L242)
 
 ---
 
-## Hook Configuration and Disabling
+## 훅 설정 및 비활성화 (Hook Configuration and Disabling)
 
-All user experience hooks can be individually disabled via the `disabled_hooks` configuration array:
-
-```
-
-```
-
-### Hook Enablement Logic
+모든 사용자 경험 훅은 `disabled_hooks` 설정 배열을 통해 개별적으로 비활성화할 수 있습니다.
 
 ```
 
 ```
 
-**Diagram: Hook Conditional Initialization Flow**
+### 훅 활성화 로직 (Hook Enablement Logic)
 
-The `isHookEnabled()` helper function checks if a hook name exists in the disabled set: `!disabledHooks.has(hookName)`. When disabled, hooks return `null` and their lifecycle methods are never called.
+```
 
-Sources: [src/index.ts L182-L248](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L182-L248)
+```
+
+**다이어그램: 훅 조건부 초기화 흐름 (Hook Conditional Initialization Flow)**
+
+`isHookEnabled()` 헬퍼 함수는 훅 이름이 비활성화 세트에 존재하는지 확인합니다: `!disabledHooks.has(hookName)`. 비활성화된 경우 훅은 `null`을 반환하며 해당 생명주기 메서드는 호출되지 않습니다.
+
+출처: [src/index.ts L182-L248](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L182-L248)
 
  [src/config/schema.ts L44-L65](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L44-L65)
 
-### Hook Name Schema Validation
+### 훅 이름 스키마 검증 (Hook Name Schema Validation)
 
-Hook names are validated against the `HookNameSchema` enum in configuration:
-
-```
+훅 이름은 설정의 `HookNameSchema` 열거형(Enum)에 대해 검증됩니다.
 
 ```
 
-Invalid hook names in `disabled_hooks` will cause configuration validation errors at plugin load time.
+```
 
-Sources: [src/config/schema.ts L44-L65](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L44-L65)
+`disabled_hooks`에 유효하지 않은 훅 이름이 있으면 플러그인 로드 시 설정 검증 오류가 발생합니다.
+
+출처: [src/config/schema.ts L44-L65](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L44-L65)
 
 ---
 
-## Integration with Event System
+## 이벤트 시스템과의 통합 (Integration with Event System)
 
-User experience hooks integrate with the plugin event system through multiple lifecycle points:
-
-```
+사용자 경험 훅은 여러 생명주기 지점을 통해 플러그인 이벤트 시스템과 통합됩니다.
 
 ```
 
-**Diagram: User Experience Hooks Event Integration**
+```
 
-Each hook receives events through the central dispatcher in [src/index.ts L383-L491](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L383-L491)
+**다이어그램: 사용자 경험 훅 이벤트 통합 (User Experience Hooks Event Integration)**
 
- allowing them to observe and influence the conversation flow.
+각 훅은 [src/index.ts L383-L491](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L383-L491)에 있는 중앙 디스패처(Dispatcher)를 통해 이벤트를 수신하며, 이를 통해 대화 흐름을 관찰하고 영향을 줄 수 있습니다.
 
-Sources: [src/index.ts L279-L491](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L279-L491)
+출처: [src/index.ts L279-L491](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L279-L491)

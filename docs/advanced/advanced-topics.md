@@ -1,13 +1,13 @@
 ---
 layout: default
-title: Advanced Topics
+title: 고급 주제
 parent: Advanced Topics
 nav_order: 1
 ---
 
-# Advanced Topics
+# 고급 주제 (Advanced Topics)
 
-> **Relevant source files**
+> **관련 소스 파일**
 > * [README.ja.md](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.ja.md)
 > * [README.ko.md](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.ko.md)
 > * [README.md](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md)
@@ -18,31 +18,31 @@ nav_order: 1
 > * [src/index.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts)
 > * [src/shared/config-path.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/shared/config-path.ts)
 
-This page covers advanced configuration options, experimental features, and optimization strategies for oh-my-opencode. These features are designed for users who want to fine-tune performance, enable bleeding-edge capabilities, or implement complex multi-agent workflows.
+이 페이지에서는 oh-my-opencode의 고급 설정 옵션, 실험적 기능 및 최적화 전략을 다룹니다. 이러한 기능은 성능을 미세 조정하거나, 최첨단 기능을 활성화하거나, 복잡한 멀티 에이전트 워크플로우를 구현하려는 사용자를 위해 설계되었습니다.
 
-For basic configuration options, see [Configuration](/code-yeongyu/oh-my-opencode/13.1-configuration-schema-reference). For hook-specific configuration, see [Hook Reference](/code-yeongyu/oh-my-opencode/13.4-hook-reference). For agent configuration, see [Agent Reference](/code-yeongyu/oh-my-opencode/13.2-agent-reference).
+기본 설정 옵션은 [Configuration](/code-yeongyu/oh-my-opencode/13.1-configuration-schema-reference)을 참조하십시오. 훅(Hook) 관련 설정은 [Hook Reference](/code-yeongyu/oh-my-opencode/13.4-hook-reference)를, 에이전트 설정은 [Agent Reference](/code-yeongyu/oh-my-opencode/13.2-agent-reference)를 참조하십시오.
 
 ---
 
-## Experimental Configuration
+## 실험적 설정 (Experimental Configuration)
 
-oh-my-opencode includes experimental features that provide advanced context management and performance optimizations. These features are disabled by default and can be enabled in the `experimental` section of your configuration file.
+oh-my-opencode에는 고급 컨텍스트 관리 및 성능 최적화를 제공하는 실험적 기능이 포함되어 있습니다. 이 기능들은 기본적으로 비활성화되어 있으며, 설정 파일의 `experimental` 섹션에서 활성화할 수 있습니다.
 
-### Configuration Structure
+### 설정 구조
 
-The experimental configuration object supports the following options:
+실험적 설정 객체는 다음 옵션들을 지원합니다:
 
-| Option | Type | Default | Description |
+| 옵션 | 타입 | 기본값 | 설명 |
 | --- | --- | --- | --- |
-| `aggressive_truncation` | `boolean` | `false` | Enable more aggressive truncation of tool outputs |
-| `auto_resume` | `boolean` | `false` | Automatically resume sessions after errors |
-| `preemptive_compaction` | `boolean` | `true` | Trigger compaction before hitting hard limits |
-| `preemptive_compaction_threshold` | `number` | `0.80` | Context usage percentage (0.5-0.95) to trigger compaction |
-| `truncate_all_tool_outputs` | `boolean` | `true` | Apply truncation to all tools, not just whitelisted ones |
-| `dcp_for_compaction` | `boolean` | `false` | Use Dynamic Context Pruning before summarization |
-| `dynamic_context_pruning` | `object` | `undefined` | DCP configuration (see below) |
+| `aggressive_truncation` | `boolean` | `false` | 도구 출력의 더 공격적인 절단(truncation) 활성화 |
+| `auto_resume` | `boolean` | `false` | 오류 발생 후 세션 자동 재개 |
+| `preemptive_compaction` | `boolean` | `true` | 하드 리미트에 도달하기 전에 선제적 압축(compaction) 트리거 |
+| `preemptive_compaction_threshold` | `number` | `0.80` | 선제적 압축을 트리거할 컨텍스트 사용량 비율 (0.5-0.95) |
+| `truncate_all_tool_outputs` | `boolean` | `true` | 화이트리스트에 있는 도구뿐만 아니라 모든 도구에 절단 적용 |
+| `dcp_for_compaction` | `boolean` | `false` | 요약(summarization) 전에 동적 컨텍스트 프루닝(DCP) 사용 |
+| `dynamic_context_pruning` | `object` | `undefined` | DCP 설정 (아래 참조) |
 
-**Example configuration:**
+**설정 예시:**
 
 ```json
 {
@@ -59,7 +59,7 @@ The experimental configuration object supports the following options:
 }
 ```
 
-**Sources:** [src/config/schema.ts L163-L176](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L163-L176)
+**출처:** [src/config/schema.ts L163-L176](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L163-L176)
 
  [src/index.ts L273-L277](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L273-L277)
 
@@ -67,27 +67,27 @@ The experimental configuration object supports the following options:
 
 ---
 
-## Dynamic Context Pruning (DCP)
+## 동적 컨텍스트 프루닝 (Dynamic Context Pruning, DCP)
 
-Dynamic Context Pruning is an experimental feature that intelligently removes redundant or superseded content from the conversation history without performing full summarization. This preserves more context while staying within token limits.
+동적 컨텍스트 프루닝은 전체 요약을 수행하지 않고 대화 기록에서 중복되거나 대체된 콘텐츠를 지능적으로 제거하는 실험적 기능입니다. 이를 통해 토큰 제한 내에서 더 많은 컨텍스트를 보존할 수 있습니다.
 
-### DCP Architecture
+### DCP 아키텍처
 
 ```mermaid
 flowchart TD
 
-Monitor["Context Monitor<br>(70%/80% thresholds)"]
-Analyzer["DCP Analyzer<br>Scans tool_use blocks"]
-Categorize["Categorize by Strategy<br>Dedup/Supersede/Purge"]
-TurnProtect["Turn Protection<br>(default: 3 turns)"]
-ToolProtect["Protected Tools<br>(task, todowrite, lsp_rename)"]
-Filter["Filter Candidates"]
-Dedup["Deduplication<br>Same tool + same args"]
-Supersede["Supersede Writes<br>File write → subsequent read"]
-Purge["Purge Errors<br>Errored tools after N turns"]
-Calculate["Calculate Token Savings"]
-Prune["Remove Selected Blocks"]
-Notify["Notify User<br>(off/minimal/detailed)"]
+Monitor["컨텍스트 모니터<br>(70%/80% 임계값)"]
+Analyzer["DCP 분석기<br>tool_use 블록 스캔"]
+Categorize["전략별 분류<br>중복/대체/제거"]
+TurnProtect["턴 보호<br>(기본값: 3턴)"]
+ToolProtect["보호된 도구<br>(task, todowrite, lsp_rename)"]
+Filter["후보 필터링"]
+Dedup["중복 제거<br>동일 도구 + 동일 인자"]
+Supersede["쓰기 대체<br>파일 쓰기 → 이후 읽기 발생 시"]
+Purge["오류 제거<br>N턴 경과 후 오류 발생한 도구"]
+Calculate["토큰 절약량 계산"]
+Prune["선택된 블록 제거"]
+Notify["사용자 알림<br>(off/minimal/detailed)"]
 
 Categorize -.-> TurnProtect
 Filter -.-> Dedup
@@ -97,7 +97,7 @@ Dedup -.-> Calculate
 Supersede -.-> Calculate
 Purge -.-> Calculate
 
-subgraph Execution ["Execution"]
+subgraph Execution ["실행"]
     Calculate
     Prune
     Notify
@@ -105,13 +105,13 @@ subgraph Execution ["Execution"]
     Prune -.-> Notify
 end
 
-subgraph subGraph2 ["Pruning Strategies"]
+subgraph subGraph2 ["프루닝 전략"]
     Dedup
     Supersede
     Purge
 end
 
-subgraph subGraph1 ["Protection Layer"]
+subgraph subGraph1 ["보호 레이어"]
     TurnProtect
     ToolProtect
     Filter
@@ -119,7 +119,7 @@ subgraph subGraph1 ["Protection Layer"]
     ToolProtect -.-> Filter
 end
 
-subgraph subGraph0 ["Context Analysis Phase"]
+subgraph subGraph0 ["컨텍스트 분석 단계"]
     Monitor
     Analyzer
     Categorize
@@ -128,80 +128,80 @@ subgraph subGraph0 ["Context Analysis Phase"]
 end
 ```
 
-**Sources:** [src/config/schema.ts L127-L161](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L127-L161)
+**출처:** [src/config/schema.ts L127-L161](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L127-L161)
 
  [README.md L688-L690](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L688-L690)
 
-### DCP Configuration Options
+### DCP 설정 옵션
 
-The `dynamic_context_pruning` object supports the following configuration:
+`dynamic_context_pruning` 객체는 다음 설정을 지원합니다:
 
 ```
 {
   "dynamic_context_pruning": {
-    // Enable/disable DCP
-    "enabled": boolean,  // default: false
+    // DCP 활성화/비활성화
+    "enabled": boolean,  // 기본값: false
     
-    // Notification level: "off" | "minimal" | "detailed"
-    "notification": string,  // default: "detailed"
+    // 알림 수준: "off" | "minimal" | "detailed"
+    "notification": string,  // 기본값: "detailed"
     
-    // Turn protection - prevents pruning recent messages
+    // 턴 보호 - 최근 메시지가 삭제되는 것을 방지
     "turn_protection": {
-      "enabled": boolean,  // default: true
-      "turns": number      // default: 3, range: 1-10
+      "enabled": boolean,  // 기본값: true
+      "turns": number      // 기본값: 3, 범위: 1-10
     },
     
-    // Tools that should never be pruned
-    "protected_tools": string[],  // default: ["task", "todowrite", "lsp_rename", ...]
+    // 절대 삭제되지 않아야 하는 도구들
+    "protected_tools": string[],  // 기본값: ["task", "todowrite", "lsp_rename", ...]
     
-    // Individual strategy configuration
+    // 개별 전략 설정
     "strategies": {
       "deduplication": {
-        "enabled": boolean  // default: true
+        "enabled": boolean  // 기본값: true
       },
       "supersede_writes": {
-        "enabled": boolean,    // default: true
-        "aggressive": boolean  // default: false
+        "enabled": boolean,    // 기본값: true
+        "aggressive": boolean  // 기본값: false
       },
       "purge_errors": {
-        "enabled": boolean,  // default: true
-        "turns": number      // default: 5, range: 1-20
+        "enabled": boolean,  // 기본값: true
+        "turns": number      // 기본값: 5, 범위: 1-20
       }
     }
   }
 }
 ```
 
-### Pruning Strategies Explained
+### 프루닝 전략 설명
 
-| Strategy | Behavior | Example |
+| 전략 | 동작 방식 | 예시 |
 | --- | --- | --- |
-| **Deduplication** | Removes duplicate tool calls with identical tool name and arguments | Two consecutive `lsp_hover` calls on the same file/position → keeps only the last one |
-| **Supersede Writes** | Prunes write operations when the file is subsequently read | `write_file("foo.js", content)` followed by `read_file("foo.js")` → removes the write's input content |
-| **Supersede Writes (Aggressive)** | Prunes ANY write if ANY subsequent read occurs | `write_file("a.js", ...)` followed by `read_file("b.js")` → removes the write (not recommended) |
-| **Purge Errors** | Removes errored tool calls after N turns have passed | Failed `bash` command from 5+ turns ago → removes the input |
+| **중복 제거 (Deduplication)** | 동일한 도구 이름과 인자를 가진 중복 도구 호출을 제거합니다. | 동일한 파일/위치에 대한 두 번의 연속된 `lsp_hover` 호출 → 마지막 호출만 유지 |
+| **쓰기 대체 (Supersede Writes)** | 파일이 이후에 읽히는 경우 이전의 쓰기 작업을 프루닝합니다. | `write_file("foo.js", content)` 이후 `read_file("foo.js")` 호출 → 쓰기 작업의 입력 콘텐츠 제거 |
+| **쓰기 대체 (공격적)** | 이후에 어떤 읽기 작업이라도 발생하면 모든 쓰기 작업을 프루닝합니다. | `write_file("a.js", ...)` 이후 `read_file("b.js")` 호출 → 쓰기 작업 제거 (권장되지 않음) |
+| **오류 제거 (Purge Errors)** | N턴이 지난 후 오류가 발생한 도구 호출을 제거합니다. | 5턴 이전에 실패한 `bash` 명령 → 입력 내용 제거 |
 
-**Sources:** [src/config/schema.ts L143-L160](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L143-L160)
+**출처:** [src/config/schema.ts L143-L160](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L143-L160)
 
  [README.md L688-L690](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L688-L690)
 
-### DCP vs. Preemptive Compaction
+### DCP vs. 선제적 압축 (Preemptive Compaction)
 
 ```mermaid
 flowchart TD
 
-Threshold["80% Token Usage"]
-DCP["Run DCP First<br>Remove redundant blocks"]
-DCPCheck["Enough<br>space?"]
-DCPSuccess["Continue Session"]
-Compact["Summarize History<br>(LLM call)"]
-Inject["Inject Critical Context<br>(AGENTS.md, current dir)"]
-Resume["Resume Session"]
+Threshold["토큰 사용량 80% 도달"]
+DCP["DCP 먼저 실행<br>중복 블록 제거"]
+DCPCheck["공간이<br>충분한가?"]
+DCPSuccess["세션 계속 진행"]
+Compact["대화 기록 요약<br>(LLM 호출)"]
+Inject["중요 컨텍스트 주입<br>(AGENTS.md, 현재 디렉토리)"]
+Resume["세션 재개"]
 
 Threshold -.-> DCP
 DCPCheck -.-> Compact
 
-subgraph subGraph2 ["Compaction Path"]
+subgraph subGraph2 ["압축 경로"]
     Compact
     Inject
     Resume
@@ -209,49 +209,49 @@ subgraph subGraph2 ["Compaction Path"]
     Inject -.-> Resume
 end
 
-subgraph subGraph1 ["DCP Path (dcp_for_compaction: true)"]
+subgraph subGraph1 ["DCP 경로 (dcp_for_compaction: true)"]
     DCP
     DCPCheck
     DCPSuccess
-    DCP -.->|"Yes"| DCPCheck
-    DCPCheck -.->|"No"| DCPSuccess
+    DCP -.->|"예"| DCPCheck
+    DCPCheck -.->|"아니오"| DCPSuccess
 end
 
-subgraph subGraph0 ["Context Limit Approaching"]
+subgraph subGraph0 ["컨텍스트 제한 도달 시"]
     Threshold
 end
 ```
 
-When `dcp_for_compaction` is enabled, DCP runs first when the context limit is exceeded. If DCP frees enough space, summarization is avoided entirely. If not, the system falls back to standard preemptive compaction with summarization.
+`dcp_for_compaction`이 활성화되면 컨텍스트 제한을 초과할 때 DCP가 먼저 실행됩니다. DCP가 충분한 공간을 확보하면 요약 과정을 완전히 건너뜁니다. 공간이 부족한 경우 시스템은 요약을 포함한 표준 선제적 압축 방식으로 전환합니다.
 
-**Sources:** [src/config/schema.ts L174-L175](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L174-L175)
+**출처:** [src/config/schema.ts L174-L175](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L174-L175)
 
  [src/hooks/preemptive-compaction.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/preemptive-compaction.ts#L1-L100)
 
- (inferred from architecture)
+ (아키텍처에서 추론됨)
 
 ---
 
-## Keyword Detection Modes
+## 키워드 감지 모드 (Keyword Detection Modes)
 
-oh-my-opencode includes a keyword detection system that activates specialized orchestration modes based on user prompts. This allows for optimized agent behavior without explicit configuration.
+oh-my-opencode에는 사용자 프롬프트를 기반으로 특수 오케스트레이션 모드를 활성화하는 키워드 감지 시스템이 포함되어 있습니다. 이를 통해 명시적인 설정 없이도 최적화된 에이전트 동작이 가능합니다.
 
-### Keyword Detection Flow
+### 키워드 감지 흐름
 
 ```mermaid
 flowchart TD
 
-UserPrompt["User Prompt"]
-KeywordDetector["createKeywordDetectorHook<br>chat.message handler"]
-PatternMatch["Pattern Matching<br>RegExp detection"]
-Ultrawork["ultrawork | ulw<br>Maximum performance mode"]
-Search["search | find | 찾아 | 検索<br>Maximized search effort"]
-Analyze["analyze | investigate | 분석 | 調査<br>Deep analysis mode"]
-ParallelAgents["Enable Parallel<br>Background Tasks"]
-SearchMode["Spawn explore +<br>librarian in parallel"]
-AnalysisMode["Multi-phase expert<br>consultation"]
-InjectMode["Inject Mode Hint<br>to Agent Prompt"]
-AgentBehavior["Agent Adjusts<br>Workflow"]
+UserPrompt["사용자 프롬프트"]
+KeywordDetector["createKeywordDetectorHook<br>chat.message 핸들러"]
+PatternMatch["패턴 매칭<br>RegExp 감지"]
+Ultrawork["ultrawork | ulw<br>최대 성능 모드"]
+Search["search | find | 찾아 | 検索<br>검색 노력 극대화"]
+Analyze["analyze | investigate | 분석 | 調査<br>심층 분석 모드"]
+ParallelAgents["병렬 백그라운드<br>태스크 활성화"]
+SearchMode["explore + librarian<br>병렬 실행"]
+AnalysisMode["다단계 전문가<br>자문"]
+InjectMode["에이전트 프롬프트에<br>모드 힌트 주입"]
+AgentBehavior["에이전트가<br>워크플로우 조정"]
 
 PatternMatch -.-> Ultrawork
 PatternMatch -.-> Search
@@ -263,25 +263,25 @@ ParallelAgents -.-> InjectMode
 SearchMode -.-> InjectMode
 AnalysisMode -.-> InjectMode
 
-subgraph subGraph3 ["Session Context Injection"]
+subgraph subGraph3 ["세션 컨텍스트 주입"]
     InjectMode
     AgentBehavior
     InjectMode -.-> AgentBehavior
 end
 
-subgraph subGraph2 ["Orchestration Changes"]
+subgraph subGraph2 ["오케스트레이션 변경"]
     ParallelAgents
     SearchMode
     AnalysisMode
 end
 
-subgraph subGraph1 ["Detected Keywords"]
+subgraph subGraph1 ["감지된 키워드"]
     Ultrawork
     Search
     Analyze
 end
 
-subgraph subGraph0 ["User Input Processing"]
+subgraph subGraph0 ["사용자 입력 처리"]
     UserPrompt
     KeywordDetector
     PatternMatch
@@ -290,56 +290,56 @@ subgraph subGraph0 ["User Input Processing"]
 end
 ```
 
-**Sources:** [src/hooks/keyword-detector.ts L1-L50](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/keyword-detector.ts#L1-L50)
+**출처:** [src/hooks/keyword-detector.ts L1-L50](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/keyword-detector.ts#L1-L50)
 
- (inferred), [README.md L671-L675](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L671-L675)
+ (추론됨), [README.md L671-L675](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L671-L675)
 
-### Keyword Mode Behaviors
+### 키워드 모드 동작
 
-| Keyword | Language Variants | Behavior | Use Case |
+| 키워드 | 언어별 변형 | 동작 방식 | 사용 사례 |
 | --- | --- | --- | --- |
-| `ultrawork` | `ulw` | Maximum performance with aggressive parallel execution. Sisyphus spawns multiple background tasks simultaneously. | Complex multi-component tasks requiring maximum throughput |
-| `search` | `find`, `찾아` (Korean), `検索` (Japanese) | Parallel search mode. Spawns both `explore` and `librarian` agents as background tasks to search code and docs simultaneously. | Finding implementations, patterns, or documentation references |
-| `analyze` | `investigate`, `분석` (Korean), `調査` (Japanese) | Deep analysis mode with multi-phase expert consultation. Engages Oracle for architecture review. | Debugging complex issues, architecture decisions, code review |
+| `ultrawork` | `ulw` | 공격적인 병렬 실행을 통한 최대 성능 모드. Sisyphus가 여러 백그라운드 태스크를 동시에 실행합니다. | 최대 처리량이 필요한 복잡한 다중 컴포넌트 작업 |
+| `search` | `find`, `찾아` (한국어), `検索` (일본어) | 병렬 검색 모드. `explore`와 `librarian` 에이전트를 백그라운드 태스크로 동시에 실행하여 코드와 문서를 검색합니다. | 구현체, 패턴 또는 문서 참조 찾기 |
+| `analyze` | `investigate`, `분석` (한국어), `調査` (일본어) | 다단계 전문가 자문을 포함한 심층 분석 모드. 아키텍처 검토를 위해 Oracle을 참여시킵니다. | 복잡한 문제 디버깅, 아키텍처 결정, 코드 리뷰 |
 
-**Example prompts:**
+**프롬프트 예시:**
 
 ```yaml
-ultrawork: Refactor the authentication system to use JWT tokens
-search: Find all usages of the deprecated API endpoint
-analyze: Why is the payment processing failing for international cards?
+ultrawork: JWT 토큰을 사용하도록 인증 시스템을 리팩토링해줘
+search: 더 이상 사용되지 않는(deprecated) API 엔드포인트의 모든 사용처를 찾아줘
+analyze: 왜 해외 카드 결제가 실패하는지 분석해줘
 ```
 
-**Sources:** [README.md L671-L675](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L671-L675)
+**출처:** [README.md L671-L675](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L671-L675)
 
  [src/hooks/keyword-detector.ts L1-L50](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/keyword-detector.ts#L1-L50)
 
- (inferred)
+ (추론됨)
 
 ---
 
-## Model Configuration
+## 모델 설정 (Model Configuration)
 
-Agent model configuration allows fine-grained control over which AI models handle specific tasks, along with their behavior parameters.
+에이전트 모델 설정을 통해 특정 작업을 처리할 AI 모델과 해당 모델의 동작 파라미터를 세밀하게 제어할 수 있습니다.
 
-### Agent Model Override Hierarchy
+### 에이전트 모델 오버라이드 계층 구조
 
 ```mermaid
 flowchart TD
 
-Default["Built-in Defaults<br>(createBuiltinAgents)"]
-UserConfig["User Config<br>~/.config/opencode/oh-my-opencode.json"]
-ProjectConfig["Project Config<br>.opencode/oh-my-opencode.json"]
-Merge["deepMerge Configuration<br>Priority: Project > User > Default"]
-AgentFactory["Agent Factory<br>Creates agent configs"]
-ModelID["model: string<br>e.g., 'anthropic/claude-opus-4-5'"]
-Temperature["temperature: 0-2<br>Randomness control"]
-TopP["top_p: 0-1<br>Nucleus sampling"]
-Prompt["prompt: string<br>System prompt override"]
-Tools["tools: Record<br>Tool access control"]
-Permission["permission: object<br>Fine-grained permissions"]
-OpenCodeConfig["OpenCode config.agent<br>Final merged configuration"]
-SessionStart["Session Start<br>Agent initialized with config"]
+Default["내장 기본값<br>(createBuiltinAgents)"]
+UserConfig["사용자 설정<br>~/.config/opencode/oh-my-opencode.json"]
+ProjectConfig["프로젝트 설정<br>.opencode/oh-my-opencode.json"]
+Merge["deepMerge 설정<br>우선순위: 프로젝트 > 사용자 > 기본값"]
+AgentFactory["에이전트 팩토리<br>에이전트 설정 생성"]
+ModelID["model: string<br>예: 'anthropic/claude-opus-4-5'"]
+Temperature["temperature: 0-2<br>무작위성 제어"]
+TopP["top_p: 0-1<br>핵심 샘플링(Nucleus sampling)"]
+Prompt["prompt: string<br>시스템 프롬프트 오버라이드"]
+Tools["tools: Record<br>도구 접근 제어"]
+Permission["permission: object<br>세부 권한 설정"]
+OpenCodeConfig["OpenCode config.agent<br>최종 병합된 설정"]
+SessionStart["세션 시작<br>설정된 에이전트 초기화"]
 
 Default -.-> Merge
 UserConfig -.-> Merge
@@ -357,13 +357,13 @@ Prompt -.-> OpenCodeConfig
 Tools -.-> OpenCodeConfig
 Permission -.-> OpenCodeConfig
 
-subgraph subGraph3 ["Runtime Resolution"]
+subgraph subGraph3 ["런타임 결정"]
     OpenCodeConfig
     SessionStart
     OpenCodeConfig -.-> SessionStart
 end
 
-subgraph subGraph2 ["Agent-Specific Settings"]
+subgraph subGraph2 ["에이전트별 설정"]
     ModelID
     Temperature
     TopP
@@ -372,28 +372,28 @@ subgraph subGraph2 ["Agent-Specific Settings"]
     Permission
 end
 
-subgraph subGraph1 ["Override Application"]
+subgraph subGraph1 ["오버라이드 적용"]
     Merge
     AgentFactory
     Merge -.-> AgentFactory
 end
 
-subgraph subGraph0 ["Configuration Sources"]
+subgraph subGraph0 ["설정 소스"]
     Default
     UserConfig
     ProjectConfig
 end
 ```
 
-**Sources:** [src/index.ts L153-L187](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L153-L187)
+**출처:** [src/index.ts L153-L187](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L153-L187)
 
  [src/agents/index.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/index.ts#L1-L100)
 
- (inferred), [src/config/schema.ts L74-L103](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L74-L103)
+ (추론됨), [src/config/schema.ts L74-L103](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L74-L103)
 
-### Model Configuration Options
+### 모델 설정 옵션
 
-**Basic configuration:**
+**기본 설정:**
 
 ```json
 {
@@ -414,7 +414,7 @@ end
 }
 ```
 
-**Advanced configuration with tool restrictions:**
+**도구 제한을 포함한 고급 설정:**
 
 ```
 {
@@ -422,7 +422,7 @@ end
     "oracle": {
       "model": "openai/gpt-5.2",
       "tools": {
-        "write_file": false,  // Read-only advisor
+        "write_file": false,  // 읽기 전용 조언자
         "edit_file": false,
         "background_task": false
       },
@@ -435,16 +435,16 @@ end
 }
 ```
 
-**Sources:** [src/config/schema.ts L74-L89](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L74-L89)
+**출처:** [src/config/schema.ts L74-L89](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L74-L89)
 
  [README.md L772-L787](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L772-L787)
 
-### Context Limit Management
+### 컨텍스트 제한 관리
 
-oh-my-opencode tracks model context limits from the OpenCode configuration and uses them for preemptive compaction decisions:
+oh-my-opencode는 OpenCode 설정에서 모델 컨텍스트 제한을 추적하고 이를 선제적 압축 결정에 사용합니다:
 
 ```javascript
-// From src/index.ts
+// src/index.ts 발췌
 const modelContextLimitsCache = new Map<string, number>();
 const getModelLimit = (providerID: string, modelID: string): number | undefined => {
   const key = `${providerID}/${modelID}`;
@@ -452,68 +452,68 @@ const getModelLimit = (providerID: string, modelID: string): number | undefined 
   if (cached) return cached;
   
   if (providerID === "anthropic" && anthropicContext1MEnabled && modelID.includes("sonnet")) {
-    return 1_000_000;  // Anthropic extended context
+    return 1_000_000;  // Anthropic 확장 컨텍스트
   }
   return undefined;
 };
 ```
 
-The context limit is detected from:
+컨텍스트 제한은 다음에서 감지됩니다:
 
 1. OpenCode `config.provider[providerID].models[modelID].limit.context`
-2. Special handling for Anthropic's `anthropic-beta: context-1m` header
-3. Cached for performance
+2. Anthropic의 `anthropic-beta: context-1m` 헤더에 대한 특수 처리
+3. 성능을 위해 캐싱됨
 
-**Sources:** [src/index.ts L224-L236](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L224-L236)
+**출처:** [src/index.ts L224-L236](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L224-L236)
 
  [src/index.ts L362-L386](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L362-L386)
 
-### Thinking Mode Configuration
+### 사고 모드 (Thinking Mode) 설정
 
-oh-my-opencode automatically detects when extended thinking is needed and adjusts model settings:
+oh-my-opencode는 확장된 사고(extended thinking)가 필요한 시점을 자동으로 감지하고 모델 설정을 조정합니다:
 
-**Detection triggers:**
+**감지 트리거:**
 
-* User prompts containing: "think deeply", "ultrathink", "reason carefully"
-* Complex tasks requiring multi-step reasoning
+* 사용자 프롬프트에 포함된 단어: "think deeply", "ultrathink", "신중하게 생각해서"
+* 다단계 추론이 필요한 복잡한 작업
 
-**Automatic adjustments:**
+**자동 조정 사항:**
 
-* Claude models: Sets `thinking` configuration
-* OpenAI models: Adjusts `reasoning_effort` parameter
-* Token budget allocation for extended thinking
+* Claude 모델: `thinking` 설정 적용
+* OpenAI 모델: `reasoning_effort` 파라미터 조정
+* 확장 사고를 위한 토큰 예산 할당
 
-**Sources:** [README.md L676-L677](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L676-L677)
+**출처:** [README.md L676-L677](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L676-L677)
 
  [src/hooks/think-mode.ts L1-L50](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/think-mode.ts#L1-L50)
 
- (inferred)
+ (추론됨)
 
 ---
 
-## Parallel Execution Patterns
+## 병렬 실행 패턴 (Parallel Execution Patterns)
 
-oh-my-opencode's background execution system enables true parallel agent workflows, allowing multiple agents to work simultaneously while maintaining coordination.
+oh-my-opencode의 백그라운드 실행 시스템은 진정한 병렬 에이전트 워크플로우를 가능하게 하여, 여러 에이전트가 조율을 유지하면서 동시에 작업할 수 있도록 합니다.
 
-### Background Execution Architecture
+### 백그라운드 실행 아키텍처
 
 ```mermaid
 flowchart TD
 
-MainSession["Main Session<br>(Sisyphus orchestrator)"]
-BgManager["BackgroundManager<br>Task lifecycle tracking"]
+MainSession["메인 세션<br>(Sisyphus 오케스트레이터)"]
+BgManager["BackgroundManager<br>태스크 생명주기 추적"]
 CallAgent["call_omo_agent<br>run_in_background: true"]
-BgTask["background_task<br>tool call"]
-TaskID["Generate Task ID<br>Return immediately"]
-ChildSession["Child Session<br>(explore/librarian)"]
-EventStream["Event Stream<br>session.idle/error"]
-Polling["Polling Loop<br>Every 2 seconds"]
-Monitor["Dual Monitoring<br>Events + Polling"]
-Detect["Completion Detection<br>session.idle + no tool_use"]
-Notify["Notify Parent<br>Toast + prompt injection"]
-BgOutput["background_output<br>tool call"]
-Block["block parameter<br>Wait for completion?"]
-Result["Return Task Result<br>or 'still running'"]
+BgTask["background_task<br>도구 호출"]
+TaskID["태스크 ID 생성<br>즉시 반환"]
+ChildSession["자식 세션<br>(explore/librarian)"]
+EventStream["이벤트 스트림<br>session.idle/error"]
+Polling["폴링 루프<br>2초마다 실행"]
+Monitor["이중 모니터링<br>이벤트 + 폴링"]
+Detect["완료 감지<br>session.idle + tool_use 없음"]
+Notify["부모에게 알림<br>토스트 + 프롬프트 주입"]
+BgOutput["background_output<br>도구 호출"]
+Block["block 파라미터<br>완료 대기 여부"]
+Result["태스크 결과 반환<br>또는 '실행 중' 메시지"]
 
 MainSession -.-> CallAgent
 MainSession -.-> BgTask
@@ -523,7 +523,7 @@ Polling -.-> Monitor
 Notify -.-> MainSession
 MainSession -.-> BgOutput
 
-subgraph subGraph4 ["Result Retrieval"]
+subgraph subGraph4 ["결과 조회"]
     BgOutput
     Block
     Result
@@ -531,7 +531,7 @@ subgraph subGraph4 ["Result Retrieval"]
     Block -.-> Result
 end
 
-subgraph subGraph3 ["Monitoring & Notification"]
+subgraph subGraph3 ["모니터링 및 알림"]
     Monitor
     Detect
     Notify
@@ -539,7 +539,7 @@ subgraph subGraph3 ["Monitoring & Notification"]
     Detect -.-> Notify
 end
 
-subgraph subGraph2 ["Background Session"]
+subgraph subGraph2 ["백그라운드 세션"]
     ChildSession
     EventStream
     Polling
@@ -547,7 +547,7 @@ subgraph subGraph2 ["Background Session"]
     ChildSession -.-> Polling
 end
 
-subgraph subGraph1 ["Task Creation"]
+subgraph subGraph1 ["태스크 생성"]
     CallAgent
     BgTask
     TaskID
@@ -555,180 +555,180 @@ subgraph subGraph1 ["Task Creation"]
     BgTask -.-> TaskID
 end
 
-subgraph subGraph0 ["Session Hierarchy"]
+subgraph subGraph0 ["세션 계층 구조"]
     MainSession
     BgManager
     MainSession -.-> BgManager
 end
 ```
 
-**Sources:** [src/features/background-agent.ts L1-L200](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent.ts#L1-L200)
+**출처:** [src/features/background-agent.ts L1-L200](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent.ts#L1-L200)
 
- (inferred), [src/tools/call-omo-agent.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/call-omo-agent.ts#L1-L100)
+ (추론됨), [src/tools/call-omo-agent.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/call-omo-agent.ts#L1-L100)
 
- (inferred), [README.md L485-L496](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L485-L496)
+ (추론됨), [README.md L485-L496](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L485-L496)
 
-### Background Task Tools
+### 백그라운드 태스크 도구
 
-| Tool | Parameters | Behavior | Return Value |
+| 도구 | 파라미터 | 동작 방식 | 반환 값 |
 | --- | --- | --- | --- |
-| `call_omo_agent` | `agent_name`, `task`, `run_in_background` | Spawns explore or librarian agent. If `run_in_background: true`, returns task_id immediately. | `task_id` (background) or full response (blocking) |
-| `background_task` | `description` | Creates generic background task. Used by Sisyphus for parallel work. | `task_id` |
-| `background_output` | `task_id`, `block` | Retrieves task output. If `block: true`, waits for completion. | Task result or "still running" |
-| `background_cancel` | `task_id` or `all: true` | Cancels one or all background tasks | Confirmation message |
+| `call_omo_agent` | `agent_name`, `task`, `run_in_background` | explore 또는 librarian 에이전트를 실행합니다. `run_in_background: true`인 경우 즉시 task_id를 반환합니다. | `task_id` (백그라운드) 또는 전체 응답 (블로킹) |
+| `background_task` | `description` | 일반적인 백그라운드 태스크를 생성합니다. Sisyphus가 병렬 작업을 위해 사용합니다. | `task_id` |
+| `background_output` | `task_id`, `block` | 태스크 출력을 가져옵니다. `block: true`인 경우 완료될 때까지 대기합니다. | 태스크 결과 또는 "still running" |
+| `background_cancel` | `task_id` 또는 `all: true` | 하나 또는 모든 백그라운드 태스크를 취소합니다. | 확인 메시지 |
 
-**Sources:** [src/tools/index.ts L53](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/index.ts#L53-L53)
+**출처:** [src/tools/index.ts L53](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/index.ts#L53-L53)
 
  [src/tools/call-omo-agent.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/call-omo-agent.ts#L1-L100)
 
- (inferred), [README.md L525](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L525-L525)
+ (추론됨), [README.md L525](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L525-L525)
 
-### Parallel Execution Patterns
+### 병렬 실행 패턴
 
-**Pattern 1: Parallel Research**
+**패턴 1: 병렬 조사 (Parallel Research)**
 
 ```
-Sisyphus's workflow:
-1. Spawn explore agent in background: search for authentication patterns
-2. Spawn librarian agent in background: find JWT documentation
-3. Continue with initial implementation
-4. Wait for both agents to complete
-5. Integrate findings
+Sisyphus의 워크플로우:
+1. 백그라운드에서 explore 에이전트 실행: 인증 패턴 검색
+2. 백그라운드에서 librarian 에이전트 실행: JWT 문서 찾기
+3. 초기 구현 작업 계속 진행
+4. 두 에이전트가 모두 완료될 때까지 대기
+5. 조사 결과 통합
 ```
 
-**Implementation:**
+**구현:**
 
 ```yaml
-// Sisyphus calls:
+// Sisyphus 호출:
 call_omo_agent({
   agent_name: "explore",
-  task: "Find authentication patterns in src/",
+  task: "src/에서 인증 패턴 찾기",
   run_in_background: true
-})  // Returns task_id_1 immediately
+})  // 즉시 task_id_1 반환
 
 call_omo_agent({
   agent_name: "librarian", 
-  task: "Research JWT best practices",
+  task: "JWT 모범 사례 조사",
   run_in_background: true
-})  // Returns task_id_2 immediately
+})  // 즉시 task_id_2 반환
 
-// Later, retrieve results:
+// 나중에 결과 가져오기:
 background_output({ task_id: "task_id_1", block: true })
 background_output({ task_id: "task_id_2", block: true })
 ```
 
-**Pattern 2: Frontend/Backend Split**
+**패턴 2: 프론트엔드/백엔드 분리**
 
 ```
-Sisyphus's workflow:
-1. background_task: "Gemini builds frontend components"
-2. Continue with backend implementation
-3. Get notified when frontend completes
-4. Review and integrate
+Sisyphus의 워크플로우:
+1. background_task: "Gemini가 프론트엔드 컴포넌트 빌드"
+2. 백엔드 구현 계속 진행
+3. 프론트엔드 완료 시 알림 수신
+4. 검토 및 통합
 ```
 
-**Pattern 3: Multi-Angle Search**
+**패턴 3: 다각도 검색**
 
 ```
-Sisyphus activates "search" mode:
-1. Spawn explore (code search via LSP/AST/grep_app)
-2. Spawn librarian (docs search via context7/websearch_exa)
-3. Both run in parallel
-4. Aggregate results
+Sisyphus가 "search" 모드 활성화:
+1. explore 실행 (LSP/AST/grep_app을 통한 코드 검색)
+2. librarian 실행 (context7/websearch_exa를 통한 문서 검색)
+3. 둘 다 병렬로 실행
+4. 결과 집계
 ```
 
-**Sources:** [README.md L485-L496](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L485-L496)
+**출처:** [README.md L485-L496](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L485-L496)
 
  [src/hooks/background-notification.ts L1-L50](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/background-notification.ts#L1-L50)
 
- (inferred)
+ (추론됨)
 
-### Background Session State Management
+### 백그라운드 세션 상태 관리
 
-The `BackgroundManager` tracks all background tasks:
+`BackgroundManager`는 모든 백그라운드 태스크를 추적합니다:
 
 ```python
-// Task states (inferred from architecture)
+// 태스크 상태 (아키텍처에서 추론됨)
 type TaskState = 
-  | "pending"     // Task created, session starting
-  | "running"     // Session active, agent working
-  | "completed"   // Session idle, results available
-  | "failed"      // Error occurred
-  | "cancelled"   // Manually cancelled
+  | "pending"     // 태스크 생성됨, 세션 시작 중
+  | "running"     // 세션 활성 상태, 에이전트 작업 중
+  | "completed"   // 세션 유휴 상태, 결과 사용 가능
+  | "failed"      // 오류 발생
+  | "cancelled"   // 수동 취소됨
 
-// BackgroundManager maintains:
+// BackgroundManager 유지 관리:
 class BackgroundManager {
-  private tasks: Map<string, TaskInfo>  // task_id -> task metadata
-  private sessions: Map<string, SessionInfo>  // session_id -> background session
+  private tasks: Map<string, TaskInfo>  // task_id -> 태스크 메타데이터
+  private sessions: Map<string, SessionInfo>  // session_id -> 백그라운드 세션
   
-  // Dual monitoring:
-  - Event listener: session.idle, session.error
-  - Polling: setInterval(checkSessions, 2000)
+  // 이중 모니터링:
+  - 이벤트 리스너: session.idle, session.error
+  - 폴링: setInterval(checkSessions, 2000)
 }
 ```
 
-**Completion detection logic:**
+**완료 감지 로직:**
 
-1. Session emits `session.idle` event
-2. No pending `tool_use` blocks in message array
-3. Task marked as `completed`
-4. Parent session notified via toast and prompt injection
+1. 세션이 `session.idle` 이벤트 발생
+2. 메시지 배열에 대기 중인 `tool_use` 블록이 없음
+3. 태스크가 `completed`로 표시됨
+4. 토스트 알림 및 프롬프트 주입을 통해 부모 세션에 알림
 
-**Sources:** [src/features/background-agent.ts L1-L200](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent.ts#L1-L200)
+**출처:** [src/features/background-agent.ts L1-L200](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent.ts#L1-L200)
 
- (inferred), [src/index.ts L307-L320](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L307-L320)
+ (추론됨), [src/index.ts L307-L320](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L307-L320)
 
-### Notification System
+### 알림 시스템
 
-When a background task completes, the parent session receives:
+백그라운드 태스크가 완료되면 부모 세션은 다음을 수신합니다:
 
-1. **OS Toast Notification:** "Background task completed: [task description]"
-2. **Prompt Injection:** A synthetic user message injected into the session: ``` Background task [task_id] completed. Use background_output to retrieve results. ```
+1. **OS 토스트 알림:** "백그라운드 태스크 완료: [태스크 설명]"
+2. **프롬프트 주입:** 세션에 주입되는 가상 사용자 메시지: ``` 백그라운드 태스크 [task_id]가 완료되었습니다. background_output을 사용하여 결과를 가져오십시오. ```
 
-This dual notification ensures Sisyphus is aware of completion even if it's in the middle of other work.
+이 이중 알림 시스템을 통해 Sisyphus는 다른 작업을 수행 중이더라도 완료 사실을 인지할 수 있습니다.
 
-**Sources:** [src/hooks/background-notification.ts L1-L50](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/background-notification.ts#L1-L50)
+**출처:** [src/hooks/background-notification.ts L1-L50](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/background-notification.ts#L1-L50)
 
- (inferred), [README.md L683-L684](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L683-L684)
+ (추론됨), [README.md L683-L684](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L683-L684)
 
 ---
 
-## Performance Optimization Strategies
+## 성능 최적화 전략
 
-### Token Optimization
+### 토큰 최적화
 
-| Strategy | Configuration | Impact |
+| 전략 | 설정 | 영향 |
 | --- | --- | --- |
-| **Preemptive Compaction** | `experimental.preemptive_compaction_threshold: 0.75` | Triggers summarization at 75% usage instead of waiting for hard limit |
-| **Tool Output Truncation** | `experimental.truncate_all_tool_outputs: true` | Truncates verbose tool outputs (grep, glob, LSP) dynamically |
-| **DCP Before Compaction** | `experimental.dcp_for_compaction: true` | Attempts pruning before expensive summarization |
-| **Aggressive Truncation** | `experimental.aggressive_truncation: true` | More aggressive truncation thresholds (use with caution) |
+| **선제적 압축** | `experimental.preemptive_compaction_threshold: 0.75` | 하드 리미트를 기다리지 않고 사용량 75%에서 요약 트리거 |
+| **도구 출력 절단** | `experimental.truncate_all_tool_outputs: true` | 장황한 도구 출력(grep, glob, LSP)을 동적으로 절단 |
+| **압축 전 DCP** | `experimental.dcp_for_compaction: true` | 비용이 많이 드는 요약 전에 프루닝 시도 |
+| **공격적 절단** | `experimental.aggressive_truncation: true` | 더 공격적인 절단 임계값 적용 (주의해서 사용) |
 
-### Agent Specialization
+### 에이전트 특화
 
-| Pattern | Configuration | Benefit |
+| 패턴 | 설정 | 이점 |
 | --- | --- | --- |
-| **Read-only Oracle** | `agents.oracle.permission.edit: "deny"` | Prevents expensive write operations from slow reasoning model |
-| **Fast Exploration** | `agents.explore.model: "opencode/grok-code"` | Uses free, fast model for code search tasks |
-| **Parallel Research** | `agents.librarian.tools.background_task: true` | Enables async research while Sisyphus continues work |
+| **읽기 전용 Oracle** | `agents.oracle.permission.edit: "deny"` | 느린 추론 모델이 비용이 많이 드는 쓰기 작업을 수행하는 것을 방지 |
+| **빠른 탐색** | `agents.explore.model: "opencode/grok-code"` | 코드 검색 작업에 무료 또는 빠른 모델 사용 |
+| **병렬 조사** | `agents.librarian.tools.background_task: true` | Sisyphus가 작업을 계속하는 동안 비동기 조사 가능 |
 
-### Workflow Optimization
+### 워크플로우 최적화
 
-| Technique | Implementation | Use Case |
+| 기법 | 구현 | 사용 사례 |
 | --- | --- | --- |
-| **Keyword Activation** | User adds `ultrawork` to prompt | Complex tasks requiring maximum parallelism |
-| **Subagent Spawning** | `call_omo_agent(..., run_in_background: true)` | Research tasks that can run asynchronously |
-| **Context Awareness** | Enable DCP with turn protection | Preserve recent context while managing limits |
+| **키워드 활성화** | 프롬프트에 `ultrawork` 추가 | 최대 병렬 처리가 필요한 복잡한 작업 |
+| **서브에이전트 생성** | `call_omo_agent(..., run_in_background: true)` | 비동기로 실행 가능한 조사 작업 |
+| **컨텍스트 인지** | 턴 보호와 함께 DCP 활성화 | 제한을 관리하면서 최근 컨텍스트 보존 |
 
-**Sources:** [src/config/schema.ts L163-L176](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L163-L176)
+**출처:** [src/config/schema.ts L163-L176](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L163-L176)
 
  [README.md L671-L692](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L671-L692)
 
 ---
 
-## Configuration Examples
+## 설정 예시
 
-### Maximum Performance Configuration
+### 최대 성능 설정
 
 ```
 {
@@ -753,33 +753,33 @@ This dual notification ensures Sisyphus is aware of completion even if it's in t
   },
   "agents": {
     "explore": {
-      "model": "opencode/grok-code"  // Free, fast
+      "model": "opencode/grok-code"  // 무료, 빠름
     },
     "librarian": {
-      "model": "google/gemini-3-flash"  // Fast, cheap
+      "model": "google/gemini-3-flash"  // 빠름, 저렴함
     }
   }
 }
 ```
 
-### Conservative Configuration
+### 보수적 설정
 
 ```
 {
   "experimental": {
     "preemptive_compaction": true,
     "preemptive_compaction_threshold": 0.85,
-    "truncate_all_tool_outputs": false,  // Preserve full outputs
-    "dcp_for_compaction": false  // Use standard summarization
+    "truncate_all_tool_outputs": false,  // 전체 출력 보존
+    "dcp_for_compaction": false  // 표준 요약 사용
   },
   "agents": {
     "Sisyphus": {
-      "temperature": 0.5  // More deterministic
+      "temperature": 0.5  // 더 결정론적(deterministic)인 결과
     }
   }
 }
 ```
 
-**Sources:** [src/config/schema.ts L163-L191](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L163-L191)
+**출처:** [src/config/schema.ts L163-L191](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L163-L191)
 
  [README.md L694-L760](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L694-L760)

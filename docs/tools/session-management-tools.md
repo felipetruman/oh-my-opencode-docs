@@ -1,13 +1,13 @@
 ---
 layout: default
-title: Session Management Tools
+title: 세션 관리 도구 (Session Management Tools)
 parent: Tools
 nav_order: 1
 ---
 
-# Session Management Tools
+# 세션 관리 도구 (Session Management Tools)
 
-> **Relevant source files**
+> **관련 소스 파일**
 > * [README.ja.md](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.ja.md)
 > * [README.ko.md](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.ko.md)
 > * [README.md](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md)
@@ -21,87 +21,87 @@ nav_order: 1
 > * [src/tools/look-at/constants.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/look-at/constants.ts)
 > * [src/tools/look-at/tools.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/look-at/tools.ts)
 
-## Purpose and Scope
+## 목적 및 범위 (Purpose and Scope)
 
-Session Management Tools provide programmatic access to OpenCode session history, enabling agents to reference previous conversations, search across past interactions, and maintain continuity across sessions. These tools allow agents to learn from historical context, avoid repeating completed work, and make informed decisions based on prior session outcomes.
+세션 관리 도구(Session Management Tools)는 OpenCode 세션 이력에 대한 프로그래밍 방식의 접근을 제공하여, 에이전트가 이전 대화를 참조하고, 과거 상호작용을 검색하며, 세션 간의 연속성을 유지할 수 있도록 합니다. 이러한 도구를 통해 에이전트는 과거의 컨텍스트(Context)로부터 학습하고, 이미 완료된 작업을 반복하는 것을 방지하며, 이전 세션 결과를 바탕으로 정보에 입각한 결정을 내릴 수 있습니다.
 
-For information about other tool categories, see:
+다른 도구 카테고리에 대한 정보는 다음을 참조하십시오:
 
-* Background execution tools: [Background Task Tools](/code-yeongyu/oh-my-opencode/5.3-background-task-tools)
-* LSP-based development tools: [LSP Tools](/code-yeongyu/oh-my-opencode/5.1-lsp-tools)
-* Code search and refactoring tools: [AST-Grep Tools](/code-yeongyu/oh-my-opencode/5.2-ast-grep-tools)
-* Media analysis tools: [Specialized Tools](/code-yeongyu/oh-my-opencode/5.5-specialized-tools)
+* 백그라운드 실행 도구: [Background Task Tools](/code-yeongyu/oh-my-opencode/5.3-background-task-tools)
+* LSP 기반 개발 도구: [LSP Tools](/code-yeongyu/oh-my-opencode/5.1-lsp-tools)
+* 코드 검색 및 리팩토링 도구: [AST-Grep Tools](/code-yeongyu/oh-my-opencode/5.2-ast-grep-tools)
+* 미디어 분석 도구: [Specialized Tools](/code-yeongyu/oh-my-opencode/5.5-specialized-tools)
 
-**Sources:** [README.md L528-L537](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L528-L537)
+**출처:** [README.md L528-L537](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L528-L537)
 
  [Diagram 5](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/Diagram 5#LNaN-LNaN)
 
 ---
 
-## Tool Overview
+## 도구 개요 (Tool Overview)
 
-The session management system provides four complementary tools for historical analysis:
+세션 관리 시스템은 이력 분석을 위한 네 가지 상호 보완적인 도구를 제공합니다:
 
-| Tool | Purpose | Primary Use Case | Return Type |
+| 도구 | 목적 | 주요 유스케이스 | 반환 타입 |
 | --- | --- | --- | --- |
-| `session_list` | Enumerate sessions with filtering | Discover recent or relevant sessions by date range | List of session metadata |
-| `session_read` | Retrieve complete session content | Access full conversation history and context | Messages and session data |
-| `session_search` | Full-text search across sessions | Find specific information or patterns | Matching messages with context |
-| `session_info` | Get session metadata and statistics | Understand session characteristics (duration, token count, agents used) | Structured metadata object |
+| `session_list` | 필터링을 통한 세션 나열 | 날짜 범위를 기준으로 최근 또는 관련 세션 검색 | 세션 메타데이터 목록 |
+| `session_read` | 전체 세션 내용 조회 | 전체 대화 이력 및 컨텍스트 접근 | 메시지 및 세션 데이터 |
+| `session_search` | 세션 전체 텍스트 검색 | 특정 정보 또는 패턴 찾기 | 컨텍스트를 포함한 일치 메시지 |
+| `session_info` | 세션 메타데이터 및 통계 획득 | 세션 특성(기간, 토큰 수, 사용된 에이전트) 파악 | 구조화된 메타데이터 객체 |
 
-These tools are designed to work together: use `session_list` to find relevant sessions, `session_info` to validate session relevance, `session_read` to retrieve detailed content, and `session_search` for targeted information extraction.
+이 도구들은 함께 작동하도록 설계되었습니다. `session_list`를 사용하여 관련 세션을 찾고, `session_info`로 세션의 관련성을 검증하며, `session_read`로 상세 내용을 조회하고, `session_search`를 통해 타겟 정보를 추출합니다.
 
-**Sources:** [README.md L528-L537](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L528-L537)
+**출처:** [README.md L528-L537](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L528-L537)
 
  [Diagram 5](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/Diagram 5#LNaN-LNaN)
 
 ---
 
-## System Architecture
+## 시스템 아키텍처 (System Architecture)
 
-### Session Management Tool Integration
+### 세션 관리 도구 통합 (Session Management Tool Integration)
 
 ```mermaid
 flowchart TD
 
-Sisyphus["Sisyphus Agent<br>(Primary Orchestrator)"]
-Oracle["Oracle Agent<br>(Architecture Advisor)"]
-Librarian["Librarian Agent<br>(Research Specialist)"]
-SessionList["session_list<br>Filter by date/limit"]
-SessionRead["session_read<br>Read full history"]
-SessionSearch["session_search<br>Full-text search"]
-SessionInfo["session_info<br>Metadata/stats"]
+Sisyphus["Sisyphus 에이전트<br>(주요 오케스트레이터)"]
+Oracle["Oracle 에이전트<br>(아키텍처 자문)"]
+Librarian["Librarian 에이전트<br>(조사 전문가)"]
+SessionList["session_list<br>날짜/제한별 필터링"]
+SessionRead["session_read<br>전체 이력 읽기"]
+SessionSearch["session_search<br>전체 텍스트 검색"]
+SessionInfo["session_info<br>메타데이터/통계"]
 SessionAPI["OpenCode Session API<br>client.session.*"]
-SessionStore["Session Storage<br>~/.claude/transcripts/"]
-MessageStore["Message Database<br>Per-session messages"]
-UC1["Avoid Duplicate Work<br>Check if task already done"]
-UC2["Learn from History<br>Reference past solutions"]
-UC3["Maintain Context<br>Continue previous work"]
-UC4["Debug Sessions<br>Analyze failures"]
+SessionStore["세션 저장소<br>~/.claude/transcripts/"]
+MessageStore["메시지 데이터베이스<br>세션별 메시지"]
+UC1["중복 작업 방지<br>작업 완료 여부 확인"]
+UC2["이력으로부터 학습<br>과거 솔루션 참조"]
+UC3["컨텍스트 유지<br>이전 작업 계속하기"]
+UC4["세션 디버깅<br>실패 분석"]
 
-Sisyphus -.->|"Has access to all tools"| SessionList
-Sisyphus -.->|"Read-only access"| SessionRead
-Sisyphus -.->|"Has access to all tools"| SessionSearch
-Sisyphus -.->|"May have limited access"| SessionInfo
-Oracle -.->|"Enables"| SessionRead
-Librarian -.->|"Has access to all tools"| SessionSearch
-SessionList -.->|"Enables"| SessionAPI
+Sisyphus -.->|"모든 도구에 접근 가능"| SessionList
+Sisyphus -.->|"읽기 전용 접근"| SessionRead
+Sisyphus -.->|"모든 도구에 접근 가능"| SessionSearch
+Sisyphus -.->|"제한적 접근 가능"| SessionInfo
+Oracle -.->|"활성화"| SessionRead
+Librarian -.->|"모든 도구에 접근 가능"| SessionSearch
+SessionList -.->|"활성화"| SessionAPI
 SessionRead -.-> SessionAPI
 SessionSearch -.-> SessionAPI
 SessionInfo -.-> SessionAPI
-SessionList -.->|"Enables"| UC1
-SessionRead -.->|"Has access to all tools"| UC2
+SessionList -.->|"활성화"| UC1
+SessionRead -.->|"모든 도구에 접근 가능"| UC2
 SessionSearch -.-> UC3
 SessionInfo -.-> UC4
 
-subgraph subGraph3 ["Use Cases"]
+subgraph subGraph3 ["유스케이스 (Use Cases)"]
     UC1
     UC2
     UC3
     UC4
 end
 
-subgraph subGraph2 ["OpenCode SDK Storage Layer"]
+subgraph subGraph2 ["OpenCode SDK 저장 계층"]
     SessionAPI
     SessionStore
     MessageStore
@@ -109,29 +109,29 @@ subgraph subGraph2 ["OpenCode SDK Storage Layer"]
     SessionAPI -.-> MessageStore
 end
 
-subgraph subGraph1 ["Session Management Tools"]
+subgraph subGraph1 ["세션 관리 도구"]
     SessionList
     SessionRead
     SessionSearch
     SessionInfo
 end
 
-subgraph subGraph0 ["Agent Layer"]
+subgraph subGraph0 ["에이전트 계층"]
     Sisyphus
     Oracle
     Librarian
 end
 ```
 
-**Architecture Notes:**
+**아키텍처 참고 사항:**
 
-* Session management tools interface with the OpenCode SDK's session API ([`@opencode-ai/sdk`](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/`@opencode-ai/sdk`) ), which provides access to session storage
-* Storage follows Claude Code compatibility pattern with transcripts in `~/.claude/transcripts/` (see [Claude Code Compatibility](/code-yeongyu/oh-my-opencode/9-claude-code-compatibility))
-* Tools are primarily exposed to Sisyphus (unrestricted access) for orchestration workflows
-* Oracle may have read-only access to understand historical context without modification capabilities
-* All tools operate through the `ctx.client.session.*` API provided by the plugin context
+* 세션 관리 도구는 세션 저장소에 대한 접근을 제공하는 OpenCode SDK의 세션 API([`@opencode-ai/sdk`](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/`@opencode-ai/sdk`))와 인터페이스합니다.
+* 저장소는 `~/.claude/transcripts/`에 트랜스크립트(Transcript)를 저장하는 Claude Code 호환 패턴을 따릅니다 ([Claude Code Compatibility](/code-yeongyu/oh-my-opencode/9-claude-code-compatibility) 참조).
+* 도구들은 주로 오케스트레이션 워크플로우를 위해 Sisyphus(제한 없는 접근 권한)에게 노출됩니다.
+* Oracle은 수정 권한 없이 과거 컨텍스트를 이해하기 위해 읽기 전용 접근 권한을 가질 수 있습니다.
+* 모든 도구는 플러그인 컨텍스트에서 제공하는 `ctx.client.session.*` API를 통해 작동합니다.
 
-**Sources:** [Diagram 1](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/Diagram 1#LNaN-LNaN)
+**출처:** [Diagram 1](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/Diagram 1#LNaN-LNaN)
 
  [Diagram 5](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/Diagram 5#LNaN-LNaN)
 
@@ -139,53 +139,51 @@ end
 
 ---
 
-## Tool Definitions
+## 도구 정의 (Tool Definitions)
 
 ### session_list
 
-Lists all available OpenCode sessions with optional filtering by date range and result limit.
+날짜 범위 및 결과 제한에 따른 선택적 필터링을 사용하여 사용 가능한 모든 OpenCode 세션을 나열합니다.
 
-**Purpose:** Enable discovery of relevant sessions without loading full content. Useful for finding recent sessions, sessions within a specific timeframe, or getting an overview of session history.
+**목적:** 전체 내용을 로드하지 않고 관련 세션을 검색할 수 있도록 합니다. 최근 세션이나 특정 기간 내의 세션을 찾거나 세션 이력의 개요를 파악하는 데 유용합니다.
 
-**Arguments:**
+**인자 (Arguments):**
 
-| Argument | Type | Required | Description |
+| 인자 | 타입 | 필수 여부 | 설명 |
 | --- | --- | --- | --- |
-| `start_date` | string (ISO 8601) | No | Filter sessions created on or after this date |
-| `end_date` | string (ISO 8601) | No | Filter sessions created on or before this date |
-| `limit` | number | No | Maximum number of sessions to return (default: 50) |
+| `start_date` | string (ISO 8601) | 아니요 | 이 날짜 이후에 생성된 세션 필터링 |
+| `end_date` | string (ISO 8601) | 아니요 | 이 날짜 이전에 생성된 세션 필터링 |
+| `limit` | number | 아니요 | 반환할 최대 세션 수 (기본값: 50) |
 
-**Returns:** Array of session metadata objects containing:
+**반환값:** 다음을 포함하는 세션 메타데이터 객체 배열:
 
-* Session ID
-* Title
-* Creation timestamp
-* Last activity timestamp
-* Parent session ID (if applicable)
+* 세션 ID
+* 제목
+* 생성 타임스탬프
+* 마지막 활동 타임스탬프
+* 부모 세션 ID (해당하는 경우)
 
-**Example Usage:**
+**사용 예시:**
 
 ```python
-// List last 10 sessions
+// 마지막 10개 세션 나열
 session_list({ limit: 10 })
 
-// Find sessions from last week
+// 지난주 세션 찾기
 session_list({ 
   start_date: "2025-01-10T00:00:00Z",
   limit: 20 
 })
 ```
 
-**Implementation Pattern:**
-Based on other tool implementations [src/tools/look-at/tools.ts L46-L137](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/look-at/tools.ts#L46-L137)
+**구현 패턴:**
+다른 도구 구현([src/tools/look-at/tools.ts L46-L137](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/look-at/tools.ts#L46-L137))을 기반으로 할 때, 이 도구는 다음과 같이 작동할 가능성이 높습니다:
 
- the tool likely:
+1. `tool.schema.string()` 및 `tool.schema.number()` 유효성 검사기를 통해 검증된 인자를 수락합니다.
+2. 필터 파라미터와 함께 `ctx.client.session.list()`를 호출합니다.
+3. 형식화된 세션 메타데이터 배열을 반환합니다.
 
-1. Accepts arguments validated through `tool.schema.string()` and `tool.schema.number()` validators
-2. Calls `ctx.client.session.list()` with filter parameters
-3. Returns formatted session metadata array
-
-**Sources:** [README.md L531](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L531-L531)
+**출처:** [README.md L531](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L531-L531)
 
  [Diagram 5](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/Diagram 5#LNaN-LNaN)
 
@@ -193,47 +191,47 @@ Based on other tool implementations [src/tools/look-at/tools.ts L46-L137](https:
 
 ### session_read
 
-Retrieves complete message history and metadata for a specific session.
+특정 세션의 전체 메시지 이력 및 메타데이터를 조회합니다.
 
-**Purpose:** Access full conversation content from a previous session. Used when agents need detailed context about prior work, including all messages, tool calls, and responses.
+**목적:** 이전 세션의 전체 대화 내용에 접근합니다. 에이전트가 모든 메시지, 도구 호출 및 응답을 포함하여 이전 작업에 대한 상세한 컨텍스트가 필요할 때 사용됩니다.
 
-**Arguments:**
+**인자 (Arguments):**
 
-| Argument | Type | Required | Description |
+| 인자 | 타입 | 필수 여부 | 설명 |
 | --- | --- | --- | --- |
-| `session_id` | string | Yes | Unique identifier of the session to read |
-| `include_tool_calls` | boolean | No | Include tool execution details (default: true) |
+| `session_id` | string | 예 | 읽을 세션의 고유 식별자 |
+| `include_tool_calls` | boolean | 아니요 | 도구 실행 세부 정보 포함 여부 (기본값: true) |
 
-**Returns:** Session object containing:
+**반환값:** 다음을 포함하는 세션 객체:
 
-* Complete message array with role, content, and timestamps
-* Tool call history with arguments and results
-* Session metadata (title, agents used, token counts)
-* Parent/child session relationships
+* 역할(Role), 내용, 타임스탬프가 포함된 전체 메시지 배열
+* 인자 및 결과가 포함된 도구 호출 이력
+* 세션 메타데이터 (제목, 사용된 에이전트, 토큰 수)
+* 부모/자식 세션 관계
 
-**Example Usage:**
+**사용 예시:**
 
 ```yaml
-// Read complete session history
+// 전체 세션 이력 읽기
 session_read({ 
   session_id: "sess_abc123xyz"
 })
 
-// Read without tool execution details
+// 도구 실행 세부 정보 없이 읽기
 session_read({ 
   session_id: "sess_abc123xyz",
   include_tool_calls: false
 })
 ```
 
-**Key Behaviors:**
+**주요 동작:**
 
-* Messages returned in chronological order
-* Tool calls include both arguments and results for full transparency
-* Handles both parent sessions and child sessions (e.g., background tasks)
-* Large sessions may be truncated with summary (see [Context Management Hooks](/code-yeongyu/oh-my-opencode/7.4-context-management-hooks))
+* 메시지는 시간순으로 반환됩니다.
+* 도구 호출은 완전한 투명성을 위해 인자와 결과를 모두 포함합니다.
+* 부모 세션과 자식 세션(예: 백그라운드 작업)을 모두 처리합니다.
+* 대규모 세션은 요약과 함께 잘릴 수 있습니다 ([Context Management Hooks](/code-yeongyu/oh-my-opencode/7.4-context-management-hooks) 참조).
 
-**Sources:** [README.md L532](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L532-L532)
+**출처:** [README.md L532](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L532-L532)
 
  [Diagram 5](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/Diagram 5#LNaN-LNaN)
 
@@ -241,37 +239,37 @@ session_read({
 
 ### session_search
 
-Performs full-text search across all session messages to find specific information.
+특정 정보를 찾기 위해 모든 세션 메시지에 대해 전체 텍스트 검색을 수행합니다.
 
-**Purpose:** Locate specific discussions, decisions, or information without reading entire sessions. Particularly useful for finding how previous issues were resolved or locating specific technical decisions.
+**목적:** 전체 세션을 읽지 않고 특정 논의, 결정 또는 정보를 찾습니다. 이전 문제가 어떻게 해결되었는지 확인하거나 특정 기술적 결정을 찾는 데 특히 유용합니다.
 
-**Arguments:**
+**인자 (Arguments):**
 
-| Argument | Type | Required | Description |
+| 인자 | 타입 | 필수 여부 | 설명 |
 | --- | --- | --- | --- |
-| `query` | string | Yes | Search query string |
-| `limit` | number | No | Maximum results to return (default: 10) |
-| `session_ids` | string[] | No | Restrict search to specific sessions |
-| `start_date` | string (ISO 8601) | No | Only search sessions after this date |
+| `query` | string | 예 | 검색 쿼리 문자열 |
+| `limit` | number | 아니요 | 반환할 최대 결과 수 (기본값: 10) |
+| `session_ids` | string[] | 아니요 | 검색을 특정 세션으로 제한 |
+| `start_date` | string (ISO 8601) | 아니요 | 이 날짜 이후의 세션만 검색 |
 
-**Returns:** Array of search result objects containing:
+**반환값:** 다음을 포함하는 검색 결과 객체 배열:
 
-* Matching message text with context
-* Session ID and title
-* Message timestamp
-* Relevance score
-* Surrounding context (messages before/after match)
+* 컨텍스트가 포함된 일치 메시지 텍스트
+* 세션 ID 및 제목
+* 메시지 타임스탬프
+* 관련성 점수
+* 주변 컨텍스트 (일치 항목 전후의 메시지)
 
-**Example Usage:**
+**사용 예시:**
 
 ```yaml
-// Search for error handling discussions
+// 에러 처리 논의 검색
 session_search({ 
   query: "error handling strategy",
   limit: 5
 })
 
-// Search within specific recent sessions
+// 특정 최근 세션 내에서 검색
 session_search({
   query: "database migration",
   session_ids: ["sess_abc", "sess_xyz"],
@@ -279,14 +277,14 @@ session_search({
 })
 ```
 
-**Search Capabilities:**
+**검색 기능:**
 
-* Full-text matching with relevance scoring
-* Case-insensitive by default
-* Matches across all message content including tool results
-* Returns contextual snippets (configurable window around matches)
+* 관련성 점수가 포함된 전체 텍스트 매칭
+* 기본적으로 대소문자 구분 안 함
+* 도구 결과를 포함한 모든 메시지 내용에서 매칭
+* 컨텍스트 스니펫(Snippet) 반환 (일치 항목 주변의 설정 가능한 윈도우)
 
-**Sources:** [README.md L533](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L533-L533)
+**출처:** [README.md L533](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L533-L533)
 
  [Diagram 5](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/Diagram 5#LNaN-LNaN)
 
@@ -294,64 +292,64 @@ session_search({
 
 ### session_info
 
-Retrieves metadata and statistics about a session without loading full message content.
+전체 메시지 내용을 로드하지 않고 세션에 대한 메타데이터 및 통계를 조회합니다.
 
-**Purpose:** Quickly assess session characteristics to determine relevance. Useful for understanding session scope, duration, resource usage, and participants before committing to a full read.
+**목적:** 세션 특성을 신속하게 평가하여 관련성을 판단합니다. 전체 읽기를 수행하기 전에 세션 범위, 기간, 리소스 사용량 및 참여자를 이해하는 데 유용합니다.
 
-**Arguments:**
+**인자 (Arguments):**
 
-| Argument | Type | Required | Description |
+| 인자 | 타입 | 필수 여부 | 설명 |
 | --- | --- | --- | --- |
-| `session_id` | string | Yes | Unique identifier of the session |
+| `session_id` | string | 예 | 세션의 고유 식별자 |
 
-**Returns:** Metadata object containing:
+**반환값:** 다음을 포함하는 메타데이터 객체:
 
-| Field | Description |
+| 필드 | 설명 |
 | --- | --- |
-| `id` | Session unique identifier |
-| `title` | Session title/description |
-| `created_at` | Session creation timestamp |
-| `updated_at` | Last activity timestamp |
-| `message_count` | Total number of messages |
-| `token_count` | Approximate total tokens used |
-| `agents_used` | List of agents that participated |
-| `parent_id` | Parent session ID (if child session) |
-| `child_sessions` | Array of child session IDs |
-| `status` | Session status (active/completed/failed) |
-| `duration_seconds` | Total session duration |
+| `id` | 세션 고유 식별자 |
+| `title` | 세션 제목/설명 |
+| `created_at` | 세션 생성 타임스탬프 |
+| `updated_at` | 마지막 활동 타임스탬프 |
+| `message_count` | 총 메시지 수 |
+| `token_count` | 사용된 대략적인 총 토큰 수 |
+| `agents_used` | 참여한 에이전트 목록 |
+| `parent_id` | 부모 세션 ID (자식 세션인 경우) |
+| `child_sessions` | 자식 세션 ID 배열 |
+| `status` | 세션 상태 (active/completed/failed) |
+| `duration_seconds` | 총 세션 기간 |
 
-**Example Usage:**
+**사용 예시:**
 
 ```yaml
-// Get session statistics
+// 세션 통계 가져오기
 session_info({ 
   session_id: "sess_abc123xyz"
 })
 ```
 
-**Typical Workflow:**
+**일반적인 워크플로우:**
 
-1. Use `session_list` to find potential sessions
-2. Use `session_info` to check relevance (token count, agents used, duration)
-3. Use `session_read` only for confirmed relevant sessions
+1. `session_list`를 사용하여 잠재적인 세션 찾기
+2. `session_info`를 사용하여 관련성 확인 (토큰 수, 사용된 에이전트, 기간)
+3. 관련성이 확인된 세션에 대해서만 `session_read` 사용
 
-**Sources:** [README.md L534](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L534-L534)
+**출처:** [README.md L534](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L534-L534)
 
  [Diagram 5](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/Diagram 5#LNaN-LNaN)
 
 ---
 
-## Agent Access Patterns
+## 에이전트 접근 패턴 (Agent Access Patterns)
 
-### Tool Availability by Agent
+### 에이전트별 도구 가용성
 
 ```mermaid
 flowchart TD
 
-Sisyphus["Sisyphus<br>(Primary Orchestrator)"]
-Oracle["Oracle<br>(Architecture Advisor)"]
-Librarian["Librarian<br>(Research)"]
-Explore["Explore<br>(Search)"]
+Sisyphus["Sisyphus<br>(주요 오케스트레이터)"]
+Oracle["Oracle<br>(아키텍처 자문)"]
+Librarian["Librarian<br>(조사)"]
+Explore["Explore<br>(검색)"]
 Frontend["Frontend Engineer"]
 DocWriter["Doc Writer"]
 Multimodal["Multimodal Looker"]
@@ -360,117 +358,117 @@ SR["session_read"]
 SS["session_search"]
 SI["session_info"]
 
-Sisyphus -.->|"All tools enabled"| SL
-Sisyphus -.->|"All tools enabled"| SR
-Sisyphus -.->|"Intentionally restricted"| SS
-Sisyphus -.->|"Intentionally restricted"| SI
-Oracle -.->|"Intentionally restricted"| SR
-Oracle -.->|"Read-only patterns"| SI
-Librarian -.->|"Potential access"| SS
-Explore -.->|"Potential access"| SS
-Frontend -.->|"All tools enabled"| SL
+Sisyphus -.->|"모든 도구 활성화"| SL
+Sisyphus -.->|"모든 도구 활성화"| SR
+Sisyphus -.->|"의도적으로 제한됨"| SS
+Sisyphus -.->|"의도적으로 제한됨"| SI
+Oracle -.->|"의도적으로 제한됨"| SR
+Oracle -.->|"읽기 전용 패턴"| SI
+Librarian -.->|"접근 가능성 있음"| SS
+Explore -.->|"접근 가능성 있음"| SS
+Frontend -.->|"모든 도구 활성화"| SL
 DocWriter -.-> SR
-Multimodal -.->|"Read-only patterns"| SS
+Multimodal -.->|"읽기 전용 패턴"| SS
 
-subgraph subGraph3 ["Session Tools"]
+subgraph subGraph3 ["세션 도구"]
     SL
     SR
     SS
     SI
 end
 
-subgraph subGraph2 ["No Access"]
+subgraph subGraph2 ["접근 권한 없음"]
     Frontend
     DocWriter
     Multimodal
 end
 
-subgraph subGraph1 ["Limited Access"]
+subgraph subGraph1 ["제한적 접근"]
     Oracle
     Librarian
     Explore
 end
 
-subgraph subGraph0 ["Full Access"]
+subgraph subGraph0 ["전체 접근"]
     Sisyphus
 end
 ```
 
-**Access Rationale:**
+**접근 근거:**
 
-**Sisyphus (Full Access):**
+**Sisyphus (전체 접근):**
 
-* Primary orchestrator needs complete historical awareness
-* Uses session tools to avoid duplicate work
-* References past solutions and patterns
-* Maintains continuity across multi-session workflows
-* Example: "Check if we already implemented authentication in previous sessions"
+* 주요 오케스트레이터는 완전한 이력 인식이 필요합니다.
+* 중복 작업을 피하기 위해 세션 도구를 사용합니다.
+* 과거의 솔루션과 패턴을 참조합니다.
+* 다중 세션 워크플로우 전반에서 연속성을 유지합니다.
+* 예: "이전 세션에서 이미 인증을 구현했는지 확인해줘"
 
-**Oracle (Read-Only Access):**
+**Oracle (읽기 전용 접근):**
 
-* May access historical architectural decisions via `session_read`
-* Uses `session_info` to understand session context
-* Restricted from list/search to prevent context overload
-* Example: "Review how we structured the database schema last time"
+* `session_read`를 통해 과거의 아키텍처 결정에 접근할 수 있습니다.
+* `session_info`를 사용하여 세션 컨텍스트를 이해합니다.
+* 컨텍스트 과부하를 방지하기 위해 목록/검색 기능은 제한됩니다.
+* 예: "지난번에 데이터베이스 스키마를 어떻게 구성했는지 검토해줘"
 
-**Librarian & Explore (Search Access):**
+**Librarian & Explore (검색 접근):**
 
-* May use `session_search` for code pattern discovery
-* Limited access prevents inappropriate self-referencing
-* Focuses on external research rather than internal history
+* 코드 패턴 발견을 위해 `session_search`를 사용할 수 있습니다.
+* 제한된 접근을 통해 부적절한 자기 참조를 방지합니다.
+* 내부 이력보다는 외부 조사에 집중합니다.
 
-**Specialized Agents (No Access):**
+**특화 에이전트 (접근 권한 없음):**
 
-* Frontend Engineer: Focuses on current implementation only
-* Doc Writer: Works with provided context, not history mining
-* Multimodal Looker: Single-purpose file analysis, no session awareness
-* Rationale: Prevents context bloat and maintains agent specialization
+* Frontend Engineer: 현재 구현에만 집중합니다.
+* Doc Writer: 이력 마이닝이 아닌 제공된 컨텍스트로 작업합니다.
+* Multimodal Looker: 단일 목적의 파일 분석을 수행하며 세션 인식이 없습니다.
+* 근거: 컨텍스트 비대화를 방지하고 에이전트의 전문성을 유지합니다.
 
-**Sources:** [Diagram 5](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/Diagram 5#LNaN-LNaN)
+**출처:** [Diagram 5](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/Diagram 5#LNaN-LNaN)
 
  [README.md L464-L473](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L464-L473)
 
 ---
 
-## Usage Patterns and Workflows
+## 사용 패턴 및 워크플로우 (Usage Patterns and Workflows)
 
-### Pattern 1: Duplicate Work Prevention
+### 패턴 1: 중복 작업 방지
 
 ```mermaid
 sequenceDiagram
-  participant p1 as User
+  participant p1 as 사용자
   participant p2 as Sisyphus
   participant p3 as session_list
   participant p4 as session_search
   participant p5 as session_read
 
-  p1->>p2: "Implement user authentication"
-  p2->>p3: Query recent sessions<br/>limit=20
-  p3-->>p2: List of session IDs
-  p2->>p4: Search "user authentication"<br/>in recent sessions
-  p4-->>p2: 3 matches found
-  p2->>p5: Read session sess_auth_prev
-  p5-->>p2: Complete implementation details
-  p2->>p1: "Found existing implementation in session X.<br/>Review and extend? Or new approach?"
+  p1->>p2: "사용자 인증 구현해줘"
+  p2->>p3: 최근 세션 쿼리<br/>limit=20
+  p3-->>p2: 세션 ID 목록
+  p2->>p4: 최근 세션에서 "사용자 인증" 검색
+  p4-->>p2: 3개의 일치 항목 발견
+  p2->>p5: sess_auth_prev 세션 읽기
+  p5-->>p2: 전체 구현 세부 정보
+  p2->>p1: "세션 X에서 기존 구현을 찾았습니다.<br/>검토 후 확장할까요? 아니면 새로 시작할까요?"
 ```
 
-**Description:** Before starting significant work, Sisyphus checks if similar work was completed in previous sessions. This prevents wasted effort and maintains consistency.
+**설명:** 중요한 작업을 시작하기 전에 Sisyphus는 이전 세션에서 유사한 작업이 완료되었는지 확인합니다. 이는 낭비되는 노력을 방지하고 일관성을 유지합니다.
 
-**Implementation Steps:**
+**구현 단계:**
 
-1. Extract task keywords from user request
-2. Query recent sessions with `session_list`
-3. Search for keywords with `session_search`
-4. Read matching sessions with `session_read`
-5. Present findings and proposed action to user
+1. 사용자 요청에서 작업 키워드 추출
+2. `session_list`로 최근 세션 쿼리
+3. `session_search`로 키워드 검색
+4. `session_read`로 일치하는 세션 읽기
+5. 발견된 내용과 제안된 조치를 사용자에게 제시
 
-**Sources:** [Diagram 3](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/Diagram 3#LNaN-LNaN)
+**출처:** [Diagram 3](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/Diagram 3#LNaN-LNaN)
 
  [README.md L528-L537](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L528-L537)
 
 ---
 
-### Pattern 2: Learning from Historical Solutions
+### 패턴 2: 과거 솔루션으로부터 학습
 
 ```mermaid
 sequenceDiagram
@@ -480,65 +478,65 @@ sequenceDiagram
   participant p4 as session_read
   participant p5 as Oracle
 
-  p1->>p2: "error handling pattern retry logic"
-  p2-->>p1: 5 relevant sessions
-  loop For each result
-    p1->>p3: Check session metadata
+  p1->>p2: "에러 처리 패턴 재시도 로직"
+  p2-->>p1: 5개의 관련 세션
+  loop 각 결과에 대해
+    p1->>p3: 세션 메타데이터 확인
     p3-->>p1: token_count, agents_used, status
   end
-  p1->>p4: Read top 2 successful sessions
-  p4-->>p1: Implementation patterns
-  p1->>p5: "Review these patterns,<br/>recommend best for current case"
-  p5-->>p1: Architectural recommendation
-  p1->>p1: Implement recommended pattern
+  p1->>p4: 성공한 상위 2개 세션 읽기
+  p4-->>p1: 구현 패턴
+  p1->>p5: "이 패턴들을 검토하고,<br/>현재 케이스에 가장 적합한 것을 추천해줘"
+  p5-->>p1: 아키텍처 권장 사항
+  p1->>p1: 권장 패턴 구현
 ```
 
-**Description:** When facing design decisions, agents can search historical sessions for similar problems and their solutions, then consult Oracle for current context adaptation.
+**설명:** 설계 결정을 내릴 때 에이전트는 과거 세션에서 유사한 문제와 그 해결책을 검색한 다음, 현재 컨텍스트에 맞게 조정하기 위해 Oracle과 상담할 수 있습니다.
 
-**Workflow Benefits:**
+**워크플로우 이점:**
 
-* Maintains consistency across sessions
-* Leverages proven patterns
-* Avoids repeating past mistakes (failed sessions excluded)
-* Enables knowledge accumulation over time
+* 세션 간의 일관성 유지
+* 검증된 패턴 활용
+* 과거의 실수 반복 방지 (실패한 세션 제외)
+* 시간이 지남에 따른 지식 축적 가능
 
-**Sources:** [Diagram 3](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/Diagram 3#LNaN-LNaN)
+**출처:** [Diagram 3](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/Diagram 3#LNaN-LNaN)
 
  [README.md L467-L469](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L467-L469)
 
 ---
 
-### Pattern 3: Context Continuation Across Sessions
+### 패턴 3: 세션 간 컨텍스트 연속성
 
 ```mermaid
 sequenceDiagram
-  participant p1 as User
-  participant p2 as Session B<br/>(Current)
+  participant p1 as 사용자
+  participant p2 as 세션 B<br/>(현재)
   participant p3 as session_list
   participant p4 as session_read
   participant p5 as Sisyphus
 
-  p1->>p2: "Continue the database work"
-  p2->>p5: Process request
-  p5->>p3: Get recent sessions<br/>start_date=yesterday
-  p3-->>p5: Session A (parent_id matches)
-  p5->>p4: Read session A
-  p4-->>p5: TODOs: [migration pending, tests incomplete]<br/>Last context: postgres schema design<br/>"Found unfinished work in Session A.
-  p5->>p1: TODOs: Run migration, add tests.<br/>Should I continue?"
-  p1->>p5: "Yes, continue"
-  p5->>p5: Resume from TODO list
+  p1->>p2: "데이터베이스 작업 계속해줘"
+  p2->>p5: 요청 처리
+  p5->>p3: 최근 세션 가져오기<br/>start_date=어제
+  p3-->>p5: 세션 A (parent_id 일치)
+  p5->>p4: 세션 A 읽기
+  p4-->>p5: 할 일: [마이그레이션 대기 중, 테스트 미완료]<br/>마지막 컨텍스트: postgres 스키마 설계<br/>"세션 A에서 완료되지 않은 작업을 찾았습니다.
+  p5->>p1: 할 일: 마이그레이션 실행, 테스트 추가.<br/>계속할까요?"
+  p1->>p5: "응, 계속해줘"
+  p5->>p5: 할 일 목록에서 재개
 ```
 
-**Description:** When users start a new session referencing previous work, Sisyphus can automatically locate and continue from the previous session's state, including incomplete TODO items.
+**설명:** 사용자가 이전 작업을 참조하여 새 세션을 시작할 때, Sisyphus는 미완료된 할 일(TODO) 항목을 포함하여 이전 세션의 상태를 자동으로 찾아 계속할 수 있습니다.
 
-**Key Features:**
+**주요 기능:**
 
-* Detects session relationships via parent_id
-* Reads TODO state from Claude Code-compatible storage (`~/.claude/todos/`)
-* Maintains workflow continuity despite session boundaries
-* Prevents context loss between sessions
+* `parent_id`를 통해 세션 관계 감지
+* Claude Code 호환 저장소(`~/.claude/todos/`)에서 할 일 상태 읽기
+* 세션 경계에도 불구하고 워크플로우 연속성 유지
+* 세션 간 컨텍스트 손실 방지
 
-**Sources:** [Diagram 3](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/Diagram 3#LNaN-LNaN)
+**출처:** [Diagram 3](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/Diagram 3#LNaN-LNaN)
 
  [README.md L169-L171](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L169-L171)
 
@@ -546,133 +544,133 @@ sequenceDiagram
 
 ---
 
-## Integration with Related Systems
+## 관련 시스템과의 통합 (Integration with Related Systems)
 
-### Storage Backend Compatibility
+### 저장소 백엔드 호환성 (Storage Backend Compatibility)
 
-Session management tools read from storage maintained by multiple systems:
+세션 관리 도구는 여러 시스템에서 유지 관리하는 저장소로부터 데이터를 읽습니다:
 
 ```mermaid
 flowchart TD
 
-Transcripts["~/.claude/transcripts/<br>JSONL format<br>(Claude Code compatible)"]
-Todos["~/.claude/todos/<br>Session TODO state"]
-SessionDB["OpenCode Session DB<br>(SDK managed)"]
-TranscriptHook["Transcript Hook<br>(logs all activity)"]
-TodoHook["Todo Management<br>(tracks task state)"]
-OpenCodeSDK["OpenCode SDK<br>(core sessions)"]
-SessionTools["Session Management Tools"]
-TodoContinuation["Todo Continuation Enforcer"]
-SessionRecovery["Session Recovery Hook"]
+Transcripts["~/.claude/transcripts/<br>JSONL 형식<br>(Claude Code 호환)"]
+Todos["~/.claude/todos/<br>세션 할 일 상태"]
+SessionDB["OpenCode 세션 DB<br>(SDK 관리)"]
+TranscriptHook["트랜스크립트 훅<br>(모든 활동 기록)"]
+TodoHook["할 일 관리<br>(작업 상태 추적)"]
+OpenCodeSDK["OpenCode SDK<br>(코어 세션)"]
+SessionTools["세션 관리 도구"]
+TodoContinuation["할 일 연속성 강제 도구"]
+SessionRecovery["세션 복구 훅"]
 
-TranscriptHook -.->|"Reads TODO state"| Transcripts
-TodoHook -.->|"Reads via SDK"| Todos
-OpenCodeSDK -.->|"Manages sessions"| SessionDB
-SessionTools -.->|"Updates TODO files"| SessionDB
-SessionTools -.->|"Direct read"| Transcripts
-TodoContinuation -.->|"Appends JSONL"| Todos
-SessionRecovery -.->|"Reads error context"| Transcripts
+TranscriptHook -.->|"할 일 상태 읽기"| Transcripts
+TodoHook -.->|"SDK를 통해 읽기"| Todos
+OpenCodeSDK -.->|"세션 관리"| SessionDB
+SessionTools -.->|"할 일 파일 업데이트"| SessionDB
+SessionTools -.->|"직접 읽기"| Transcripts
+TodoContinuation -.->|"JSONL 추가"| Todos
+SessionRecovery -.->|"에러 컨텍스트 읽기"| Transcripts
 
-subgraph Readers ["Readers"]
+subgraph Readers ["독자 (Readers)"]
     SessionTools
     TodoContinuation
     SessionRecovery
 end
 
-subgraph Writers ["Writers"]
+subgraph Writers ["저자 (Writers)"]
     TranscriptHook
     TodoHook
     OpenCodeSDK
 end
 
-subgraph subGraph0 ["Storage Layer"]
+subgraph subGraph0 ["저장 계층"]
     Transcripts
     Todos
     SessionDB
 end
 ```
 
-**Storage Locations:**
+**저장 위치:**
 
-* **Transcripts:** `~/.claude/transcripts/<session_id>.jsonl` - Complete activity log in JSONL format for replay and analysis
-* **TODOs:** `~/.claude/todos/<session_id>.json` - Session TODO lists in Claude Code compatible format
-* **Session DB:** Managed by OpenCode SDK, accessed via `ctx.client.session.*` API
+* **트랜스크립트 (Transcripts):** `~/.claude/transcripts/<session_id>.jsonl` - 재생 및 분석을 위한 JSONL 형식의 전체 활동 로그
+* **할 일 (TODOs):** `~/.claude/todos/<session_id>.json` - Claude Code 호환 형식의 세션 할 일 목록
+* **세션 DB:** OpenCode SDK에서 관리하며 `ctx.client.session.*` API를 통해 접근
 
-**Compatibility:**
+**호환성:**
 
-* Claude Code users migrating to oh-my-opencode can access their existing session history
-* Transcript format enables session replay for debugging
-* TODO format shared with [Todo Continuation Enforcer](/code-yeongyu/oh-my-opencode/7.3-todo-continuation-enforcer) for workflow continuity
+* oh-my-opencode로 마이그레이션하는 Claude Code 사용자는 기존 세션 이력에 접근할 수 있습니다.
+* 트랜스크립트 형식은 디버깅을 위한 세션 재생을 가능하게 합니다.
+* 할 일 형식은 워크플로우 연속성을 위해 [Todo Continuation Enforcer](/code-yeongyu/oh-my-opencode/7.3-todo-continuation-enforcer)와 공유됩니다.
 
-**Sources:** [README.md L636-L639](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L636-L639)
+**출처:** [README.md L636-L639](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L636-L639)
 
  [Diagram 1](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/Diagram 1#LNaN-LNaN)
 
 ---
 
-### Context Management Integration
+### 컨텍스트 관리 통합 (Context Management Integration)
 
-Session management tools interact with context management hooks to prevent token overload:
+세션 관리 도구는 토큰 과부하를 방지하기 위해 컨텍스트 관리 훅과 상호작용합니다:
 
 ```mermaid
 flowchart TD
 
-SessionRead["session_read<br>Read full history"]
-SessionSearch["session_search<br>Find specific info"]
-Monitor["Context Window Monitor<br>Track token usage"]
-Truncator["Tool Output Truncator<br>Dynamic truncation"]
-Compaction["Preemptive Compaction<br>Summarize old context"]
-Warning["70% Warning<br>Remind agent of headroom"]
-Truncate["Truncate Output<br>Keep 50% headroom"]
-Summarize["Summarize Session<br>Before returning"]
+SessionRead["session_read<br>전체 이력 읽기"]
+SessionSearch["session_search<br>특정 정보 찾기"]
+Monitor["컨텍스트 창 모니터<br>토큰 사용량 추적"]
+Truncator["도구 출력 트런케이터<br>동적 잘림"]
+Compaction["선제적 압축<br>이전 컨텍스트 요약"]
+Warning["70% 경고<br>에이전트에게 여유 공간 알림"]
+Truncate["출력 자르기<br>50% 여유 공간 유지"]
+Summarize["세션 요약<br>반환 전 수행"]
 
-SessionRead -.->|"Result count"| Monitor
-SessionSearch -.->|"Usage > 70%"| Monitor
+SessionRead -.->|"결과 수"| Monitor
+SessionSearch -.->|"사용량 > 70%"| Monitor
 Monitor -.-> Warning
 Truncator -.-> Truncate
 Compaction -.-> Summarize
-Truncate -.->|"Protected output"| SessionRead
-Summarize -.->|"Summarized context"| SessionRead
+Truncate -.->|"보호된 출력"| SessionRead
+Summarize -.->|"요약된 컨텍스트"| SessionRead
 
-subgraph subGraph2 ["Protection Mechanisms"]
+subgraph subGraph2 ["보호 메커니즘"]
     Warning
     Truncate
     Summarize
 end
 
-subgraph subGraph1 ["Context Management Hooks"]
+subgraph subGraph1 ["컨텍스트 관리 훅"]
     Monitor
     Truncator
     Compaction
-    Monitor -.->|"Large output"| Truncator
+    Monitor -.->|"대량 출력"| Truncator
 end
 
-subgraph subGraph0 ["Session Tool Usage"]
+subgraph subGraph0 ["세션 도구 사용"]
     SessionRead
     SessionSearch
 end
 ```
 
-**Protection Strategies:**
+**보호 전략:**
 
-1. **Output Truncation:** * Tool Output Truncator (see [Context Management Hooks](/code-yeongyu/oh-my-opencode/7.4-context-management-hooks)) applies to session tool results * Dynamically truncates based on remaining context window * Maintains 50% headroom, caps at 50k tokens * Implementation: [README.md L686-L689](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L686-L689)
-2. **Context Window Monitoring:** * Tracks token usage at 70%+ threshold * Warns agents about remaining capacity * Prevents "context anxiety" leading to rushed work * Pattern: [Context Window Anxiety Management](https://agentic-patterns.com/patterns/context-window-anxiety-management/) * Implementation: [README.md L677-L679](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L677-L679)
-3. **Preemptive Compaction:** * Summarizes large session reads before adding to context * Triggered proactively at 80% threshold * Preserves critical information (AGENTS.md, current directory) * Implementation: [README.md L689-L691](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L689-L691)
+1. **출력 자르기 (Output Truncation):** * 도구 출력 트런케이터(Tool Output Truncator, [Context Management Hooks](/code-yeongyu/oh-my-opencode/7.4-context-management-hooks) 참조)가 세션 도구 결과에 적용됩니다. * 남은 컨텍스트 창을 기반으로 동적으로 자릅니다. * 50%의 여유 공간을 유지하며, 50,000 토큰으로 제한합니다. * 구현: [README.md L686-L689](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L686-L689)
+2. **컨텍스트 창 모니터링:** * 70% 이상의 임계값에서 토큰 사용량을 추적합니다. * 에이전트에게 남은 용량에 대해 경고합니다. * 서두른 작업으로 이어지는 "컨텍스트 불안(Context Anxiety)"을 방지합니다. * 패턴: [Context Window Anxiety Management](https://agentic-patterns.com/patterns/context-window-anxiety-management/) * 구현: [README.md L677-L679](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L677-L679)
+3. **선제적 압축 (Preemptive Compaction):** * 대규모 세션 읽기 결과를 컨텍스트에 추가하기 전에 요약합니다. * 80% 임계값에서 선제적으로 트리거됩니다. * 중요한 정보(AGENTS.md, 현재 디렉토리)를 보존합니다. * 구현: [README.md L689-L691](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L689-L691)
 
-**Agent Behavior:**
-When session tools return large outputs, agents receive truncated/summarized versions automatically. The agent is notified about truncation and can request specific sections if needed.
+**에이전트 동작:**
+세션 도구가 대량의 출력을 반환할 때, 에이전트는 자동으로 잘리거나 요약된 버전을 받게 됩니다. 에이전트는 잘림에 대해 알림을 받으며 필요한 경우 특정 섹션을 요청할 수 있습니다.
 
-**Sources:** [README.md L677-L691](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L677-L691)
+**출처:** [README.md L677-L691](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L677-L691)
 
  [Diagram 4](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/Diagram 4#LNaN-LNaN)
 
 ---
 
-## Configuration and Customization
+## 설정 및 커스터마이징 (Configuration and Customization)
 
-### Disabling Session Tools
+### 세션 도구 비활성화
 
-Session management tools can be disabled via agent tool configuration:
+세션 관리 도구는 에이전트 도구 설정을 통해 비활성화할 수 있습니다:
 
 ```json
 {
@@ -689,31 +687,31 @@ Session management tools can be disabled via agent tool configuration:
 }
 ```
 
-**When to Disable:**
+**비활성화가 필요한 경우:**
 
-* Privacy-sensitive environments where session history should not be accessible
-* Greenfield projects with no relevant history
-* Preventing context bloat in specialized agents
-* Performance optimization (reduces tool count in prompt)
+* 세션 이력에 접근해서는 안 되는 개인정보 보호에 민감한 환경
+* 관련 이력이 없는 신규(Greenfield) 프로젝트
+* 특화 에이전트의 컨텍스트 비대화 방지
+* 성능 최적화 (프롬프트의 도구 수 감소)
 
-**Sources:** [README.md L773-L789](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L773-L789)
+**출처:** [README.md L773-L789](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L773-L789)
 
 ---
 
-### Agent-Specific Access Control
+### 에이전트별 접근 제어
 
-Fine-grained control via permission system (see [Agent Configuration](/code-yeongyu/oh-my-opencode/4.3-agent-configuration)):
+권한 시스템을 통한 세밀한 제어 ([Agent Configuration](/code-yeongyu/oh-my-opencode/4.3-agent-configuration) 참조):
 
 ```
 {
   "agents": {
     "custom-agent": {
       "tools": {
-        // Allow metadata queries only
+        // 메타데이터 쿼리만 허용
         "session_list": true,
         "session_info": true,
         
-        // Block content access
+        // 내용 접근 차단
         "session_read": false,
         "session_search": false
       }
@@ -722,95 +720,95 @@ Fine-grained control via permission system (see [Agent Configuration](/code-yeon
 }
 ```
 
-**Access Patterns:**
+**접근 패턴:**
 
-* **Discovery Only:** Enable `session_list` + `session_info` for browsing without content access
-* **Search Only:** Enable `session_search` for targeted lookups without full history access
-* **Read-Only Archive:** Enable all session tools but disable modification tools (`edit`, `write`, `bash`)
+* **검색 전용 (Discovery Only):** 내용 접근 없이 탐색을 위해 `session_list` + `session_info` 활성화
+* **검색 전용 (Search Only):** 전체 이력 접근 없이 타겟 조회를 위해 `session_search` 활성화
+* **읽기 전용 아카이브:** 모든 세션 도구를 활성화하되 수정 도구(`edit`, `write`, `bash`)는 비활성화
 
-**Sources:** [README.md L796-L817](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L796-L817)
+**출처:** [README.md L796-L817](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L796-L817)
 
 ---
 
-## Error Handling and Edge Cases
+## 에러 처리 및 예외 상황 (Error Handling and Edge Cases)
 
-### Common Error Scenarios
+### 공통 에러 시나리오
 
-| Error | Cause | Tool Behavior | Agent Response |
+| 에러 | 원인 | 도구 동작 | 에이전트 대응 |
 | --- | --- | --- | --- |
-| Session Not Found | Invalid `session_id` | Returns error message | Request user to verify session ID or use `session_list` |
-| Empty Search Results | No matches for query | Returns empty array with message | Broaden search terms or adjust date filters |
-| Session Still Active | Reading from current session | May return incomplete data | Tool warns about active session, agent decides whether to proceed |
-| Truncated Output | Large session exceeds context limit | Returns truncated with notation | Agent can request specific message ranges |
-| Permission Denied | Accessing restricted session | Returns permission error | Agent escalates to user for authorization |
+| 세션을 찾을 수 없음 | 잘못된 `session_id` | 에러 메시지 반환 | 사용자에게 세션 ID 확인 요청 또는 `session_list` 사용 |
+| 검색 결과 없음 | 쿼리와 일치하는 항목 없음 | 메시지와 함께 빈 배열 반환 | 검색어 확장 또는 날짜 필터 조정 |
+| 세션이 여전히 활성 상태임 | 현재 세션 읽기 시도 | 불완전한 데이터를 반환할 수 있음 | 도구가 활성 세션에 대해 경고하고, 에이전트가 진행 여부 결정 |
+| 출력 잘림 | 대규모 세션이 컨텍스트 제한 초과 | 표기(Notation)와 함께 잘린 결과 반환 | 에이전트가 특정 메시지 범위를 요청할 수 있음 |
+| 권한 거부됨 | 제한된 세션에 접근 시도 | 권한 에러 반환 | 에이전트가 사용자에게 권한 승인 요청 |
 
-### Session State Handling
+### 세션 상태 처리
 
-Sessions have lifecycle states affecting tool behavior:
+세션은 도구 동작에 영향을 미치는 생명주기 상태를 가집니다:
 
 ```mermaid
 stateDiagram-v2
-    [*] --> session_read returns partialsession_info shows "active" : "session.create()"
-    session_read returns partialsession_info shows "active" --> session_read returns completesession_info shows "idle" : "New message"
-    session_read returns completesession_info shows "idle" --> session_read returns partialsession_info shows "active" : "New message"
-    session_read returns partialsession_info shows "active" --> All tools return complete data : "Task finished"
-    session_read returns partialsession_info shows "active" --> Tools include error context : "Error/abort"
-    All tools return complete data --> [*]
-    Tools include error context --> [*]
+    [*] --> session_read_returns_partial_session_info_shows_active : "session.create()"
+    session_read_returns_partial_session_info_shows_active --> session_read_returns_complete_session_info_shows_idle : "새 메시지"
+    session_read_returns_complete_session_info_shows_idle --> session_read_returns_partial_session_info_shows_active : "새 메시지"
+    session_read_returns_partial_session_info_shows_active --> All_tools_return_complete_data : "작업 완료"
+    session_read_returns_partial_session_info_shows_active --> Tools_include_error_context : "에러/중단"
+    All_tools_return_complete_data --> [*]
+    Tools_include_error_context --> [*]
 ```
 
-**State-Specific Behaviors:**
+**상태별 동작:**
 
-* **Active Sessions:** `session_read` may return incomplete message history (current conversation in progress)
-* **Idle Sessions:** All tools return complete data; session may be resumed
-* **Completed Sessions:** Immutable history, optimal for analysis
-* **Failed Sessions:** Include error context and stack traces (useful for debugging)
+* **활성 세션 (Active Sessions):** `session_read`가 불완전한 메시지 이력(진행 중인 현재 대화)을 반환할 수 있습니다.
+* **유휴 세션 (Idle Sessions):** 모든 도구가 완전한 데이터를 반환하며, 세션을 재개할 수 있습니다.
+* **완료된 세션 (Completed Sessions):** 불변의 이력으로, 분석에 최적화되어 있습니다.
+* **실패한 세션 (Failed Sessions):** 에러 컨텍스트 및 스택 트레이스를 포함합니다 (디버깅에 유용).
 
-**Sources:** [Diagram 4](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/Diagram 4#LNaN-LNaN)
+**출처:** [Diagram 4](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/Diagram 4#LNaN-LNaN)
 
  [README.md L681-L682](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L681-L682)
 
 ---
 
-## Performance Considerations
+## 성능 고려 사항 (Performance Considerations)
 
-### Optimization Strategies
+### 최적화 전략
 
-**1. Incremental Session Reading:**
-Instead of reading entire sessions, use targeted queries:
+**1. 증분 세션 읽기 (Incremental Session Reading):**
+전체 세션을 읽는 대신 타겟 쿼리를 사용합니다:
 
 ```javascript
-// Inefficient: Read everything
+// 비효율적: 모든 내용 읽기
 const fullSession = session_read({ session_id: "sess_abc" })
 
-// Efficient: Search first, read selectively
+// 효율적: 먼저 검색하고 선택적으로 읽기
 const matches = session_search({ 
   query: "authentication implementation",
   session_ids: ["sess_abc"]
 })
-// Then read only relevant message ranges
+// 그 다음 관련 메시지 범위만 읽기
 ```
 
-**2. Metadata-First Workflow:**
-Use `session_info` before committing to `session_read`:
+**2. 메타데이터 우선 워크플로우:**
+`session_read`를 수행하기 전에 `session_info`를 사용합니다:
 
 ```javascript
-// Check session size first
+// 먼저 세션 크기 확인
 const info = session_info({ session_id: "sess_abc" })
 if (info.message_count > 100 || info.token_count > 50000) {
-  // Use session_search instead of session_read
-  // Or request user confirmation
+  // session_read 대신 session_search 사용
+  // 또는 사용자 확인 요청
 }
 ```
 
-**3. Date Filtering:**
-Limit search scope to reduce processing time:
+**3. 날짜 필터링:**
+처리 시간을 줄이기 위해 검색 범위를 제한합니다:
 
 ```yaml
-// Inefficient: Search all history
+// 비효율적: 모든 이력 검색
 session_search({ query: "bug fix" })
 
-// Efficient: Limit to recent sessions
+// 효율적: 최근 세션으로 제한
 session_search({ 
   query: "bug fix",
   start_date: "2025-01-01T00:00:00Z",
@@ -818,55 +816,55 @@ session_search({
 })
 ```
 
-**4. Result Limits:**
-Always specify appropriate limits:
+**4. 결과 제한:**
+항상 적절한 제한을 지정합니다:
 
 ```yaml
-// Default behavior may return too much
+// 기본 동작은 너무 많은 결과를 반환할 수 있음
 session_list({})
 
-// Controlled results
+// 제어된 결과
 session_list({ 
   limit: 10,
   start_date: last_week
 })
 ```
 
-**Sources:** [README.md L686-L689](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L686-L689)
+**출처:** [README.md L686-L689](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L686-L689)
 
  [Context Management Hooks](/code-yeongyu/oh-my-opencode/7.4-context-management-hooks)
 
 ---
 
-## Summary
+## 요약 (Summary)
 
-Session Management Tools provide essential historical analysis capabilities for oh-my-opencode agents:
+세션 관리 도구는 oh-my-opencode 에이전트에게 필수적인 이력 분석 기능을 제공합니다:
 
-**Core Capabilities:**
+**핵심 기능:**
 
-* **session_list:** Enumerate and filter sessions by date/limit
-* **session_read:** Access complete conversation history
-* **session_search:** Full-text search across sessions
-* **session_info:** Retrieve metadata and statistics
+* **session_list:** 날짜/제한별로 세션 나열 및 필터링
+* **session_read:** 전체 대화 이력 접근
+* **session_search:** 세션 전반에 걸친 전체 텍스트 검색
+* **session_info:** 메타데이터 및 통계 조회
 
-**Key Benefits:**
+**주요 이점:**
 
-* Enables agents to learn from past sessions
-* Prevents duplicate work across sessions
-* Maintains workflow continuity despite session boundaries
-* Supports debugging through historical analysis
+* 에이전트가 과거 세션으로부터 학습할 수 있도록 함
+* 세션 간 중복 작업 방지
+* 세션 경계에도 불구하고 워크플로우 연속성 유지
+* 이력 분석을 통한 디버깅 지원
 
-**Integration Points:**
+**통합 지점:**
 
-* Primary user: Sisyphus orchestrator for workflow continuity
-* Storage: Claude Code compatible (`~/.claude/transcripts/`, `~/.claude/todos/`)
-* Protection: Context management hooks prevent token overload
-* Access control: Configurable per-agent via tool permissions
+* 주요 사용자: 워크플로우 연속성을 위한 Sisyphus 오케스트레이터
+* 저장소: Claude Code 호환 (`~/.claude/transcripts/`, `~/.claude/todos/`)
+* 보호: 토큰 과부하를 방지하는 컨텍스트 관리 훅
+* 접근 제어: 도구 권한을 통해 에이전트별로 설정 가능
 
-**Design Philosophy:**
-Session management follows the "learn from history" principle, allowing agents to accumulate knowledge over time rather than treating each session as isolated. This enables continuous improvement and consistent patterns across user interactions.
+**설계 철학:**
+세션 관리는 "이력으로부터 학습"하는 원칙을 따르며, 에이전트가 각 세션을 고립된 것으로 취급하는 대신 시간이 지남에 따라 지식을 축적할 수 있도록 합니다. 이를 통해 사용자 상호작용 전반에서 지속적인 개선과 일관된 패턴 유지가 가능해집니다.
 
-**Sources:** [README.md L528-L537](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L528-L537)
+**출처:** [README.md L528-L537](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L528-L537)
 
  [Diagram 5](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/Diagram 5#LNaN-LNaN)
 

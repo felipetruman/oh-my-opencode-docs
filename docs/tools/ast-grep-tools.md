@@ -1,13 +1,13 @@
 ---
 layout: default
-title: AST Grep Tools
-parent: Tools
+title: AST Grep 도구
+parent: 도구
 nav_order: 1
 ---
 
-# AST-Grep Tools
+# AST-Grep 도구
 
-> **Relevant source files**
+> **관련 소스 파일**
 > * [README.ja.md](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.ja.md)
 > * [README.ko.md](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.ko.md)
 > * [README.md](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md)
@@ -21,50 +21,50 @@ nav_order: 1
 > * [src/tools/look-at/constants.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/look-at/constants.ts)
 > * [src/tools/look-at/tools.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/look-at/tools.ts)
 
-## Purpose and Scope
+## 목적 및 범위
 
-This document covers the AST-Grep tool integration in oh-my-opencode, which provides Abstract Syntax Tree (AST) based code search and replacement capabilities across 25 programming languages. AST-Grep tools enable agents to perform structural code pattern matching and safe refactoring operations that go beyond simple text-based search.
+이 문서는 25개의 프로그래밍 언어에 대해 Abstract Syntax Tree(AST, 추상 구문 트리) 기반의 코드 검색 및 교체 기능을 제공하는 oh-my-opencode의 AST-Grep 도구 통합에 대해 다룹니다. AST-Grep 도구는 에이전트가 단순한 텍스트 기반 검색을 넘어 구조적인 코드 패턴 매칭과 안전한 리팩토링(refactoring) 작업을 수행할 수 있도록 지원합니다.
 
-For Language Server Protocol operations (type information, navigation, diagnostics), see [LSP Tools](/code-yeongyu/oh-my-opencode/5.1-lsp-tools). For agent-specific tool capabilities, see [Specialized Agents](/code-yeongyu/oh-my-opencode/4.2-specialized-agents).
+Language Server Protocol(LSP) 작업(타입 정보, 탐색, 진단)에 대해서는 [LSP 도구](/code-yeongyu/oh-my-opencode/5.1-lsp-tools)를 참조하십시오. 에이전트별 도구 기능에 대해서는 [특화된 에이전트](/code-yeongyu/oh-my-opencode/4.2-specialized-agents)를 참조하십시오.
 
-Sources: [README.md L169](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L169-L169)
+출처: [README.md L169](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L169-L169)
 
  [README.md L524](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L524-L524)
 
-## Overview
+## 개요
 
-AST-Grep tools provide syntax-aware code manipulation through two primary operations:
+AST-Grep 도구는 두 가지 주요 작업을 통해 구문 인식 코드 조작 기능을 제공합니다.
 
-| Tool | Purpose | Safety Level |
+| 도구 | 목적 | 안전 수준 |
 | --- | --- | --- |
-| `ast_grep_search` | Structural pattern matching across codebase | Read-only |
-| `ast_grep_replace` | AST-aware code replacement | Write (safe refactoring) |
+| `ast_grep_search` | 코드베이스 전반의 구조적 패턴 매칭 | 읽기 전용 |
+| `ast_grep_replace` | AST 인식 코드 교체 | 쓰기 (안전한 리팩토링) |
 
-These tools leverage abstract syntax tree analysis to understand code structure rather than treating code as plain text. This enables precise pattern matching that respects language semantics, variable scoping, and code structure.
+이 도구들은 코드를 단순한 텍스트로 취급하는 대신, 추상 구문 트리 분석을 활용하여 코드 구조를 이해합니다. 이를 통해 언어의 의미론(semantics), 변수 스코프(scope), 코드 구조를 존중하는 정밀한 패턴 매칭이 가능해집니다.
 
-Sources: [README.md L524](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L524-L524)
+출처: [README.md L524](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L524-L524)
 
-## Tool Architecture
+## 도구 아키텍처
 
 ```mermaid
 flowchart TD
 
-SearchTool["ast_grep_search<br>Pattern matching"]
-ReplaceTool["ast_grep_replace<br>Safe replacement"]
+SearchTool["ast_grep_search<br>패턴 매칭"]
+ReplaceTool["ast_grep_replace<br>안전한 교체"]
 TS["TypeScript/JavaScript"]
 PY["Python"]
 RS["Rust"]
 GO["Go"]
 JAVA["Java"]
 CPP["C/C++"]
-Other["...21 more languages"]
-Sisyphus["Sisyphus<br>(full access)"]
-Oracle["Oracle<br>(read-only)"]
-Explore["Explore<br>(read-only)"]
-PatternSearch["Pattern Discovery<br>Find similar code"]
-Refactor["Safe Refactoring<br>Structural changes"]
-AntiPattern["Anti-Pattern Detection<br>Code quality"]
-Migration["API Migration<br>Bulk updates"]
+Other["...그 외 21개 언어"]
+Sisyphus["Sisyphus<br>(전체 권한)"]
+Oracle["Oracle<br>(읽기 전용)"]
+Explore["Explore<br>(읽기 전용)"]
+PatternSearch["패턴 발견<br>유사 코드 찾기"]
+Refactor["안전한 리팩토링<br>구조적 변경"]
+AntiPattern["안티 패턴 탐지<br>코드 품질"]
+Migration["API 마이그레이션<br>대량 업데이트"]
 
 SearchTool -.-> TS
 SearchTool -.-> PY
@@ -89,20 +89,20 @@ SearchTool -.-> AntiPattern
 ReplaceTool -.-> Refactor
 ReplaceTool -.-> Migration
 
-subgraph subGraph3 ["Use Cases"]
+subgraph subGraph3 ["사용 사례"]
     PatternSearch
     Refactor
     AntiPattern
     Migration
 end
 
-subgraph subGraph2 ["Agent Access Layer"]
+subgraph subGraph2 ["에이전트 접근 계층"]
     Sisyphus
     Oracle
     Explore
 end
 
-subgraph subGraph1 ["Language Support (25 Languages)"]
+subgraph subGraph1 ["언어 지원 (25개 언어)"]
     TS
     PY
     RS
@@ -112,60 +112,60 @@ subgraph subGraph1 ["Language Support (25 Languages)"]
     Other
 end
 
-subgraph subGraph0 ["AST-Grep Tool Layer"]
+subgraph subGraph0 ["AST-Grep 도구 계층"]
     SearchTool
     ReplaceTool
 end
 ```
 
-Sources: [README.md L169](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L169-L169)
+출처: [README.md L169](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L169-L169)
 
  [README.md L524](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L524-L524)
 
-## Tool Definitions
+## 도구 정의
 
 ### ast_grep_search
 
-Pattern-based code search using AST structure. Matches code patterns while respecting language syntax and semantics.
+AST 구조를 이용한 패턴 기반 코드 검색입니다. 언어의 구문과 의미론을 준수하면서 코드 패턴을 매칭합니다.
 
-**Key Characteristics:**
+**주요 특징:**
 
-* Operates on abstract syntax trees, not text
-* Supports pattern variables for flexible matching
-* Language-aware matching (respects scoping, syntax)
-* Returns structured results with context
+* 텍스트가 아닌 추상 구문 트리에서 작동합니다.
+* 유연한 매칭을 위해 패턴 변수를 지원합니다.
+* 언어 인식 매칭(스코프, 구문 준수)을 수행합니다.
+* 컨텍스트가 포함된 구조화된 결과를 반환합니다.
 
-**Common Pattern Types:**
+**일반적인 패턴 유형:**
 
-* Function/method declarations
-* Variable usage patterns
-* Import/export statements
-* Control flow structures
-* Type annotations
+* 함수/메서드 선언
+* 변수 사용 패턴
+* Import/export 문
+* 제어 흐름 구조
+* 타입 어노테이션(Type annotations)
 
-Sources: [README.md L524](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L524-L524)
+출처: [README.md L524](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L524-L524)
 
 ### ast_grep_replace
 
-Structural code replacement maintaining syntactic correctness. Performs refactoring operations that preserve code semantics.
+구문적 정확성을 유지하는 구조적 코드 교체입니다. 코드의 의미론을 보존하는 리팩토링 작업을 수행합니다.
 
-**Safety Features:**
+**안전 기능:**
 
-* Validates replacement syntax before applying
-* Maintains proper indentation and formatting
-* Respects language-specific syntax rules
-* Preserves surrounding code structure
+* 적용 전 교체 구문의 유효성을 검증합니다.
+* 적절한 들여쓰기와 포맷팅을 유지합니다.
+* 언어별 구문 규칙을 준수합니다.
+* 주변 코드 구조를 보존합니다.
 
-**Typical Operations:**
+**전형적인 작업:**
 
-* Rename functions/variables with scope awareness
-* Update API call patterns
-* Modify import statements
-* Refactor code structures
+* 스코프를 인식한 함수/변수 이름 변경
+* API 호출 패턴 업데이트
+* Import 문 수정
+* 코드 구조 리팩토링
 
-Sources: [README.md L524](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L524-L524)
+출처: [README.md L524](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L524-L524)
 
-## Agent Access Patterns
+## 에이전트 접근 패턴
 
 ```mermaid
 flowchart TD
@@ -180,101 +180,101 @@ Multimodal["Multimodal Looker"]
 Search["ast_grep_search"]
 Replace["ast_grep_replace"]
 
-Sisyphus -.->|"no access"| Search
+Sisyphus -.->|"접근 불가"| Search
 Sisyphus -.-> Replace
 Oracle -.-> Search
-Explore -.->|"no access"| Search
+Explore -.->|"접근 불가"| Search
 Librarian -.-> Search
-Frontend -.->|"no access"| Search
+Frontend -.->|"접근 불가"| Search
 DocWriter -.-> Search
-Multimodal -.->|"no access"| Search
+Multimodal -.->|"접근 불가"| Search
 
-subgraph subGraph3 ["AST-Grep Operations"]
+subgraph subGraph3 ["AST-Grep 작업"]
     Search
     Replace
 end
 
-subgraph subGraph2 ["No Access"]
+subgraph subGraph2 ["접근 불가"]
     Librarian
     Frontend
     DocWriter
     Multimodal
 end
 
-subgraph subGraph1 ["Read-Only Access"]
+subgraph subGraph1 ["읽기 전용 접근"]
     Oracle
     Explore
 end
 
-subgraph subGraph0 ["Full Access"]
+subgraph subGraph0 ["전체 권한"]
     Sisyphus
 end
 ```
 
-**Access Rationale:**
+**접근 근거:**
 
-* **Sisyphus**: Full access for implementation and refactoring tasks
-* **Oracle**: Read-only for architectural analysis and code review
-* **Explore**: Read-only for pattern discovery and codebase exploration
-* **Librarian**: No access (focuses on external documentation)
-* **Frontend/DocWriter/Multimodal**: No access (specialized domains)
+* **Sisyphus**: 구현 및 리팩토링 작업을 위한 전체 권한 보유
+* **Oracle**: 아키텍처 분석 및 코드 리뷰를 위한 읽기 전용 권한 보유
+* **Explore**: 패턴 발견 및 코드베이스 탐색을 위한 읽기 전용 권한 보유
+* **Librarian**: 접근 권한 없음 (외부 문서에 집중)
+* **Frontend/DocWriter/Multimodal**: 접근 권한 없음 (특화된 도메인)
 
-Sources: [README.md L466-L470](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L466-L470)
+출처: [README.md L466-L470](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L466-L470)
 
  [README.md L468-L470](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L468-L470)
 
-## Language Support
+## 언어 지원
 
-AST-Grep tools support 25 programming languages through unified pattern syntax:
+AST-Grep 도구는 통합된 패턴 구문을 통해 25개의 프로그래밍 언어를 지원합니다.
 
-**Web & Mobile:**
+**웹 및 모바일:**
 
 * JavaScript, TypeScript, JSX, TSX
 * HTML, CSS
 * Kotlin, Swift, Dart
 
-**Systems & Backend:**
+**시스템 및 백엔드:**
 
 * Rust, Go, C, C++
 * Java, C#, Scala
 
-**Scripting & Data:**
+**스크립팅 및 데이터:**
 
 * Python, Ruby, Lua
 * PHP, Bash
 
-**Other:**
+**기타:**
 
 * Elixir, Haskell, OCaml, Thrift
 
-Each language's AST structure is automatically handled, allowing agents to use consistent pattern syntax across different codebases.
+각 언어의 AST 구조는 자동으로 처리되므로, 에이전트는 서로 다른 코드베이스에서도 일관된 패턴 구문을 사용할 수 있습니다.
 
-Sources: [README.md L524](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L524-L524)
+출처: [README.md L524](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L524-L524)
 
-## Integration with Development Workflow
+## 개발 워크플로우와의 통합
 
 ```mermaid
 flowchart TD
 
-LSPHover["lsp_hover<br>Type info"]
-ASTSearch["ast_grep_search<br>Pattern finding"]
-LSPRefs["lsp_find_references<br>Usage analysis"]
-LSPGoto["lsp_goto_definition<br>Navigate source"]
-ASTPattern["ast_grep_search<br>Similar patterns"]
-LSPRename["lsp_rename<br>Symbol rename"]
-ASTReplace["ast_grep_replace<br>Structural changes"]
-LSPActions["lsp_code_actions<br>Quick fixes"]
-LSPDiag["lsp_diagnostics<br>Check errors"]
+LSPHover["lsp_hover<br>타입 정보"]
+ASTSearch["ast_grep_search<br>패턴 찾기"]
+LSPRefs["lsp_find_references<br>사용 분석"]
+LSPGoto["lsp_goto_definition<br>소스 탐색"]
+ASTPattern["ast_grep_search<br>유사 패턴"]
+LSPRename["lsp_rename<br>심볼 이름 변경"]
+ASTReplace["ast_grep_replace<br>구조적 변경"]
+LSPActions["lsp_code_actions<br>빠른 수정"]
+LSPDiag["lsp_diagnostics<br>오류 확인"]
 
 ASTSearch -.-> LSPRefs
 ASTPattern -.-> LSPRename
 LSPActions -.-> LSPDiag
 
-subgraph subGraph3 ["Validation Phase"]
+subgraph subGraph3 ["검증 단계"]
     LSPDiag
 end
 
-subgraph subGraph2 ["Refactoring Phase"]
+subgraph subGraph2 ["리팩토링 단계"]
     LSPRename
     ASTReplace
     LSPActions
@@ -282,7 +282,7 @@ subgraph subGraph2 ["Refactoring Phase"]
     ASTReplace -.-> LSPActions
 end
 
-subgraph subGraph1 ["Understanding Phase"]
+subgraph subGraph1 ["이해 단계"]
     LSPRefs
     LSPGoto
     ASTPattern
@@ -290,81 +290,81 @@ subgraph subGraph1 ["Understanding Phase"]
     LSPGoto -.-> ASTPattern
 end
 
-subgraph subGraph0 ["Analysis Phase"]
+subgraph subGraph0 ["분석 단계"]
     LSPHover
     ASTSearch
     LSPHover -.-> ASTSearch
 end
 ```
 
-AST-Grep tools complement LSP operations by providing:
+AST-Grep 도구는 다음과 같은 기능을 제공하여 LSP 작업을 보완합니다.
 
-* Structural pattern matching beyond symbol-based search
-* Cross-file refactoring capabilities
-* Language-agnostic pattern syntax
-* Bulk modification support
+* 심볼 기반 검색을 넘어서는 구조적 패턴 매칭
+* 파일 간 리팩토링 기능
+* 언어 중립적인 패턴 구문
+* 대량 수정 지원
 
-Sources: [README.md L512-L525](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L512-L525)
+출처: [README.md L512-L525](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L512-L525)
 
-## Common Usage Patterns
+## 일반적인 사용 패턴
 
-### Pattern Discovery
+### 패턴 발견
 
-Agents use `ast_grep_search` to find code patterns for:
+에이전트는 다음과 같은 목적으로 `ast_grep_search`를 사용하여 코드 패턴을 찾습니다.
 
-**Architectural Understanding:**
+**아키텍처 이해:**
 
-* Identify all implementations of an interface
-* Find usage patterns of specific APIs
-* Locate similar error handling approaches
+* 인터페이스의 모든 구현체 식별
+* 특정 API의 사용 패턴 찾기
+* 유사한 에러 처리 방식 위치 파악
 
-**Code Quality Analysis:**
+**코드 품질 분석:**
 
-* Detect anti-patterns (e.g., missing null checks)
-* Find inconsistent coding styles
-* Identify deprecated API usage
+* 안티 패턴 탐지 (예: 누락된 null 체크)
+* 일관성 없는 코딩 스타일 찾기
+* 더 이상 사용되지 않는(deprecated) API 사용 식별
 
-**Migration Assistance:**
+**마이그레이션 지원:**
 
-* Locate all instances requiring update
-* Identify compatibility issues
-* Find version-specific code patterns
+* 업데이트가 필요한 모든 인스턴스 위치 파악
+* 호환성 문제 식별
+* 버전별 코드 패턴 찾기
 
-Sources: [README.md L524](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L524-L524)
+출처: [README.md L524](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L524-L524)
 
-### Safe Refactoring
+### 안전한 리팩토링
 
-Agents use `ast_grep_replace` for:
+에이전트는 다음과 같은 목적으로 `ast_grep_replace`를 사용합니다.
 
-**API Migrations:**
-
-```yaml
-Pattern: Old API call structure
-Replacement: New API call structure
-Scope: Entire codebase
-```
-
-**Consistency Enforcement:**
+**API 마이그레이션:**
 
 ```yaml
-Pattern: Inconsistent error handling
-Replacement: Standardized error handling
-Scope: Specific file patterns
+Pattern: 이전 API 호출 구조
+Replacement: 새로운 API 호출 구조
+Scope: 코드베이스 전체
 ```
 
-**Structural Updates:**
+**일관성 강제:**
 
 ```yaml
-Pattern: Legacy code structure
-Replacement: Modern equivalent
-Scope: Targeted directories
+Pattern: 일관성 없는 에러 처리
+Replacement: 표준화된 에러 처리
+Scope: 특정 파일 패턴
 ```
 
-Sources: [README.md L524](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L524-L524)
+**구조적 업데이트:**
 
-## Workflow Examples
+```yaml
+Pattern: 레거시 코드 구조
+Replacement: 현대적인 대체 구조
+Scope: 대상 디렉토리
+```
 
-### Oracle Review Workflow
+출처: [README.md L524](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L524-L524)
+
+## 워크플로우 예시
+
+### Oracle 리뷰 워크플로우
 
 ```mermaid
 sequenceDiagram
@@ -373,21 +373,21 @@ sequenceDiagram
   participant p3 as ast_grep_search
   participant p4 as lsp_*
 
-  p1->>p2: Review architecture design
-  p2->>p3: Search for pattern implementations
-  p3-->>p2: Return matching structures
-  p2->>p4: Get type information for matches
-  p4-->>p2: Return type details
-  p2->>p3: Search for related patterns
-  p3-->>p2: Return related code
-  p2-->>p1: Architectural analysis with evidence
+  p1->>p2: 아키텍처 설계 리뷰
+  p2->>p3: 패턴 구현 검색
+  p3-->>p2: 일치하는 구조 반환
+  p2->>p4: 일치 항목에 대한 타입 정보 가져오기
+  p4-->>p2: 타입 상세 정보 반환
+  p2->>p3: 관련 패턴 검색
+  p3-->>p2: 관련 코드 반환
+  p2-->>p1: 근거를 포함한 아키텍처 분석
 ```
 
-Oracle uses AST-Grep in read-only mode to gather evidence for architectural decisions without modifying code.
+Oracle은 코드를 수정하지 않고 아키텍처 결정을 위한 근거를 수집하기 위해 읽기 전용 모드로 AST-Grep을 사용합니다.
 
-Sources: [README.md L466-L470](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L466-L470)
+출처: [README.md L466-L470](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L466-L470)
 
-### Explore Discovery Workflow
+### Explore 발견 워크플로우
 
 ```mermaid
 sequenceDiagram
@@ -396,82 +396,82 @@ sequenceDiagram
   participant p3 as ast_grep_search
   participant p4 as grep_app
 
-  p1->>p2: Find implementation patterns (background)
-  p2->>p3: Search local codebase patterns
-  p2->>p4: Search GitHub for examples
-  par Parallel Execution
-    p3-->>p2: Local patterns
+  p1->>p2: 구현 패턴 찾기 (백그라운드)
+  p2->>p3: 로컬 코드베이스 패턴 검색
+  p2->>p4: GitHub에서 예시 검색
+  par 병렬 실행
+    p3-->>p2: 로컬 패턴
   and
-    p4-->>p2: External examples
+    p4-->>p2: 외부 예시
   end
-  p2-->>p1: Consolidated findings
+  p2-->>p1: 통합된 결과 보고
 ```
 
-Explore combines AST-Grep (local patterns) with grep_app (external examples) for comprehensive pattern discovery.
+Explore는 포괄적인 패턴 발견을 위해 AST-Grep(로컬 패턴)과 grep_app(외부 예시)을 결합합니다.
 
-Sources: [README.md L469](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L469-L469)
+출처: [README.md L469](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L469-L469)
 
-### Sisyphus Refactoring Workflow
+### Sisyphus 리팩토링 워크플로우
 
 ```mermaid
 sequenceDiagram
-  participant p1 as User Request
+  participant p1 as 사용자 요청
   participant p2 as Sisyphus
   participant p3 as ast_grep_search
   participant p4 as ast_grep_replace
   participant p5 as lsp_diagnostics
 
-  p1->>p2: Refactor API usage
-  p2->>p3: Find all usage patterns
-  p3-->>p2: Usage locations
-  p2->>p4: Apply structural changes
-  p4-->>p2: Changes applied
-  p2->>p5: Validate no errors
-  p5-->>p2: Diagnostics clean
-  p2-->>p1: Refactoring complete
+  p1->>p2: API 사용 리팩토링
+  p2->>p3: 모든 사용 패턴 찾기
+  p3-->>p2: 사용 위치
+  p2->>p4: 구조적 변경 적용
+  p4-->>p2: 변경 사항 적용됨
+  p2->>p5: 오류 없음 검증
+  p5-->>p2: 진단 결과 이상 없음
+  p2-->>p1: 리팩토링 완료
 ```
 
-Sisyphus uses full AST-Grep access to perform safe, validated refactoring operations.
+Sisyphus는 안전하고 검증된 리팩토링 작업을 수행하기 위해 AST-Grep에 대한 전체 권한을 사용합니다.
 
-Sources: [README.md L466-L470](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L466-L470)
+출처: [README.md L466-L470](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L466-L470)
 
-## Tool Coordination Patterns
+## 도구 협업 패턴
 
-### AST-Grep + LSP Synergy
+### AST-Grep + LSP 시너지
 
-**Pattern Matching → Symbol Navigation:**
+**패턴 매칭 → 심볼 탐색:**
 
-1. Use `ast_grep_search` to find structural patterns
-2. Use `lsp_goto_definition` to navigate to implementations
-3. Use `lsp_find_references` to understand usage
+1. `ast_grep_search`를 사용하여 구조적 패턴 찾기
+2. `lsp_goto_definition`을 사용하여 구현체로 이동
+3. `lsp_find_references`를 사용하여 사용 현황 이해
 
-**Refactoring → Validation:**
+**리팩토링 → 검증:**
 
-1. Use `ast_grep_replace` for structural changes
-2. Use `lsp_diagnostics` to validate correctness
-3. Use `lsp_code_actions` for cleanup
+1. `ast_grep_replace`를 사용하여 구조적 변경 수행
+2. `lsp_diagnostics`를 사용하여 정확성 검증
+3. `lsp_code_actions`를 사용하여 정리 작업 수행
 
-Sources: [README.md L512-L525](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L512-L525)
+출처: [README.md L512-L525](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L512-L525)
 
-### Multi-Agent Pattern
+### 멀티 에이전트 패턴
 
-**Parallel Discovery:**
+**병렬 발견:**
 
-* Explore uses AST-Grep for local patterns (async)
-* Librarian uses external MCPs for documentation (async)
-* Sisyphus aggregates findings for implementation
+* Explore가 AST-Grep을 사용하여 로컬 패턴 탐색 (비동기)
+* Librarian이 외부 MCP를 사용하여 문서 탐색 (비동기)
+* Sisyphus가 구현을 위해 발견된 사항들을 집계
 
-**Sequential Refinement:**
+**순차적 개선:**
 
-* Oracle uses AST-Grep to analyze existing patterns
-* Sisyphus uses AST-Grep to implement improvements
-* Validation through LSP diagnostics
+* Oracle이 AST-Grep을 사용하여 기존 패턴 분석
+* Sisyphus가 AST-Grep을 사용하여 개선 사항 구현
+* LSP 진단을 통한 검증
 
-Sources: [README.md L466-L470](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L466-L470)
+출처: [README.md L466-L470](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L466-L470)
 
-## Configuration and Customization
+## 설정 및 커스터마이징
 
-AST-Grep tool access is controlled through agent configuration:
+AST-Grep 도구 접근 권한은 에이전트 설정을 통해 제어됩니다.
 
 ```json
 {
@@ -492,51 +492,51 @@ AST-Grep tool access is controlled through agent configuration:
 }
 ```
 
-Custom agents can be configured with selective AST-Grep access based on their role in the development workflow.
+커스텀 에이전트는 개발 워크플로우에서의 역할에 따라 AST-Grep 접근 권한을 선택적으로 구성할 수 있습니다.
 
-Sources: [README.md L772-L808](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L772-L808)
+출처: [README.md L772-L808](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L772-L808)
 
-## Performance Characteristics
+## 성능 특성
 
-**Search Performance:**
+**검색 성능:**
 
-* AST parsing overhead: one-time per file
-* Pattern matching: faster than regex for complex patterns
-* Cross-file search: parallelized
-* Result caching: enabled
+* AST 파싱 오버헤드: 파일당 1회 발생
+* 패턴 매칭: 복잡한 패턴의 경우 정규식(regex)보다 빠름
+* 파일 간 검색: 병렬화됨
+* 결과 캐싱: 활성화됨
 
-**Replace Performance:**
+**교체 성능:**
 
-* Syntax validation: before application
-* Incremental updates: only modified files
-* Rollback support: via LSP diagnostics
-* Atomic operations: per-file basis
+* 구문 검증: 적용 전 수행
+* 증분 업데이트: 수정된 파일만 처리
+* 롤백 지원: LSP 진단을 통해 지원
+* 원자적 작업: 파일 단위로 수행
 
-Sources: [README.md L524](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L524-L524)
+출처: [README.md L524](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L524-L524)
 
-## Best Practices
+## 권장 사항 (Best Practices)
 
-**For Pattern Matching:**
+**패턴 매칭 시:**
 
-* Start with specific patterns, broaden if needed
-* Use pattern variables for flexibility
-* Combine with LSP for type-aware search
-* Validate results before bulk operations
+* 구체적인 패턴으로 시작하고, 필요한 경우 범위를 넓히십시오.
+* 유연성을 위해 패턴 변수를 사용하십시오.
+* 타입 인식 검색을 위해 LSP와 결합하십시오.
+* 대량 작업 전에 결과를 검증하십시오.
 
-**For Refactoring:**
+**리팩토링 시:**
 
-* Always search before replace to preview changes
-* Validate with LSP diagnostics after changes
-* Use targeted scopes to limit blast radius
-* Test critical paths after structural changes
+* 변경 사항을 미리 보기 위해 교체 전 항상 검색을 먼저 수행하십시오.
+* 변경 후에는 LSP 진단으로 검증하십시오.
+* 영향 범위(blast radius)를 제한하기 위해 대상 범위를 지정하십시오.
+* 구조적 변경 후에는 크리티컬 패스(critical paths)를 테스트하십시오.
 
-**For Agent Delegation:**
+**에이전트 위임 시:**
 
-* Use Explore for pattern discovery (parallel)
-* Use Oracle for architectural pattern analysis
-* Reserve Replace operations for Sisyphus
-* Validate all changes with LSP tools
+* 패턴 발견에는 Explore를 사용하십시오 (병렬).
+* 아키텍처 패턴 분석에는 Oracle을 사용하십시오.
+* 교체(Replace) 작업은 Sisyphus를 위해 남겨두십시오.
+* 모든 변경 사항은 LSP 도구로 검증하십시오.
 
-Sources: [README.md L466-L470](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L466-L470)
+출처: [README.md L466-L470](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L466-L470)
 
  [README.md L524](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L524-L524)

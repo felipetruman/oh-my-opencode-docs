@@ -1,26 +1,26 @@
 ---
 layout: default
-title: Claude Code Compatibility
+title: Claude Code 호환성
 parent: Compatibility
 nav_order: 1
 ---
 
-# Claude Code Compatibility
+# Claude Code 호환성 (Claude Code Compatibility)
 
-> **Relevant source files**
+> **관련 소스 파일**
 > * [README.ja.md](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.ja.md)
 > * [README.ko.md](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.ko.md)
 > * [README.md](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md)
 > * [README.zh-cn.md](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.zh-cn.md)
 > * [src/shared/config-path.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/shared/config-path.ts)
 
-## Purpose and Scope
+## 목적 및 범위 (Purpose and Scope)
 
-The Claude Code Compatibility layer enables seamless migration from Claude Code to oh-my-opencode by loading existing Claude Code configurations, commands, skills, agents, MCP servers, and hooks from the `~/.claude/` directory structure. This allows users to retain their custom configurations without modification when switching platforms.
+Claude Code 호환성 계층은 `~/.claude/` 디렉토리 구조에서 기존 Claude Code 설정, 명령(commands), 스킬(skills), 에이전트(agents), MCP(Micro-Capability Provider) 서버 및 훅(hooks)을 로드하여 Claude Code에서 oh-my-opencode로의 원활한 마이그레이션을 가능하게 합니다. 이를 통해 사용자는 플랫폼을 전환할 때 수정 없이 기존의 사용자 정의 설정을 그대로 유지할 수 있습니다.
 
-For information about configuring oh-my-opencode-specific features, see [Configuration System](/code-yeongyu/oh-my-opencode/3.2-configuration-system). For details on the built-in agent system, see [Agent System](../agents/).
+oh-my-opencode 전용 기능 설정에 대한 정보는 [설정 시스템 (Configuration System)](/code-yeongyu/oh-my-opencode/3.2-configuration-system)을 참조하십시오. 내장 에이전트 시스템에 대한 자세한 내용은 [에이전트 시스템 (Agent System)](../agents/)을 참조하십시오.
 
-## Architecture Overview
+## 아키텍처 개요 (Architecture Overview)
 
 ```mermaid
 flowchart TD
@@ -39,16 +39,16 @@ ProjectCommands["commands/*.md"]
 ProjectSkills["skills/*/SKILL.md"]
 ProjectAgents["agents/*.md"]
 ProjectMCPs[".mcp.json"]
-HooksLoader["Hooks Loader"]
-CommandLoader["Command Loader"]
-SkillLoader["Skill Loader"]
-AgentLoader["Agent Loader"]
-MCPLoader["MCP Loader"]
-TodoManager["Todo Manager"]
-TranscriptLogger["Transcript Logger"]
-EventDispatch["Event Dispatch System"]
-ToolRegistry["Tool Registry"]
-AgentFactory["Agent Factory"]
+HooksLoader["Hooks 로더"]
+CommandLoader["명령 로더"]
+SkillLoader["스킬 로더"]
+AgentLoader["에이전트 로더"]
+MCPLoader["MCP 로더"]
+TodoManager["할 일 관리자"]
+TranscriptLogger["기록 로거"]
+EventDispatch["이벤트 디스패치 시스템"]
+ToolRegistry["도구 레지스트리"]
+AgentFactory["에이전트 팩토리"]
 
 Settings -.-> HooksLoader
 ProjectSettings -.-> HooksLoader
@@ -70,13 +70,13 @@ TranscriptLogger -.-> Transcripts
 EventDispatch -.-> TodoManager
 EventDispatch -.-> TranscriptLogger
 
-subgraph subGraph3 ["Plugin Core"]
+subgraph subGraph3 ["플러그인 코어 (Plugin Core)"]
     EventDispatch
     ToolRegistry
     AgentFactory
 end
 
-subgraph subGraph2 ["Compatibility Layer"]
+subgraph subGraph2 ["호환성 계층 (Compatibility Layer)"]
     HooksLoader
     CommandLoader
     SkillLoader
@@ -86,7 +86,7 @@ subgraph subGraph2 ["Compatibility Layer"]
     TranscriptLogger
 end
 
-subgraph subGraph1 ["Project Directory Structure"]
+subgraph subGraph1 ["프로젝트 디렉토리 구조"]
     ProjectRoot
     ProjectSettings
     ProjectCommands
@@ -100,7 +100,7 @@ subgraph subGraph1 ["Project Directory Structure"]
     ProjectRoot -.-> ProjectMCPs
 end
 
-subgraph subGraph0 ["Claude Code Directory Structure"]
+subgraph subGraph0 ["Claude Code 디렉토리 구조"]
     ClaudeHome
     Settings
     Commands
@@ -119,21 +119,21 @@ subgraph subGraph0 ["Claude Code Directory Structure"]
 end
 ```
 
-**Directory Loading Priority**
+**디렉토리 로딩 우선순위**
 
-The compatibility layer loads assets from multiple locations with the following priority order (later sources override earlier ones):
+호환성 계층은 다음 우선순위에 따라 여러 위치에서 에셋을 로드합니다 (나중에 로드된 소스가 이전 소스를 덮어씁니다).
 
-| Asset Type | User-Level | Project-Level | Local (Git-ignored) |
+| 에셋 유형 | 사용자 수준 (User-Level) | 프로젝트 수준 (Project-Level) | 로컬 (Git 무시) |
 | --- | --- | --- | --- |
-| Hooks | `~/.claude/settings.json` | `./.claude/settings.json` | `./.claude/settings.local.json` |
-| Commands | `~/.claude/commands/*.md` | `./.claude/commands/*.md` | - |
-| Skills | `~/.claude/skills/*/SKILL.md` | `./.claude/skills/*/SKILL.md` | - |
-| Agents | `~/.claude/agents/*.md` | `./.claude/agents/*.md` | - |
-| MCPs | `~/.claude/.mcp.json` | `./.mcp.json` | `./.claude/.mcp.json` |
+| 훅 (Hooks) | `~/.claude/settings.json` | `./.claude/settings.json` | `./.claude/settings.local.json` |
+| 명령 (Commands) | `~/.claude/commands/*.md` | `./.claude/commands/*.md` | - |
+| 스킬 (Skills) | `~/.claude/skills/*/SKILL.md` | `./.claude/skills/*/SKILL.md` | - |
+| 에이전트 (Agents) | `~/.claude/agents/*.md` | `./.claude/agents/*.md` | - |
+| MCP | `~/.claude/.mcp.json` | `./.mcp.json` | `./.claude/.mcp.json` |
 
-Sources: [README.md L578-L662](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L578-L662)
+출처: [README.md L578-L662](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L578-L662)
 
-## Configuration File Locations
+## 설정 파일 위치 (Configuration File Locations)
 
 ```mermaid
 flowchart TD
@@ -155,7 +155,7 @@ UserMCP[".mcp.json"]
 UserTodos["todos/"]
 UserTranscripts["transcripts/"]
 
-subgraph subGraph1 ["Project Directory"]
+subgraph subGraph1 ["프로젝트 디렉토리"]
     ProjectClaudeDir
     ProjectSettings
     ProjectSettingsLocal
@@ -171,7 +171,7 @@ subgraph subGraph1 ["Project Directory"]
     ProjectClaudeDir -.-> ProjectAgents
 end
 
-subgraph subGraph0 ["User Home Directory"]
+subgraph subGraph0 ["사용자 홈 디렉토리"]
     UserClaudeDir
     UserSettings
     UserCommands
@@ -190,15 +190,15 @@ subgraph subGraph0 ["User Home Directory"]
 end
 ```
 
-The compatibility layer scans both user-level (`~/.claude/`) and project-level (`./.claude/` or `./.mcp.json` at project root) directories. Project-level configurations override user-level defaults, enabling team-wide standards while preserving personal preferences.
+호환성 계층은 사용자 수준(`~/.claude/`)과 프로젝트 수준(프로젝트 루트의 `./.claude/` 또는 `./.mcp.json`) 디렉토리를 모두 스캔합니다. 프로젝트 수준 설정은 사용자 수준 기본값을 덮어쓰므로, 개인적인 선호도를 유지하면서 팀 전체의 표준을 적용할 수 있습니다.
 
-Sources: [README.md L586-L632](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L586-L632)
+출처: [README.md L586-L632](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L586-L632)
 
-## Asset Loaders
+## 에셋 로더 (Asset Loaders)
 
-### Command Loader
+### 명령 로더 (Command Loader)
 
-The Command Loader discovers markdown-based slash commands from four directories, merging them into the tool registry:
+명령 로더는 4개의 디렉토리에서 마크다운 기반의 슬래시 명령(slash commands)을 찾아 도구 레지스트리에 병합합니다.
 
 ```mermaid
 flowchart TD
@@ -207,11 +207,11 @@ ClaudeUserCommands["~/.claude/commands/*.md"]
 ClaudeProjectCommands["./.claude/commands/*.md"]
 OpenCodeUserCommands["~/.config/opencode/command/*.md"]
 OpenCodeProjectCommands["./.opencode/command/*.md"]
-MarkdownParser["Markdown Parser"]
-FrontmatterExtractor["Frontmatter Extractor"]
-CommandRegistry["Command Registry"]
-ToolRegistry["Tool Registry"]
-SlashCommands["Slash Commands"]
+MarkdownParser["마크다운 파서"]
+FrontmatterExtractor["프론트매터 추출기"]
+CommandRegistry["명령 레지스트리"]
+ToolRegistry["도구 레지스트리"]
+SlashCommands["슬래시 명령"]
 
 ClaudeUserCommands -.-> MarkdownParser
 ClaudeProjectCommands -.-> MarkdownParser
@@ -219,13 +219,13 @@ OpenCodeUserCommands -.-> MarkdownParser
 OpenCodeProjectCommands -.-> MarkdownParser
 CommandRegistry -.-> ToolRegistry
 
-subgraph subGraph2 ["Tool Integration"]
+subgraph subGraph2 ["도구 통합"]
     ToolRegistry
     SlashCommands
     ToolRegistry -.-> SlashCommands
 end
 
-subgraph subGraph1 ["Command Parser"]
+subgraph subGraph1 ["명령 파서"]
     MarkdownParser
     FrontmatterExtractor
     CommandRegistry
@@ -233,7 +233,7 @@ subgraph subGraph1 ["Command Parser"]
     FrontmatterExtractor -.-> CommandRegistry
 end
 
-subgraph subGraph0 ["Command Discovery"]
+subgraph subGraph0 ["명령 검색"]
     ClaudeUserCommands
     ClaudeProjectCommands
     OpenCodeUserCommands
@@ -241,9 +241,9 @@ subgraph subGraph0 ["Command Discovery"]
 end
 ```
 
-Command files are markdown documents with optional frontmatter for metadata. Each command becomes available as a slash command (e.g., `/command-name`) that agents can invoke.
+명령 파일은 메타데이터를 위한 선택적 프론트매터(frontmatter)가 포함된 마크다운 문서입니다. 각 명령은 에이전트가 호출할 수 있는 슬래시 명령(예: `/command-name`)으로 사용할 수 있게 됩니다.
 
-**Command File Format:**
+**명령 파일 형식:**
 
 ```go
 ---
@@ -254,11 +254,11 @@ description: Example command description
 Command instructions go here...
 ```
 
-Sources: [README.md L614-L618](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L614-L618)
+출처: [README.md L614-L618](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L614-L618)
 
-### Skill Loader
+### 스킬 로더 (Skill Loader)
 
-Skills are directory-based capabilities with a `SKILL.md` file that defines the skill's behavior:
+스킬(Skills)은 스킬의 동작을 정의하는 `SKILL.md` 파일이 포함된 디렉토리 기반의 기능입니다.
 
 ```mermaid
 flowchart TD
@@ -267,16 +267,16 @@ UserSkills["~/.claude/skills/*/SKILL.md"]
 ProjectSkills["./.claude/skills/*/SKILL.md"]
 SkillDir["skill-name/"]
 SkillMD["SKILL.md"]
-SkillAssets["Additional Files"]
-SkillParser["Skill Parser"]
-SkillRegistry["Skill Registry"]
-SkillTool["skill tool"]
+SkillAssets["추가 파일"]
+SkillParser["스킬 파서"]
+SkillRegistry["스킬 레지스트리"]
+SkillTool["스킬 도구"]
 
 UserSkills -.-> SkillParser
 ProjectSkills -.-> SkillParser
 SkillMD -.-> SkillParser
 
-subgraph subGraph2 ["Skill Registration"]
+subgraph subGraph2 ["스킬 등록"]
     SkillParser
     SkillRegistry
     SkillTool
@@ -284,7 +284,7 @@ subgraph subGraph2 ["Skill Registration"]
     SkillRegistry -.-> SkillTool
 end
 
-subgraph subGraph1 ["Skill Structure"]
+subgraph subGraph1 ["스킬 구조"]
     SkillDir
     SkillMD
     SkillAssets
@@ -292,15 +292,15 @@ subgraph subGraph1 ["Skill Structure"]
     SkillDir -.-> SkillAssets
 end
 
-subgraph subGraph0 ["Skill Discovery"]
+subgraph subGraph0 ["스킬 검색"]
     UserSkills
     ProjectSkills
 end
 ```
 
-Each skill directory contains a `SKILL.md` file with instructions and may include additional files referenced by the skill. Skills are invoked via the `skill` tool, which passes the skill name and arguments.
+각 스킬 디렉토리에는 지침이 담긴 `SKILL.md` 파일이 포함되어 있으며, 스킬에서 참조하는 추가 파일이 포함될 수 있습니다. 스킬은 스킬 이름과 인수를 전달하는 `skill` 도구를 통해 호출됩니다.
 
-**Example Directory Structure:**
+**디렉토리 구조 예시:**
 
 ```
 ~/.claude/skills/
@@ -312,11 +312,11 @@ Each skill directory contains a `SKILL.md` file with instructions and may includ
     └── SKILL.md
 ```
 
-Sources: [README.md L621-L623](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L621-L623)
+출처: [README.md L621-L623](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L621-L623)
 
-### Agent Loader
+### 에이전트 로더 (Agent Loader)
 
-Custom agents are loaded from markdown files and integrated into the agent factory:
+사용자 정의 에이전트는 마크다운 파일에서 로드되어 에이전트 팩토리에 통합됩니다.
 
 ```mermaid
 flowchart TD
@@ -324,18 +324,18 @@ flowchart TD
 UserAgents["~/.claude/agents/*.md"]
 ProjectAgents["./.claude/agents/*.md"]
 AgentMD["agent-name.md"]
-AgentMetadata["Frontmatter Metadata"]
-AgentPrompt["Agent Instructions"]
-AgentParser["Agent Parser"]
-AgentFactory["Agent Factory"]
-CustomAgents["Custom Agents"]
+AgentMetadata["프론트매터 메타데이터"]
+AgentPrompt["에이전트 지침"]
+AgentParser["에이전트 파서"]
+AgentFactory["에이전트 팩토리"]
+CustomAgents["사용자 정의 에이전트"]
 
 UserAgents -.-> AgentParser
 ProjectAgents -.-> AgentParser
 AgentMetadata -.-> AgentParser
 AgentPrompt -.-> AgentParser
 
-subgraph subGraph2 ["Agent Registration"]
+subgraph subGraph2 ["에이전트 등록"]
     AgentParser
     AgentFactory
     CustomAgents
@@ -343,7 +343,7 @@ subgraph subGraph2 ["Agent Registration"]
     AgentFactory -.-> CustomAgents
 end
 
-subgraph subGraph1 ["Agent Definition"]
+subgraph subGraph1 ["에이전트 정의"]
     AgentMD
     AgentMetadata
     AgentPrompt
@@ -351,15 +351,15 @@ subgraph subGraph1 ["Agent Definition"]
     AgentMD -.-> AgentPrompt
 end
 
-subgraph subGraph0 ["Agent Discovery"]
+subgraph subGraph0 ["에이전트 검색"]
     UserAgents
     ProjectAgents
 end
 ```
 
-Custom agents extend the built-in agent system (oracle, librarian, explore, etc.) with project-specific or user-specific agents. Agent files define the agent's model, tools, permissions, and instructions.
+사용자 정의 에이전트는 내장 에이전트 시스템(oracle, librarian, explore 등)을 프로젝트별 또는 사용자별 에이전트로 확장합니다. 에이전트 파일은 에이전트의 모델, 도구, 권한 및 지침을 정의합니다.
 
-**Agent File Format:**
+**에이전트 파일 형식:**
 
 ```yaml
 ---
@@ -372,11 +372,11 @@ tools: [read, write, bash]
 Custom agent instructions...
 ```
 
-Sources: [README.md L625-L627](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L625-L627)
+출처: [README.md L625-L627](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L625-L627)
 
-### MCP Loader
+### MCP 로더 (MCP Loader)
 
-The MCP (Micro-Capability Provider) Loader discovers and registers external MCP servers:
+MCP(Micro-Capability Provider) 로더는 외부 MCP 서버를 검색하고 등록합니다.
 
 ```mermaid
 flowchart TD
@@ -384,13 +384,13 @@ flowchart TD
 UserMCP["~/.claude/.mcp.json"]
 ProjectRootMCP["./.mcp.json"]
 ProjectClaudeMCP["./.claude/.mcp.json"]
-MCPConfig["MCP Configuration"]
-EnvVars["Environment Variables"]
-ServerDefinitions["Server Definitions"]
-MCPParser["MCP Parser"]
-EnvExpander["Environment Variable Expander"]
-MCPRegistry["MCP Registry"]
-ExternalTools["External MCP Tools"]
+MCPConfig["MCP 설정"]
+EnvVars["환경 변수"]
+ServerDefinitions["서버 정의"]
+MCPParser["MCP 파서"]
+EnvExpander["환경 변수 확장기"]
+MCPRegistry["MCP 레지스트리"]
+ExternalTools["외부 MCP 도구"]
 
 UserMCP -.-> MCPParser
 ProjectRootMCP -.-> MCPParser
@@ -398,7 +398,7 @@ ProjectClaudeMCP -.-> MCPParser
 ServerDefinitions -.-> EnvExpander
 EnvVars -.-> EnvExpander
 
-subgraph subGraph2 ["MCP Integration"]
+subgraph subGraph2 ["MCP 통합"]
     MCPParser
     EnvExpander
     MCPRegistry
@@ -408,7 +408,7 @@ subgraph subGraph2 ["MCP Integration"]
     MCPRegistry -.-> ExternalTools
 end
 
-subgraph subGraph1 ["MCP Configuration"]
+subgraph subGraph1 ["MCP 설정"]
     MCPConfig
     EnvVars
     ServerDefinitions
@@ -416,16 +416,16 @@ subgraph subGraph1 ["MCP Configuration"]
     MCPConfig -.-> ServerDefinitions
 end
 
-subgraph subGraph0 ["MCP Discovery"]
+subgraph subGraph0 ["MCP 검색"]
     UserMCP
     ProjectRootMCP
     ProjectClaudeMCP
 end
 ```
 
-MCP configuration files define external services that provide additional capabilities. The loader supports environment variable expansion using `${VAR}` syntax.
+MCP 설정 파일은 추가 기능을 제공하는 외부 서비스를 정의합니다. 로더는 `${VAR}` 구문을 사용한 환경 변수 확장을 지원합니다.
 
-**MCP Configuration Format:**
+**MCP 설정 형식:**
 
 ```json
 {
@@ -441,11 +441,11 @@ MCP configuration files define external services that provide additional capabil
 }
 ```
 
-Sources: [README.md L629-L632](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L629-L632)
+출처: [README.md L629-L632](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L629-L632)
 
-## Hooks System
+## 훅 시스템 (Hooks System)
 
-### Hook Types and Events
+### 훅 유형 및 이벤트 (Hook Types and Events)
 
 ```mermaid
 flowchart TD
@@ -455,13 +455,13 @@ PostToolUse["PostToolUse"]
 UserPromptSubmit["UserPromptSubmit"]
 Stop["Stop"]
 Settings["settings.json"]
-Matcher["Hook Matcher<br>(regex pattern)"]
-HookActions["Hook Actions"]
-EventDispatch["Event Dispatch"]
-HookRunner["Hook Runner"]
-CommandExec["Command Execution"]
-BlockAction["Block Action"]
-InjectContext["Context Injection"]
+Matcher["훅 매처<br>(정규식 패턴)"]
+HookActions["훅 액션"]
+EventDispatch["이벤트 디스패치"]
+HookRunner["훅 러너"]
+CommandExec["명령 실행"]
+BlockAction["액션 차단"]
+InjectContext["컨텍스트 주입"]
 
 PreToolUse -.-> EventDispatch
 PostToolUse -.-> EventDispatch
@@ -470,7 +470,7 @@ Stop -.-> EventDispatch
 Matcher -.-> HookRunner
 HookActions -.-> HookRunner
 
-subgraph subGraph2 ["Hook Execution"]
+subgraph subGraph2 ["훅 실행"]
     EventDispatch
     HookRunner
     CommandExec
@@ -482,7 +482,7 @@ subgraph subGraph2 ["Hook Execution"]
     HookRunner -.-> InjectContext
 end
 
-subgraph subGraph1 ["Hook Configuration"]
+subgraph subGraph1 ["훅 설정"]
     Settings
     Matcher
     HookActions
@@ -490,7 +490,7 @@ subgraph subGraph1 ["Hook Configuration"]
     Settings -.-> HookActions
 end
 
-subgraph subGraph0 ["Hook Events"]
+subgraph subGraph0 ["훅 이벤트"]
     PreToolUse
     PostToolUse
     UserPromptSubmit
@@ -498,58 +498,58 @@ subgraph subGraph0 ["Hook Events"]
 end
 ```
 
-The hooks system intercepts four key events:
+훅 시스템은 네 가지 주요 이벤트를 가로챕니다.
 
-| Event | Timing | Capabilities |
+| 이벤트 | 시점 | 기능 |
 | --- | --- | --- |
-| `PreToolUse` | Before tool execution | Block execution, modify tool input |
-| `PostToolUse` | After tool execution | Add warnings, inject context |
-| `UserPromptSubmit` | When user submits prompt | Block submission, inject messages |
-| `Stop` | When session goes idle | Inject follow-up prompts |
+| `PreToolUse` | 도구 실행 전 | 실행 차단, 도구 입력 수정 |
+| `PostToolUse` | 도구 실행 후 | 경고 추가, 컨텍스트 주입 |
+| `UserPromptSubmit` | 사용자가 프롬프트를 제출할 때 | 제출 차단, 메시지 주입 |
+| `Stop` | 세션이 유휴 상태가 될 때 | 후속 프롬프트 주입 |
 
-Sources: [README.md L593-L609](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L593-L609)
+출처: [README.md L593-L609](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L593-L609)
 
-### Hook Execution Flow
+### 훅 실행 흐름 (Hook Execution Flow)
 
 ```mermaid
 sequenceDiagram
-  participant p1 as Agent
-  participant p2 as EventSystem
-  participant p3 as HookLoader
-  participant p4 as HookRunner
-  participant p5 as FileSystem
+  participant p1 as 에이전트
+  participant p2 as 이벤트 시스템
+  participant p3 as 훅 로더
+  participant p4 as 훅 러너
+  participant p5 as 파일 시스템
 
-  p1->>p2: Trigger Event (e.g., tool.execute)
-  p2->>p3: Load Hooks for Event Type
-  p3->>p5: Read ~/.claude/settings.json
-  p3->>p5: Read ./.claude/settings.json
-  p3->>p5: Read ./.claude/settings.local.json
-  p5-->>p3: Hook Configurations
-  p3-->>p2: Registered Hooks
-  p2->>p4: Execute Matching Hooks
-  loop For Each Hook
-    p4->>p4: Check Matcher Pattern
-  alt Matcher Matches
-    p4->>p4: Execute Hook Action
-  alt Command Hook
-    p4->>p5: Execute Shell Command
-    p5-->>p4: Command Output
+  p1->>p2: 이벤트 트리거 (예: tool.execute)
+  p2->>p3: 이벤트 유형에 대한 훅 로드
+  p3->>p5: ~/.claude/settings.json 읽기
+  p3->>p5: ./.claude/settings.json 읽기
+  p3->>p5: ./.claude/settings.local.json 읽기
+  p5-->>p3: 훅 설정 정보
+  p3-->>p2: 등록된 훅
+  p2->>p4: 일치하는 훅 실행
+  loop 각 훅에 대해
+    p4->>p4: 매처 패턴 확인
+  alt 매처 일치 시
+    p4->>p4: 훅 액션 실행
+  alt 명령 훅
+    p4->>p5: 쉘 명령 실행
+    p5-->>p4: 명령 출력
   end
-  alt Block Hook
-    p4-->>p2: Block Event
+  alt 차단 훅
+    p4-->>p2: 이벤트 차단
   end
-  alt Inject Hook
-    p4-->>p2: Inject Context
+  alt 주입 훅
+    p4-->>p2: 컨텍스트 주입
   end
   end
   end
-  p4-->>p2: Hook Results
-  p2-->>p1: Continue or Block
+  p4-->>p2: 훅 결과
+  p2-->>p1: 계속 또는 차단
 ```
 
-Hooks are executed in the order they are defined in configuration files. Local settings (`./.claude/settings.local.json`) override project settings, which override user settings.
+훅은 설정 파일에 정의된 순서대로 실행됩니다. 로컬 설정(`./.claude/settings.local.json`)은 프로젝트 설정을 덮어쓰고, 프로젝트 설정은 사용자 설정을 덮어씁니다.
 
-**Hook Configuration Example:**
+**훅 설정 예시:**
 
 ```json
 {
@@ -580,40 +580,40 @@ Hooks are executed in the order they are defined in configuration files. Local s
 }
 ```
 
-Sources: [README.md L599-L610](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L599-L610)
+출처: [README.md L599-L610](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L599-L610)
 
-### Hook Variables
+### 훅 변수 (Hook Variables)
 
-Hooks support variable substitution for dynamic command execution:
+훅은 동적 명령 실행을 위해 변수 치환을 지원합니다.
 
-| Variable | Description | Available In |
+| 변수 | 설명 | 사용 가능 위치 |
 | --- | --- | --- |
-| `$FILE` | File path affected by tool | PostToolUse (Write, Edit) |
-| `$TOOL` | Tool name being executed | PreToolUse, PostToolUse |
-| `$ARGS` | Tool arguments (JSON) | PreToolUse, PostToolUse |
-| `$CWD` | Current working directory | All hooks |
-| `$SESSION_ID` | Current session identifier | All hooks |
+| `$FILE` | 도구의 영향을 받는 파일 경로 | PostToolUse (Write, Edit) |
+| `$TOOL` | 실행 중인 도구 이름 | PreToolUse, PostToolUse |
+| `$ARGS` | 도구 인수 (JSON) | PreToolUse, PostToolUse |
+| `$CWD` | 현재 작업 디렉토리 | 모든 훅 |
+| `$SESSION_ID` | 현재 세션 식별자 | 모든 훅 |
 
-Sources: [README.md L599-L610](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L599-L610)
+출처: [README.md L599-L610](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L599-L610)
 
-## Data Storage
+## 데이터 스토리지 (Data Storage)
 
-### Todo Management
+### 할 일 관리 (Todo Management)
 
 ```mermaid
 flowchart TD
 
-TodoCreate["Todo Creation"]
+TodoCreate["할 일 생성"]
 TodoStore["~/.claude/todos/"]
 TodoFile["session-id.json"]
-TodoUpdate["Todo Updates"]
-TodoComplete["Todo Completion"]
-TodoJSON["Todo JSON"]
-TodoItems["Todo Items"]
-TodoMetadata["Metadata"]
-SisyphusAgent["Sisyphus Agent"]
-TodoEnforcer["Todo Continuation Enforcer"]
-SessionState["Session State"]
+TodoUpdate["할 일 업데이트"]
+TodoComplete["할 일 완료"]
+TodoJSON["할 일 JSON"]
+TodoItems["할 일 항목"]
+TodoMetadata["메타데이터"]
+SisyphusAgent["Sisyphus 에이전트"]
+TodoEnforcer["할 일 연속성 강제 도구"]
+SessionState["세션 상태"]
 
 SisyphusAgent -.-> TodoCreate
 TodoUpdate -.-> TodoEnforcer
@@ -621,13 +621,13 @@ TodoEnforcer -.-> TodoComplete
 TodoItems -.-> SessionState
 TodoMetadata -.-> SessionState
 
-subgraph Integration ["Integration"]
+subgraph Integration ["통합"]
     SisyphusAgent
     TodoEnforcer
     SessionState
 end
 
-subgraph subGraph1 ["Todo Structure"]
+subgraph subGraph1 ["할 일 구조"]
     TodoJSON
     TodoItems
     TodoMetadata
@@ -635,7 +635,7 @@ subgraph subGraph1 ["Todo Structure"]
     TodoJSON -.-> TodoMetadata
 end
 
-subgraph subGraph0 ["Todo Lifecycle"]
+subgraph subGraph0 ["할 일 수명 주기"]
     TodoCreate
     TodoStore
     TodoFile
@@ -647,9 +647,9 @@ subgraph subGraph0 ["Todo Lifecycle"]
 end
 ```
 
-Session todos are stored in `~/.claude/todos/` with one JSON file per session. The format is compatible with Claude Code, enabling seamless transition between platforms.
+세션 할 일(todos)은 `~/.claude/todos/`에 세션당 하나의 JSON 파일로 저장됩니다. 이 형식은 Claude Code와 호환되므로 플랫폼 간 원활한 전환이 가능합니다.
 
-**Todo File Format:**
+**할 일 파일 형식:**
 
 ```json
 {
@@ -667,23 +667,23 @@ Session todos are stored in `~/.claude/todos/` with one JSON file per session. T
 }
 ```
 
-Sources: [README.md L636-L637](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L636-L637)
+출처: [README.md L636-L637](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L636-L637)
 
-### Transcript Logging
+### 기록 로깅 (Transcript Logging)
 
 ```mermaid
 flowchart TD
 
-UserMessage["User Messages"]
-AgentMessage["Agent Messages"]
-ToolExecution["Tool Executions"]
-ToolResults["Tool Results"]
-TranscriptLogger["Transcript Logger"]
+UserMessage["사용자 메시지"]
+AgentMessage["에이전트 메시지"]
+ToolExecution["도구 실행"]
+ToolResults["도구 결과"]
+TranscriptLogger["기록 로거"]
 TranscriptFile["~/.claude/transcripts/<br>session-id.jsonl"]
-JSONLFormat["JSONL Format"]
-TranscriptReader["Transcript Reader"]
-SessionReconstruction["Session Reconstruction"]
-AnalysisTools["Analysis Tools"]
+JSONLFormat["JSONL 형식"]
+TranscriptReader["기록 리더"]
+SessionReconstruction["세션 재구성"]
+AnalysisTools["분석 도구"]
 
 UserMessage -.-> TranscriptLogger
 AgentMessage -.-> TranscriptLogger
@@ -691,7 +691,7 @@ ToolExecution -.-> TranscriptLogger
 ToolResults -.-> TranscriptLogger
 JSONLFormat -.-> TranscriptReader
 
-subgraph subGraph2 ["Replay & Analysis"]
+subgraph subGraph2 ["재생 및 분석"]
     TranscriptReader
     SessionReconstruction
     AnalysisTools
@@ -699,7 +699,7 @@ subgraph subGraph2 ["Replay & Analysis"]
     TranscriptReader -.-> AnalysisTools
 end
 
-subgraph subGraph1 ["Transcript System"]
+subgraph subGraph1 ["기록 시스템"]
     TranscriptLogger
     TranscriptFile
     JSONLFormat
@@ -707,7 +707,7 @@ subgraph subGraph1 ["Transcript System"]
     TranscriptFile -.-> JSONLFormat
 end
 
-subgraph subGraph0 ["Session Activity"]
+subgraph subGraph0 ["세션 활동"]
     UserMessage
     AgentMessage
     ToolExecution
@@ -715,9 +715,9 @@ subgraph subGraph0 ["Session Activity"]
 end
 ```
 
-Session activity is logged to `~/.claude/transcripts/` in JSONL (JSON Lines) format, where each line represents a single event. This enables session replay, debugging, and analysis.
+세션 활동은 `~/.claude/transcripts/`에 JSONL(JSON Lines) 형식으로 기록되며, 각 줄은 단일 이벤트를 나타냅니다. 이를 통해 세션 재생, 디버깅 및 분석이 가능합니다.
 
-**Transcript Entry Format:**
+**기록 항목 형식:**
 
 ```sql
 {"type":"user_message","timestamp":"2025-01-01T00:00:00Z","content":"Implement feature X"}
@@ -726,9 +726,9 @@ Session activity is logged to `~/.claude/transcripts/` in JSONL (JSON Lines) for
 {"type":"tool_result","timestamp":"2025-01-01T00:00:16Z","tool":"write","result":"File written"}
 ```
 
-Sources: [README.md L639](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L639-L639)
+출처: [README.md L639](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L639-L639)
 
-## Configuration Toggles
+## 설정 토글 (Configuration Toggles)
 
 ```mermaid
 flowchart TD
@@ -739,19 +739,19 @@ CommandsToggle["commands: true/false"]
 SkillsToggle["skills: true/false"]
 AgentsToggle["agents: true/false"]
 HooksToggle["hooks: true/false"]
-MCPLoader["MCP Loader"]
-CommandLoader["Command Loader"]
-SkillLoader["Skill Loader"]
-AgentLoader["Agent Loader"]
-HooksLoader["Hooks Loader"]
+MCPLoader["MCP 로더"]
+CommandLoader["명령 로더"]
+SkillLoader["스킬 로더"]
+AgentLoader["에이전트 로더"]
+HooksLoader["Hooks 로더"]
 
-MCPToggle -.->|"disable"| MCPLoader
+MCPToggle -.->|"비활성화"| MCPLoader
 CommandsToggle -.-> CommandLoader
 SkillsToggle -.-> SkillLoader
 AgentsToggle -.-> AgentLoader
 HooksToggle -.-> HooksLoader
 
-subgraph subGraph1 ["Loader Behavior"]
+subgraph subGraph1 ["로더 동작"]
     MCPLoader
     CommandLoader
     SkillLoader
@@ -759,32 +759,32 @@ subgraph subGraph1 ["Loader Behavior"]
     HooksLoader
 end
 
-subgraph subGraph0 ["Configuration Object"]
+subgraph subGraph0 ["설정 객체"]
     ClaudeCodeConfig
     MCPToggle
     CommandsToggle
     SkillsToggle
     AgentsToggle
     HooksToggle
-    ClaudeCodeConfig -.->|"disable"| MCPToggle
-    ClaudeCodeConfig -.->|"disable"| CommandsToggle
-    ClaudeCodeConfig -.->|"disable"| SkillsToggle
+    ClaudeCodeConfig -.->|"비활성화"| MCPToggle
+    ClaudeCodeConfig -.->|"비활성화"| CommandsToggle
+    ClaudeCodeConfig -.->|"비활성화"| SkillsToggle
     ClaudeCodeConfig -.-> AgentsToggle
-    ClaudeCodeConfig -.->|"disable"| HooksToggle
+    ClaudeCodeConfig -.->|"비활성화"| HooksToggle
 end
 ```
 
-The `claude_code` configuration object provides granular control over which compatibility features to enable:
+`claude_code` 설정 객체는 활성화할 호환성 기능을 세밀하게 제어할 수 있게 해줍니다.
 
-| Toggle | When `false` | Unaffected |
+| 토글 | `false`일 때 | 영향받지 않음 |
 | --- | --- | --- |
-| `mcp` | Stops loading `~/.claude/.mcp.json`, `./.mcp.json`, `./.claude/.mcp.json` | Built-in MCPs (context7, websearch_exa, grep_app) |
-| `commands` | Stops loading `~/.claude/commands/*.md`, `./.claude/commands/*.md` | `~/.config/opencode/command/`, `./.opencode/command/` |
-| `skills` | Stops loading `~/.claude/skills/*/SKILL.md`, `./.claude/skills/*/SKILL.md` | - |
-| `agents` | Stops loading `~/.claude/agents/*.md`, `./.claude/agents/*.md` | Built-in agents (oracle, librarian, explore, etc.) |
-| `hooks` | Stops loading `~/.claude/settings.json`, `./.claude/settings.json`, `./.claude/settings.local.json` | - |
+| `mcp` | `~/.claude/.mcp.json`, `./.mcp.json`, `./.claude/.mcp.json` 로드 중단 | 내장 MCP (context7, websearch_exa, grep_app) |
+| `commands` | `~/.claude/commands/*.md`, `./.claude/commands/*.md` 로드 중단 | `~/.config/opencode/command/`, `./.opencode/command/` |
+| `skills` | `~/.claude/skills/*/SKILL.md`, `./.claude/skills/*/SKILL.md` 로드 중단 | - |
+| `agents` | `~/.claude/agents/*.md`, `./.claude/agents/*.md` 로드 중단 | 내장 에이전트 (oracle, librarian, explore 등) |
+| `hooks` | `~/.claude/settings.json`, `./.claude/settings.json`, `./.claude/settings.local.json` 로드 중단 | - |
 
-**Configuration Example:**
+**설정 예시:**
 
 ```json
 {
@@ -798,37 +798,36 @@ The `claude_code` configuration object provides granular control over which comp
 }
 ```
 
-All toggles default to `true` (enabled). Omitting the `claude_code` object enables full compatibility. This allows users to selectively disable Claude Code features while retaining oh-my-opencode-specific functionality.
+모든 토글의 기본값은 `true`(활성화)입니다. `claude_code` 객체를 생략하면 전체 호환성이 활성화됩니다. 이를 통해 사용자는 oh-my-opencode 전용 기능을 유지하면서 Claude Code 기능을 선택적으로 비활성화할 수 있습니다.
 
-Sources: [README.md L641-L664](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L641-L664)
+출처: [README.md L641-L664](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L641-L664)
 
-## File Path Resolution
+## 파일 경로 확인 (File Path Resolution)
 
-The compatibility layer resolves configuration files using platform-specific paths:
+호환성 계층은 플랫폼별 경로를 사용하여 설정 파일을 찾습니다.
 
-| Platform | User Config Directory | Example |
+| 플랫폼 | 사용자 설정 디렉토리 | 예시 |
 | --- | --- | --- |
 | Linux/macOS | `~/.claude/` | `/home/user/.claude/` |
-| Windows | `~/.claude/` or `%USERPROFILE%\.claude\` | `C:\Users\user\.claude\` |
+| Windows | `~/.claude/` 또는 `%USERPROFILE%\.claude\` | `C:\Users\user\.claude\` |
 
-Project-level configurations are always resolved relative to the workspace root:
+프로젝트 수준 설정은 항상 워크스페이스 루트를 기준으로 확인합니다.
 
-* `./.claude/` for project-specific overrides
-* `./.mcp.json` for project-root MCP configuration
+* 프로젝트별 재정의를 위한 `./.claude/`
+* 프로젝트 루트 MCP 설정을 위한 `./.mcp.json`
 
-Sources: [README.md L586-L632](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L586-L632)
+출처: [README.md L586-L632](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L586-L632)
+[src/shared/config-path.ts L1-L48](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/shared/config-path.ts#L1-L48)
 
- [src/shared/config-path.ts L1-L48](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/shared/config-path.ts#L1-L48)
+## 마이그레이션 전략 (Migration Strategy)
 
-## Migration Strategy
+Claude Code에서 마이그레이션하는 사용자를 위한 전략은 다음과 같습니다.
 
-For users migrating from Claude Code:
+1. **조치 불필요**: 기존 `~/.claude/` 설정이 자동으로 검색되고 로드됩니다.
+2. **점진적 마이그레이션**: 호환성 토글을 사용하여 oh-my-opencode 전용 기능으로 점진적으로 전환합니다.
+3. **병행 운영**: Claude Code와 oh-my-opencode 모두 동일한 `~/.claude/` 디렉토리 구조를 공유할 수 있습니다.
+4. **프로젝트 격리**: 팀의 공유 설정에 영향을 주지 않고 프로젝트별 재정의를 위해 `./.claude/settings.local.json`을 사용합니다.
 
-1. **No Action Required**: Existing `~/.claude/` configurations are automatically discovered and loaded
-2. **Incremental Migration**: Use compatibility toggles to gradually transition to oh-my-opencode-specific features
-3. **Parallel Operation**: Both Claude Code and oh-my-opencode can share the same `~/.claude/` directory structure
-4. **Project Isolation**: Use `./.claude/settings.local.json` for project-specific overrides without affecting the team's shared configuration
+호환성 계층은 oh-my-opencode의 향상된 기능으로 나아가는 경로를 제공하는 동시에 가동 중단 없는 마이그레이션을 보장합니다.
 
-The compatibility layer ensures zero-downtime migration while providing an on-ramp to oh-my-opencode's enhanced features.
-
-Sources: [README.md L578-L665](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L578-L665)
+출처: [README.md L578-L665](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L578-L665)

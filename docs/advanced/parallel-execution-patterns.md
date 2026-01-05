@@ -1,13 +1,13 @@
 ---
 layout: default
-title: Parallel Execution Patterns
-parent: Advanced Topics
+title: 병렬 실행 패턴 (Parallel Execution Patterns)
+parent: 고급 주제 (Advanced Topics)
 nav_order: 1
 ---
 
-# Parallel Execution Patterns
+# 병렬 실행 패턴 (Parallel Execution Patterns)
 
-> **Relevant source files**
+> **관련 소스 파일**
 > * [.opencode/background-tasks.json](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/.opencode/background-tasks.json)
 > * [src/agents/document-writer.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts)
 > * [src/agents/explore.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/explore.ts)
@@ -22,22 +22,22 @@ nav_order: 1
 > * [src/tools/background-task/tools.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/background-task/tools.ts)
 > * [src/tools/call-omo-agent/tools.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/call-omo-agent/tools.ts)
 
-## Purpose and Scope
+## 목적 및 범위 (Purpose and Scope)
 
-This document describes how oh-my-opencode achieves true parallelism through background task execution and asynchronous agent invocation. The system allows the primary OmO orchestrator to launch multiple specialized agents (explore, librarian) simultaneously while continuing with other work, significantly improving throughput for complex software engineering tasks.
+이 문서는 oh-my-opencode가 백그라운드 작업 실행 및 비동기 에이전트 호출을 통해 진정한 병렬성(parallelism)을 달성하는 방법을 설명합니다. 이 시스템은 기본 OmO 오케스트레이터(orchestrator)가 다른 작업을 계속 수행하는 동안 여러 전문 에이전트(explore, librarian)를 동시에 실행할 수 있게 하여, 복잡한 소프트웨어 엔지니어링 작업의 처리량(throughput)을 크게 향상시킵니다.
 
-This page focuses specifically on the **execution patterns** that enable parallelism. For details on:
+이 페이지는 특히 병렬 처리를 가능하게 하는 **실행 패턴(execution patterns)**에 초점을 맞춥니다. 다음 사항에 대한 자세한 내용은 해당 문서를 참조하십시오:
 
-* Background task tools API: See [Background Tools](/code-yeongyu/oh-my-opencode/6.2-task-execution-and-polling)
-* Task lifecycle management: See [Task Lifecycle](/code-yeongyu/oh-my-opencode/6.1-background-manager)
-* Notification delivery mechanisms: See [Notification System](/code-yeongyu/oh-my-opencode/6.3-notification-system)
-* OmO orchestrator strategy: See [OmO Orchestrator](/code-yeongyu/oh-my-opencode/4.1-sisyphus-orchestrator)
+* 백그라운드 작업 도구 API: [Background Tools](/code-yeongyu/oh-my-opencode/6.2-task-execution-and-polling) 참조
+* 작업 수명 주기 관리: [Task Lifecycle](/code-yeongyu/oh-my-opencode/6.1-background-manager) 참조
+* 알림 전달 메커니즘: [Notification System](/code-yeongyu/oh-my-opencode/6.3-notification-system) 참조
+* OmO 오케스트레이터 전략: [OmO Orchestrator](/code-yeongyu/oh-my-opencode/4.1-sisyphus-orchestrator) 참조
 
 ---
 
-## Overview of Parallel Execution Architecture
+## 병렬 실행 아키텍처 개요 (Overview of Parallel Execution Architecture)
 
-The parallel execution system consists of four core components working together to enable non-blocking agent invocation:
+병렬 실행 시스템은 비차단(non-blocking) 에이전트 호출을 가능하게 하기 위해 함께 작동하는 네 가지 핵심 구성 요소로 이루어져 있습니다:
 
 ```mermaid
 flowchart TD
@@ -97,7 +97,7 @@ subgraph subGraph0 ["Primary Session"]
 end
 ```
 
-**Sources:** [src/features/background-agent/manager.ts L47-L390](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L47-L390)
+**출처:** [src/features/background-agent/manager.ts L47-L390](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L47-L390)
 
  [src/tools/background-task/tools.ts L23-L63](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/background-task/tools.ts#L23-L63)
 
@@ -105,16 +105,16 @@ end
 
 ---
 
-## Fire-and-Forget Pattern
+## Fire-and-Forget 패턴
 
-The fire-and-forget pattern is the foundational parallel execution strategy. When OmO or any agent invokes a background task, the system:
+Fire-and-forget(실행 후 망각) 패턴은 기초적인 병렬 실행 전략입니다. OmO 또는 다른 에이전트가 백그라운드 작업을 호출하면 시스템은 다음을 수행합니다:
 
-1. Creates a new child session
-2. Launches the agent via `client.session.promptAsync()`
-3. Returns immediately without waiting
-4. Continues with other work
+1. 새로운 자식 세션(child session)을 생성합니다.
+2. `client.session.promptAsync()`를 통해 에이전트를 실행합니다.
+3. 대기하지 않고 즉시 반환합니다.
+4. 다른 작업을 계속 수행합니다.
 
-### Task Launch Flow
+### 작업 실행 흐름 (Task Launch Flow)
 
 ```mermaid
 sequenceDiagram
@@ -138,13 +138,13 @@ sequenceDiagram
   p5->>p5: Agent executes tools, reasoning
 ```
 
-**Sources:** [src/features/background-agent/manager.ts L61-L129](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L61-L129)
+**출처:** [src/features/background-agent/manager.ts L61-L129](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L61-L129)
 
  [src/tools/background-task/tools.ts L31-L62](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/background-task/tools.ts#L31-L62)
 
-### Code Example: Launch Implementation
+### 코드 예시: 실행 구현 (Launch Implementation)
 
-The critical implementation detail is the `.catch()` handler on `promptAsync()` that prevents awaiting:
+가장 중요한 구현 세부 사항은 `promptAsync()`에 대한 `.catch()` 핸들러로, 이를 통해 `await`를 방지합니다:
 
 ```javascript
 // From src/features/background-agent/manager.ts:100-126
@@ -160,7 +160,7 @@ this.client.session.promptAsync({
     parts: [{ type: "text", text: input.prompt }],
   },
 }).catch((error) => {
-  // Error handling without blocking
+  // 차단 없이 오류 처리
   log("[background-agent] promptAsync error:", error)
   const existingTask = this.findBySession(sessionID)
   if (existingTask) {
@@ -173,22 +173,22 @@ this.client.session.promptAsync({
 })
 ```
 
-**Key characteristics:**
+**주요 특징:**
 
-* No `await` keyword - the promise is not awaited
-* Error handling via `.catch()` prevents exceptions from propagating
-* Task is stored in memory immediately with status `"running"`
-* Returns control to caller instantly
+* `await` 키워드가 없음 - 프로미스(promise)를 기다리지 않습니다.
+* `.catch()`를 통한 오류 처리는 예외가 전파되는 것을 방지합니다.
+* 작업은 즉시 `"running"` 상태로 메모리에 저장됩니다.
+* 호출자에게 즉시 제어권을 반환합니다.
 
-**Sources:** [src/features/background-agent/manager.ts L100-L126](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L100-L126)
+**출처:** [src/features/background-agent/manager.ts L100-L126](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L100-L126)
 
 ---
 
-## Polling and Status Tracking
+## 폴링 및 상태 추적 (Polling and Status Tracking)
 
-While tasks execute in background, the `BackgroundManager` continuously monitors their status through a polling loop that checks all running tasks every 2 seconds.
+작업이 백그라운드에서 실행되는 동안, `BackgroundManager`는 2초마다 모든 실행 중인 작업을 확인하는 폴링 루프(polling loop)를 통해 상태를 지속적으로 모니터링합니다.
 
-### Polling State Machine
+### 폴링 상태 머신 (Polling State Machine)
 
 ```mermaid
 stateDiagram-v2
@@ -208,21 +208,21 @@ stateDiagram-v2
     NoTasks --> [*] : "BackgroundManager initialized"
 ```
 
-**Sources:** [src/features/background-agent/manager.ts L237-L389](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L237-L389)
+**출처:** [src/features/background-agent/manager.ts L237-L389](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L237-L389)
 
-### Polling Implementation Details
+### 폴링 구현 세부 사항 (Polling Implementation Details)
 
-The polling loop implements a two-tier status check:
+폴링 루프는 두 단계의 상태 확인을 구현합니다:
 
-| Check Type | API Call | Purpose | Data Extracted |
+| 확인 유형 | API 호출 | 목적 | 추출 데이터 |
 | --- | --- | --- | --- |
-| **Session Status** | `client.session.status()` | Detect completion | `type: "idle"` → task done |
-| **Message Fetch** | `client.session.messages({id})` | Track progress | Tool calls, last message, timestamps |
+| **세션 상태** | `client.session.status()` | 완료 감지 | `type: "idle"` → 작업 완료 |
+| **메시지 가져오기** | `client.session.messages({id})` | 진행 상황 추적 | 도구 호출, 마지막 메시지, 타임스탬프 |
 
 ```typescript
 // From src/features/background-agent/manager.ts:316-389
 private async pollRunningTasks(): Promise<void> {
-  // First: Get all session statuses in one API call
+  // 첫 번째: 한 번의 API 호출로 모든 세션 상태 가져오기
   const statusResult = await this.client.session.status()
   const allStatuses = (statusResult.data ?? {}) as Record<string, { type: string }>
 
@@ -231,7 +231,7 @@ private async pollRunningTasks(): Promise<void> {
 
     const sessionStatus = allStatuses[task.sessionID]
     
-    // Check 1: Is session idle? → Task complete
+    // 확인 1: 세션이 유휴(idle) 상태인가? → 작업 완료
     if (sessionStatus.type === "idle") {
       task.status = "completed"
       task.completedAt = new Date()
@@ -240,12 +240,12 @@ private async pollRunningTasks(): Promise<void> {
       continue
     }
 
-    // Check 2: Fetch messages for progress tracking
+    // 확인 2: 진행 상황 추적을 위해 메시지 가져오기
     const messagesResult = await this.client.session.messages({
       path: { id: task.sessionID },
     })
     
-    // Extract progress: tool calls, last tool, last message
+    // 진행 상황 추출: 도구 호출, 마지막 도구, 마지막 메시지
     if (!messagesResult.error && messagesResult.data) {
       const messages = messagesResult.data
       const assistantMsgs = messages.filter(m => m.info?.role === "assistant")
@@ -276,18 +276,18 @@ private async pollRunningTasks(): Promise<void> {
     }
   }
 
-  // Stop polling when no more running tasks
+  // 실행 중인 작업이 더 이상 없으면 폴링 중지
   if (!this.hasRunningTasks()) {
     this.stopPolling()
   }
 }
 ```
 
-**Sources:** [src/features/background-agent/manager.ts L316-L389](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L316-L389)
+**출처:** [src/features/background-agent/manager.ts L316-L389](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L316-L389)
 
-### Event-Driven Status Updates
+### 이벤트 기반 상태 업데이트 (Event-Driven Status Updates)
 
-In addition to polling, the manager listens for events from OpenCode:
+폴링 외에도 매니저는 OpenCode의 이벤트를 수신합니다:
 
 ```mermaid
 flowchart TD
@@ -316,15 +316,15 @@ subgraph BackgroundManager.handleEvent() ["BackgroundManager.handleEvent()"]
 end
 ```
 
-**Sources:** [src/features/background-agent/manager.ts L154-L210](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L154-L210)
+**출처:** [src/features/background-agent/manager.ts L154-L210](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L154-L210)
 
 ---
 
-## Notification System
+## 알림 시스템 (Notification System)
 
-When a background task completes, the parent session must be notified so the orchestrator can retrieve results. The notification system uses a two-channel approach:
+백그라운드 작업이 완료되면 오케스트레이터가 결과를 회수할 수 있도록 부모 세션에 알림을 보내야 합니다. 알림 시스템은 두 가지 채널 방식을 사용합니다:
 
-### Notification Flow Diagram
+### 알림 흐름도 (Notification Flow Diagram)
 
 ```mermaid
 sequenceDiagram
@@ -348,24 +348,24 @@ sequenceDiagram
   p3-->>p5: Task results
 ```
 
-**Sources:** [src/features/background-agent/manager.ts L252-L293](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L252-L293)
+**출처:** [src/features/background-agent/manager.ts L252-L293](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L252-L293)
 
-### Notification Implementation
+### 알림 구현 (Notification Implementation)
 
-The notification system implements three distinct mechanisms:
+알림 시스템은 세 가지 고유한 메커니즘을 구현합니다:
 
-| Channel | API | Purpose | Timing |
+| 채널 | API | 목적 | 타이밍 |
 | --- | --- | --- | --- |
-| **In-Memory Queue** | `markForNotification()` | Store completed tasks per session | Immediate |
-| **OS Toast** | `tui.showToast()` | Visual alert for user | Immediate |
-| **Session Message** | `session.prompt()` | Inject notification into conversation | 200ms delay |
+| **인메모리 큐** | `markForNotification()` | 세션별 완료된 작업 저장 | 즉시 |
+| **OS 토스트** | `tui.showToast()` | 사용자를 위한 시각적 경고 | 즉시 |
+| **세션 메시지** | `session.prompt()` | 대화에 알림 주입 | 200ms 지연 |
 
 ```javascript
 // From src/features/background-agent/manager.ts:252-293
 private notifyParentSession(task: BackgroundTask): void {
   const duration = this.formatDuration(task.startedAt, task.completedAt)
 
-  // Channel 1: OS Toast notification
+  // 채널 1: OS 토스트 알림
   const tuiClient = this.client as any
   if (tuiClient.tui?.showToast) {
     tuiClient.tui.showToast({
@@ -378,7 +378,7 @@ private notifyParentSession(task: BackgroundTask): void {
     }).catch(() => {})
   }
 
-  // Channel 2: Inject message into parent session
+  // 채널 2: 부모 세션에 메시지 주입
   const message = `[BACKGROUND TASK COMPLETED] Task "${task.description}" finished in ${duration}. Use background_output with task_id="${task.id}" to get results.`
 
   setTimeout(async () => {
@@ -402,17 +402,17 @@ private notifyParentSession(task: BackgroundTask): void {
 }
 ```
 
-The 200ms delay before sending the session message prevents race conditions where the notification might arrive before the parent session is ready to receive it.
+세션 메시지를 보내기 전 200ms의 지연을 두는 이유는 부모 세션이 알림을 받을 준비가 되기 전에 알림이 도착하는 경합 조건(race condition)을 방지하기 위함입니다.
 
-**Sources:** [src/features/background-agent/manager.ts L252-L293](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L252-L293)
+**출처:** [src/features/background-agent/manager.ts L252-L293](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L252-L293)
 
 ---
 
-## Collection Patterns (Blocking vs Non-Blocking)
+## 수집 패턴 (차단 vs 비차단) (Collection Patterns (Blocking vs Non-Blocking))
 
-The `background_output` tool provides two collection modes, allowing flexible result retrieval based on orchestrator strategy.
+`background_output` 도구는 오케스트레이터 전략에 따라 유연하게 결과를 회수할 수 있도록 두 가지 수집 모드를 제공합니다.
 
-### Collection Mode Comparison
+### 수집 모드 비교 (Collection Mode Comparison)
 
 ```mermaid
 flowchart TD
@@ -478,33 +478,33 @@ subgraph subGraph0 ["Non-Blocking Mode (Default)"]
 end
 ```
 
-**Sources:** [src/tools/background-task/tools.ts L196-L259](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/background-task/tools.ts#L196-L259)
+**출처:** [src/tools/background-task/tools.ts L196-L259](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/background-task/tools.ts#L196-L259)
 
-### When to Use Each Mode
+### 각 모드 사용 시기
 
-| Mode | Use Case | OmO Strategy | Return Time |
+| 모드 | 사용 사례 | OmO 전략 | 반환 시간 |
 | --- | --- | --- | --- |
-| **Non-blocking** (default) | Check if results ready | Default for all background tasks | Instant |
-| **Blocking** | Rarely needed | Only when immediate result required AND notification missed | Up to timeout (60s default, 600s max) |
+| **비차단 (Non-blocking)** (기본값) | 결과 준비 여부 확인 | 모든 백그라운드 작업의 기본값 | 즉시 |
+| **차단 (Blocking)** | 거의 필요하지 않음 | 즉각적인 결과가 필요하고 알림을 놓친 경우에만 사용 | 타임아웃까지 (기본 60초, 최대 600초) |
 
-The system design intentionally favors non-blocking collection because:
+시스템 설계는 다음과 같은 이유로 비차단 수집을 의도적으로 선호합니다:
 
-1. Notifications are delivered automatically via `notifyParentSession()`
-2. OmO can continue other work while tasks execute
-3. Multiple tasks can be checked with single non-blocking calls
-4. Blocking mode ties up the primary session unnecessarily
+1. 알림은 `notifyParentSession()`을 통해 자동으로 전달됩니다.
+2. OmO는 작업이 실행되는 동안 다른 작업을 계속할 수 있습니다.
+3. 단일 비차단 호출로 여러 작업을 확인할 수 있습니다.
+4. 차단 모드는 불필요하게 기본 세션을 점유합니다.
 
-**Sources:** [src/tools/background-task/tools.ts L196-L259](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/background-task/tools.ts#L196-L259)
+**출처:** [src/tools/background-task/tools.ts L196-L259](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/background-task/tools.ts#L196-L259)
 
  [src/tools/background-task/constants.ts L19-L26](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/background-task/constants.ts#L19-L26)
 
 ---
 
-## Parallel Agent Orchestration in OmO
+## OmO의 병렬 에이전트 오케스트레이션 (Parallel Agent Orchestration in OmO)
 
-The OmO orchestrator leverages parallel execution as a core strategy for maximizing throughput. The system prompt explicitly defines parallelism patterns for different search scopes.
+OmO 오케스트레이터는 처리량을 극대화하기 위한 핵심 전략으로 병렬 실행을 활용합니다. 시스템 프롬프트는 다양한 검색 범위에 대한 병렬 처리 패턴을 명시적으로 정의합니다.
 
-### Parallel Dispatch Strategy
+### 병렬 디스패치 전략 (Parallel Dispatch Strategy)
 
 ```mermaid
 flowchart TD
@@ -558,95 +558,95 @@ subgraph subGraph0 ["Execution Pattern"]
 end
 ```
 
-**Sources:** [src/agents/omo.ts L145-L169](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/omo.ts#L145-L169)
+**출처:** [src/agents/omo.ts L145-L169](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/omo.ts#L145-L169)
 
  [src/agents/omo.ts L516-L555](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/omo.ts#L516-L555)
 
-### Example: Parallel Explore Pattern
+### 예시: 병렬 Explore 패턴 (Parallel Explore Pattern)
 
-The OmO system prompt codifies the parallel execution pattern:
+OmO 시스템 프롬프트는 병렬 실행 패턴을 규정합니다:
 
 ```markdown
 // From src/agents/omo.ts:145-169
 
-### Level 2: Explore Agent = "Contextual Grep" (Internal Codebase)
+### 레벨 2: Explore 에이전트 = "문맥 인식 Grep" (내부 코드베이스)
 
-**Think of Explore as a TOOL, not an agent.** It's your "contextual grep" that understands code.
+**Explore를 에이전트가 아닌 도구(TOOL)로 생각하십시오.** 이는 코드를 이해하는 "문맥 인식 grep"입니다.
 
-- **grep** finds text patterns → Explore finds **semantic patterns + context**
-- **grep** returns lines → Explore returns **understanding + relevant files**
-- **Cost**: Cheap like grep. Fire liberally.
+- **grep**은 텍스트 패턴을 찾음 → Explore는 **의미론적 패턴 + 문맥**을 찾음
+- **grep**은 라인을 반환함 → Explore는 **이해 + 관련 파일**을 반환함
+- **비용**: grep처럼 저렴합니다. 아낌없이 실행하십시오.
 
-**ALWAYS use `background_task(agent="explore")` — fire and forget, collect later.**
+**항상 `background_task(agent="explore")`를 사용하십시오 — 실행 후 나중에 결과를 수집합니다.**
 
-| Search Scope | Explore Agents | Strategy |
+| 검색 범위 | Explore 에이전트 수 | 전략 |
 |--------------|----------------|----------|
-| Single module | 1 background | Quick scan |
-| 2-3 related modules | 2-3 parallel background | Each takes a module |
-| Unknown architecture | 3 parallel background | Structure, patterns, entry points |
-| Full codebase audit | 3-4 parallel background | Different aspects each |
+| 단일 모듈 | 백그라운드 1개 | 빠른 스캔 |
+| 2-3개 관련 모듈 | 병렬 백그라운드 2-3개 | 각 에이전트가 모듈 하나씩 담당 |
+| 알 수 없는 아키텍처 | 병렬 백그라운드 3개 | 구조, 패턴, 진입점 파악 |
+| 전체 코드베이스 감사 | 병렬 백그라운드 3-4개 | 각 에이전트가 서로 다른 측면 담당 |
 
-**Use it like grep — don't overthink, just fire:**
+**grep처럼 사용하십시오 — 너무 고민하지 말고 실행하십시오:**
 ```typescript
-// Fire as background tasks, continue working immediately
-background_task(agent="explore", prompt="Find all [X] implementations...")
-background_task(agent="explore", prompt="Find [X] usage patterns...")
-background_task(agent="explore", prompt="Find [X] test cases...")
-// Collect with background_output when you need the results
+// 백그라운드 작업으로 실행하고 즉시 작업을 계속합니다.
+background_task(agent="explore", prompt="모든 [X] 구현체 찾기...")
+background_task(agent="explore", prompt="[X] 사용 패턴 찾기...")
+background_task(agent="explore", prompt="[X] 테스트 케이스 찾기...")
+// 결과가 필요할 때 background_output으로 수집합니다.
 ```
 
 ```xml
-**Sources:** <FileRef file-url="https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/omo.ts#L145-L169" min=145 max=169 file-path="src/agents/omo.ts">Hii</FileRef>
+**출처:** <FileRef file-url="https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/omo.ts#L145-L169" min=145 max=169 file-path="src/agents/omo.ts">Hii</FileRef>
 
-### Implementation: Fire Multiple Agents
+### 구현: 여러 에이전트 실행 (Fire Multiple Agents)
 
-When OmO needs to understand a complex system, it follows this pattern:
+OmO가 복잡한 시스템을 이해해야 할 때 다음 패턴을 따릅니다:
 
-1. **Classify scope** (trivial, exploration, implementation, orchestration)
-2. **Fire multiple agents** in parallel based on scope
-3. **Continue with direct work** (editing, LSP operations)
-4. **Collect results** when needed via `background_output`
+1. **범위 분류** (사소함, 탐색, 구현, 오케스트레이션)
+2. 범위에 따라 **여러 에이전트를 병렬로 실행**
+3. **직접 작업 계속 수행** (편집, LSP 작업)
+4. 필요할 때 `background_output`을 통해 **결과 수집**
 
-### Example: Broad Architecture Understanding
+### 예시: 광범위한 아키텍처 이해
 ```
 
-User: "How does authentication work in this codebase?"
+사용자: "이 코드베이스에서 인증(authentication)은 어떻게 작동하나요?"
 
-OmO reasoning:
+OmO 추론:
 
-* Scope: Unknown architecture
-* Strategy: 3 parallel explore agents
+* 범위: 알 수 없는 아키텍처
+* 전략: 병렬 explore 에이전트 3개
 
-OmO execution:
-background_task(agent="explore", prompt="Find all authentication-related files: login, logout, session management")
-background_task(agent="explore", prompt="Find authentication middleware and guards")
-background_task(agent="explore", prompt="Find authentication configuration and environment setup")
+OmO 실행:
+background_task(agent="explore", prompt="로그인, 로그아웃, 세션 관리 등 모든 인증 관련 파일 찾기")
+background_task(agent="explore", prompt="인증 미들웨어 및 가드(guards) 찾기")
+background_task(agent="explore", prompt="인증 구성 및 환경 설정 찾기")
 
-[Continues with other work...]
+[다른 작업 계속 수행...]
 
-[Later, when agents complete:]
+[나중에 에이전트가 완료되면:]
 background_output(task_id="bg_abc123")
 background_output(task_id="bg_def456")
 background_output(task_id="bg_ghi789")
 
-[Synthesize results and respond to user]
+[결과를 종합하여 사용자에게 응답]
 
 ```css
-**Sources:** <FileRef file-url="https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/omo.ts#L145-L212" min=145 max=212 file-path="src/agents/omo.ts">Hii</FileRef>
+**출처:** <FileRef file-url="https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/omo.ts#L145-L212" min=145 max=212 file-path="src/agents/omo.ts">Hii</FileRef>
 
 ---
 
-## Tool Permission System for Parallelism
+## 병렬 처리를 위한 도구 권한 시스템 (Tool Permission System for Parallelism)
 
-To prevent infinite recursion and maintain controlled parallelism, background-executed agents have restricted tool access:
+무한 재귀(infinite recursion)를 방지하고 제어된 병렬성을 유지하기 위해, 백그라운드에서 실행되는 에이전트는 도구 액세스가 제한됩니다:
 
-### Tool Access Control Matrix
+### 도구 액세스 제어 매트릭스 (Tool Access Control Matrix)
 
-| Agent Context | `task` | `call_omo_agent` | `background_task` | Reason |
+| 에이전트 컨텍스트 | `task` | `call_omo_agent` | `background_task` | 이유 |
 |--------------|--------|------------------|-------------------|--------|
-| **OmO (primary session)** | ✅ Enabled | ✅ Enabled | ✅ Enabled | Full orchestration capabilities |
-| **Explore (background)** | ❌ Disabled | ❌ Disabled | ❌ Disabled | Prevent recursive spawning |
-| **Librarian (background)** | ❌ Disabled | ❌ Disabled | ❌ Disabled | Prevent recursive spawning |
+| **OmO (기본 세션)** | ✅ 활성화 | ✅ 활성화 | ✅ 활성화 | 전체 오케스트레이션 기능 |
+| **Explore (백그라운드)** | ❌ 비활성화 | ❌ 비활성화 | ❌ 비활성화 | 재귀적 생성 방지 |
+| **Librarian (백그라운드)** | ❌ 비활성화 | ❌ 비활성화 | ❌ 비활성화 | 재귀적 생성 방지 |
 
 ```typescript
 // From src/features/background-agent/manager.ts:104-108
@@ -674,24 +674,24 @@ body: {
 }
 ```
 
-This ensures:
+이를 통해 다음이 보장됩니다:
 
-* Only the primary orchestrator (OmO) can spawn background tasks
-* Background agents cannot create more background tasks
-* Parallelism is controlled and bounded
-* No infinite agent spawning loops
+* 기본 오케스트레이터(OmO)만 백그라운드 작업을 생성할 수 있습니다.
+* 백그라운드 에이전트는 추가 백그라운드 작업을 생성할 수 없습니다.
+* 병렬 처리가 제어되고 제한됩니다.
+* 무한 에이전트 생성 루프가 발생하지 않습니다.
 
-**Sources:** [src/features/background-agent/manager.ts L100-L109](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L100-L109)
+**출처:** [src/features/background-agent/manager.ts L100-L109](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L100-L109)
 
  [src/tools/call-omo-agent/tools.ts L119-L130](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/call-omo-agent/tools.ts#L119-L130)
 
 ---
 
-## Synchronous vs Asynchronous Invocation
+## 동기 vs 비동기 호출 (Synchronous vs Asynchronous Invocation)
 
-The `call_omo_agent` tool provides both execution modes through a single interface:
+`call_omo_agent` 도구는 단일 인터페이스를 통해 두 가지 실행 모드를 모두 제공합니다:
 
-### Dual-Mode Architecture
+### 이중 모드 아키텍처 (Dual-Mode Architecture)
 
 ```mermaid
 flowchart TD
@@ -741,28 +741,28 @@ subgraph subGraph0 ["Async Path"]
 end
 ```
 
-**Sources:** [src/tools/call-omo-agent/tools.ts L29-L178](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/call-omo-agent/tools.ts#L29-L178)
+**출처:** [src/tools/call-omo-agent/tools.ts L29-L178](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/call-omo-agent/tools.ts#L29-L178)
 
-### Mode Selection Guidelines
+### 모드 선택 가이드라인 (Mode Selection Guidelines)
 
-From the tool description and OmO system prompt:
+도구 설명 및 OmO 시스템 프롬프트에 따른 가이드라인:
 
-| Scenario | Mode | Rationale |
+| 시나리오 | 모드 | 근거 |
 | --- | --- | --- |
-| **Explore agent invocation** | Async | Fast, cheap, parallelizable - fire 2-3 simultaneously |
-| **Librarian research** | Async | External lookups benefit from parallelism |
-| **Oracle consultation** | Sync | High-value advice needed for immediate decision |
-| **Frontend delegation** | Sync | Must wait for implementation before proceeding |
+| **Explore 에이전트 호출** | 비동기 | 빠르고 저렴하며 병렬화 가능 - 2-3개를 동시에 실행 |
+| **Librarian 조사** | 비동기 | 외부 조회는 병렬 처리의 이점이 큼 |
+| **Oracle 상담** | 동기 | 즉각적인 결정을 위해 가치 높은 조언이 필요함 |
+| **Frontend 위임** | 동기 | 진행하기 전에 구현이 완료될 때까지 기다려야 함 |
 
-The OmO prompt explicitly mandates async mode for explore and librarian:
+OmO 프롬프트는 explore와 librarian에 대해 비동기 모드를 명시적으로 의무화합니다:
 
 ```
-**ALWAYS use `background_task(agent="explore")` — fire and forget, collect later.**
+**항상 `background_task(agent="explore")`를 사용하십시오 — 실행 후 나중에 결과를 수집합니다.**
 
-**Use `background_task(agent="librarian")` — fire in background, continue working.**
+**`background_task(agent="librarian")`를 사용하십시오 — 백그라운드에서 실행하고 작업을 계속합니다.**
 ```
 
-**Sources:** [src/agents/omo.ts L152](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/omo.ts#L152-L152)
+**출처:** [src/agents/omo.ts L152](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/omo.ts#L152-L152)
 
  [src/agents/omo.ts L186](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/omo.ts#L186-L186)
 
@@ -770,11 +770,11 @@ The OmO prompt explicitly mandates async mode for explore and librarian:
 
 ---
 
-## Memory Management and Cleanup
+## 메모리 관리 및 정리 (Memory Management and Cleanup)
 
-Background task state is managed carefully to prevent memory leaks:
+메모리 누수(memory leaks)를 방지하기 위해 백그라운드 작업 상태는 신중하게 관리됩니다:
 
-### State Lifecycle Management
+### 상태 수명 주기 관리 (State Lifecycle Management)
 
 ```mermaid
 stateDiagram-v2
@@ -794,21 +794,21 @@ stateDiagram-v2
     Cancelled --> notifications_Map : "notifyParentSession()"
 ```
 
-**Sources:** [src/features/background-agent/manager.ts L47-L59](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L47-L59)
+**출처:** [src/features/background-agent/manager.ts L47-L59](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L47-L59)
 
  [src/features/background-agent/manager.ts L193-L209](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L193-L209)
 
  [src/features/background-agent/manager.ts L226-L235](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L226-L235)
 
-### Cleanup Triggers
+### 정리 트리거 (Cleanup Triggers)
 
-The system cleans up state in response to three events:
+시스템은 다음 세 가지 이벤트에 반응하여 상태를 정리합니다:
 
-1. **Notification Delivered** → Remove from `notifications` Map ``` // From manager.ts:287 this.clearNotificationsForTask(task.id) ```
-2. **Session Deleted** → Remove from both Maps ```javascript // From manager.ts:193-209 if (event.type === "session.deleted") {   const sessionID = info.id   const task = this.findBySession(sessionID)   if (!task) return   if (task.status === "running") {     task.status = "cancelled"     task.completedAt = new Date()     task.error = "Session deleted"   }   this.tasks.delete(task.id)   this.clearNotificationsForTask(task.id) } ```
-3. **Polling Stops** → When no running tasks remain ``` // From manager.ts:386-388 if (!this.hasRunningTasks()) {   this.stopPolling() } ```
+1. **알림 전달됨** → `notifications` Map에서 제거 ``` // From manager.ts:287 this.clearNotificationsForTask(task.id) ```
+2. **세션 삭제됨** → 두 Map 모두에서 제거 ```javascript // From manager.ts:193-209 if (event.type === "session.deleted") {   const sessionID = info.id   const task = this.findBySession(sessionID)   if (!task) return   if (task.status === "running") {     task.status = "cancelled"     task.completedAt = new Date()     task.error = "Session deleted"   }   this.tasks.delete(task.id)   this.clearNotificationsForTask(task.id) } ```
+3. **폴링 중지** → 실행 중인 작업이 더 이상 남지 않았을 때 ``` // From manager.ts:386-388 if (!this.hasRunningTasks()) {   this.stopPolling() } ```
 
-**Sources:** [src/features/background-agent/manager.ts L193-L209](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L193-L209)
+**출처:** [src/features/background-agent/manager.ts L193-L209](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L193-L209)
 
  [src/features/background-agent/manager.ts L226-L235](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L226-L235)
 
@@ -816,43 +816,43 @@ The system cleans up state in response to three events:
 
 ---
 
-## Performance Characteristics
+## 성능 특성 (Performance Characteristics)
 
-### Throughput Improvements
+### 처리량 향상 (Throughput Improvements)
 
-| Pattern | Sequential Time | Parallel Time | Speedup |
+| 패턴 | 순차적 시간 | 병렬 시간 | 속도 향상 |
 | --- | --- | --- | --- |
-| **3 explore agents** (30s each) | 90 seconds | ~30 seconds | 3x |
-| **2 explore + 1 librarian** (30s + 45s) | 105 seconds | ~45 seconds | 2.3x |
-| **Direct tools + background agents** | Blocked waiting | Continue immediately | ∞ (non-blocking) |
+| **Explore 에이전트 3개** (각 30초) | 90초 | ~30초 | 3배 |
+| **Explore 2개 + Librarian 1개** (30초 + 45초) | 105초 | ~45초 | 2.3배 |
+| **직접 도구 + 백그라운드 에이전트** | 대기 중 차단됨 | 즉시 계속 | ∞ (비차단) |
 
-### Resource Utilization
+### 자원 활용 (Resource Utilization)
 
-The polling mechanism has minimal overhead:
+폴링 메커니즘은 오버헤드가 최소화되어 있습니다:
 
-* **Polling interval:** 2000ms (2 seconds)
-* **Status check:** Single API call for all sessions (`client.session.status()`)
-* **Message fetch:** One API call per task (only for progress tracking)
-* **Polling stops:** Automatically when no tasks running
+* **폴링 간격:** 2000ms (2초)
+* **상태 확인:** 모든 세션에 대해 단일 API 호출 (`client.session.status()`)
+* **메시지 가져오기:** 작업당 하나의 API 호출 (진행 상황 추적용으로만 사용)
+* **폴링 중지:** 실행 중인 작업이 없으면 자동으로 중지
 
 ```javascript
 // From manager.ts:316-318
 const statusResult = await this.client.session.status()
 const allStatuses = (statusResult.data ?? {}) as Record<string, { type: string }>
-// Single call checks ALL sessions at once
+// 단일 호출로 모든 세션을 한 번에 확인
 ```
 
-**Sources:** [src/features/background-agent/manager.ts L316-L318](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L316-L318)
+**출처:** [src/features/background-agent/manager.ts L316-L318](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L316-L318)
 
  [src/features/background-agent/manager.ts L237-L250](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L237-L250)
 
 ---
 
-## Error Handling in Parallel Execution
+## 병렬 실행에서의 오류 처리 (Error Handling in Parallel Execution)
 
-### Error Propagation
+### 오류 전파 (Error Propagation)
 
-Errors in background tasks are isolated and do not crash the parent session:
+백그라운드 작업의 오류는 격리되며 부모 세션을 중단시키지 않습니다:
 
 ```mermaid
 flowchart TD
@@ -873,16 +873,16 @@ NotifyError -.->|"Continues normally"| ParentSession
 ParentSession -.-> Other
 ```
 
-**Sources:** [src/features/background-agent/manager.ts L111-L126](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L111-L126)
+**출처:** [src/features/background-agent/manager.ts L111-L126](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L111-L126)
 
-### Error Types Handled
+### 처리되는 오류 유형 (Error Types Handled)
 
-| Error Type | Detection | Status | User Impact |
+| 오류 유형 | 감지 방법 | 상태 | 사용자 영향 |
 | --- | --- | --- | --- |
-| **Agent not found** | "agent.name" or "undefined" in error | `"error"` with descriptive message | Notification explains agent registration needed |
-| **API failure** | `promptAsync` rejection | `"error"` with error message | Notification shows technical error |
-| **Session deleted** | `session.deleted` event | `"cancelled"` | Task removed from tracking |
-| **Polling failure** | Exception in `pollRunningTasks()` | Task status unchanged | Logged, continues polling |
+| **에이전트를 찾을 수 없음** | 오류 메시지에 "agent.name" 또는 "undefined" 포함 | 설명 메시지와 함께 `"error"` | 에이전트 등록이 필요하다는 알림 |
+| **API 실패** | `promptAsync` 거부(rejection) | 오류 메시지와 함께 `"error"` | 기술적 오류를 보여주는 알림 |
+| **세션 삭제됨** | `session.deleted` 이벤트 | `"cancelled"` | 추적에서 작업 제거 |
+| **폴링 실패** | `pollRunningTasks()` 내 예외 발생 | 작업 상태 유지 | 로그 기록 후 폴링 계속 수행 |
 
 ```javascript
 // From manager.ts:111-126
@@ -904,6 +904,6 @@ ParentSession -.-> Other
 })
 ```
 
-**Sources:** [src/features/background-agent/manager.ts L111-L126](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L111-L126)
+**출처:** [src/features/background-agent/manager.ts L111-L126](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L111-L126)
 
  [src/features/background-agent/manager.ts L381-L383](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L381-L383)

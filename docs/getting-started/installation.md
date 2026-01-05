@@ -1,13 +1,13 @@
 ---
 layout: default
-title: Installation
-parent: Getting Started
+title: 설치
+parent: 시작하기
 nav_order: 2
 ---
 
-# Installation
+# 설치 (Installation)
 
-> **Relevant source files**
+> **관련 소스 파일**
 > * [README.ja.md](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.ja.md)
 > * [README.ko.md](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.ko.md)
 > * [README.md](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md)
@@ -19,116 +19,116 @@ nav_order: 2
 > * [src/shared/jsonc-parser.test.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/shared/jsonc-parser.test.ts)
 > * [src/shared/jsonc-parser.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/shared/jsonc-parser.ts)
 
-This page details the installation process for oh-my-opencode, including prerequisite checks, subscription detection, plugin registration, and configuration file generation. The installation is automated through a CLI tool that adapts configuration based on available AI provider subscriptions.
+이 페이지는 사전 요구 사항 확인, 구독 감지, 플러그인 등록 및 설정 파일 생성을 포함한 oh-my-opencode의 설치 프로세스를 자세히 설명합니다. 설치는 사용 가능한 AI 제공자 구독 정보에 따라 설정을 조정하는 CLI 도구를 통해 자동화됩니다.
 
-For authentication setup after installation, see [Authentication Setup](../getting-started/Authentication-Setup.md). For details on configuration file hierarchy and structure, see [Configuration Files](../getting-started/Configuration-Files.md).
+설치 후 인증 설정에 대해서는 [인증 설정](../getting-started/Authentication-Setup.md)을 참조하십시오. 설정 파일의 계층 구조 및 구조에 대한 자세한 내용은 [설정 파일](../getting-started/Configuration-Files.md)을 참조하십시오.
 
-## Overview
+## 개요 (Overview)
 
-The installation process consists of five main phases:
+설치 프로세스는 다섯 가지 주요 단계로 구성됩니다:
 
 ```mermaid
 flowchart TD
 
 Start["bunx oh-my-opencode install"]
-Detect["OpenCode Detection"]
-Query["Subscription Query"]
-Register["Plugin Registration"]
-Generate["Config Generation"]
-Done["Installation Complete"]
-Error["Error: OpenCode Required"]
+Detect["OpenCode 감지"]
+Query["구독 확인"]
+Register["플러그인 등록"]
+Generate["설정 생성"]
+Done["설치 완료"]
+Error["오류: OpenCode 필요"]
 
 Start -.-> Detect
-Detect -.->|"Found"| Query
-Detect -.->|"Not Found"| Error
+Detect -.->|"찾음"| Query
+Detect -.->|"찾지 못함"| Error
 Query -.-> Register
 Register -.-> Generate
 Generate -.-> Done
 ```
 
-**Sources:** [src/cli/config-manager.ts L1-L247](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L1-L247)
+**출처:** [src/cli/config-manager.ts L1-L247](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L1-L247)
 
  [README.md L195-L427](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L195-L427)
 
-## Prerequisites
+## 사전 요구 사항 (Prerequisites)
 
-### OpenCode Installation
+### OpenCode 설치
 
-The installer first verifies that OpenCode is installed and accessible in the system PATH. It searches for two possible binaries:
+설치 프로그램은 먼저 OpenCode가 설치되어 있고 시스템 PATH에서 액세스 가능한지 확인합니다. 다음 두 가지 바이너리를 검색합니다:
 
-| Binary | Description |
+| 바이너리 | 설명 |
 | --- | --- |
-| `opencode` | Standard CLI binary |
-| `opencode-desktop` | Desktop application binary |
+| `opencode` | 표준 CLI 바이너리 |
+| `opencode-desktop` | 데스크톱 애플리케이션 바이너리 |
 
-The minimum required version is **1.0.150** or higher. Version detection is performed by executing `opencode --version` or `opencode-desktop --version`.
+최소 요구 버전은 **1.0.150** 이상입니다. 버전 감지는 `opencode --version` 또는 `opencode-desktop --version`을 실행하여 수행됩니다.
 
-**Sources:** [src/cli/config-manager.ts L13-L236](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L13-L236)
+**출처:** [src/cli/config-manager.ts L13-L236](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L13-L236)
 
-## Installation Command
+## 설치 명령 (Installation Command)
 
-The installer can be run in two modes:
+설치 프로그램은 두 가지 모드로 실행할 수 있습니다:
 
-### Interactive Mode (Default)
+### 대화형 모드 (기본값)
 
 ```
 bunx oh-my-opencode install
 ```
 
-Launches a TUI (Text User Interface) that prompts for subscription information interactively.
+구독 정보를 대화형으로 묻는 TUI(Text User Interface)를 실행합니다.
 
-### Non-Interactive Mode
+### 비대화형 모드
 
 ```
 bunx oh-my-opencode install --no-tui --claude=<yes|no|max20> --chatgpt=<yes|no> --gemini=<yes|no>
 ```
 
-**CLI Flags:**
+**CLI 플래그:**
 
-| Flag | Values | Description |
+| 플래그 | 값 | 설명 |
 | --- | --- | --- |
-| `--no-tui` | (boolean) | Disable interactive prompts |
-| `--claude` | `yes`, `no`, `max20` | Claude Pro/Max subscription status |
-| `--chatgpt` | `yes`, `no` | ChatGPT Plus/Pro subscription status |
-| `--gemini` | `yes`, `no` | Gemini integration via Antigravity |
+| `--no-tui` | (boolean) | 대화형 프롬프트 비활성화 |
+| `--claude` | `yes`, `no`, `max20` | Claude Pro/Max 구독 상태 |
+| `--chatgpt` | `yes`, `no` | ChatGPT Plus/Pro 구독 상태 |
+| `--gemini` | `yes`, `no` | Antigravity를 통한 Gemini 연동 여부 |
 
-**Examples:**
+**예시:**
 
 ```markdown
-# User has all subscriptions with Claude max20
+# Claude max20을 포함한 모든 구독을 보유한 경우
 bunx oh-my-opencode install --no-tui --claude=max20 --chatgpt=yes --gemini=yes
 
-# User has only Claude (not max20)
+# Claude만 보유한 경우 (max20 아님)
 bunx oh-my-opencode install --no-tui --claude=yes --chatgpt=no --gemini=no
 
-# User has no subscriptions (uses free models)
+# 구독이 없는 경우 (무료 모델 사용)
 bunx oh-my-opencode install --no-tui --claude=no --chatgpt=no --gemini=no
 ```
 
-**Sources:** [README.md L222-L268](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L222-L268)
+**출처:** [README.md L222-L268](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L222-L268)
 
  [src/cli/config-manager.ts L1-L50](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L1-L50)
 
-## Installation Process Flow
+## 설치 프로세스 흐름 (Installation Process Flow)
 
 ```mermaid
 flowchart TD
 
 FindBinary["findOpenCodeBinaryWithVersion()"]
-CheckVersion["Version Check >= 1.0.150"]
+CheckVersion["버전 확인 >= 1.0.150"]
 DetectFormat["detectConfigFormat()"]
 ParseConfig["parseConfig()"]
-AddPlugin["Add 'oh-my-opencode' to plugin array"]
-WriteOpenCode["Write opencode.json/jsonc"]
+AddPlugin["plugin 배열에 'oh-my-opencode' 추가"]
+WriteOpenCode["opencode.json/jsonc 쓰기"]
 BuildConfig["generateOmoConfig()"]
-AssignModels["Assign Agent Models"]
-MergeExisting["deepMerge() with existing"]
-WriteOmo["Write oh-my-opencode.json"]
+AssignModels["에이전트 모델 할당"]
+MergeExisting["기존 설정과 deepMerge()"]
+WriteOmo["oh-my-opencode.json 쓰기"]
 
-CheckVersion -.->|".jsonc exists"| DetectFormat
+CheckVersion -.->|".jsonc 존재 시"| DetectFormat
 WriteOpenCode -.-> BuildConfig
 
-subgraph subGraph2 ["Phase 3: Config Generation"]
+subgraph subGraph2 ["3단계: 설정 생성"]
     BuildConfig
     AssignModels
     MergeExisting
@@ -138,36 +138,36 @@ subgraph subGraph2 ["Phase 3: Config Generation"]
     MergeExisting -.-> WriteOmo
 end
 
-subgraph subGraph1 ["Phase 2: Plugin Registration"]
+subgraph subGraph1 ["2단계: 플러그인 등록"]
     DetectFormat
     ParseConfig
     AddPlugin
     WriteOpenCode
-    DetectFormat -.->|".json exists"| ParseConfig
-    DetectFormat -.->|"none"| ParseConfig
+    DetectFormat -.->|".json 존재 시"| ParseConfig
+    DetectFormat -.->|"없음"| ParseConfig
     DetectFormat -.-> AddPlugin
     ParseConfig -.-> AddPlugin
     AddPlugin -.-> WriteOpenCode
 end
 
-subgraph subGraph0 ["Phase 1: Detection"]
+subgraph subGraph0 ["1단계: 감지"]
     FindBinary
     CheckVersion
-    FindBinary -.->|"Valid"| CheckVersion
+    FindBinary -.->|"유효함"| CheckVersion
 end
 ```
 
-**Sources:** [src/cli/config-manager.ts L214-L247](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L214-L247)
+**출처:** [src/cli/config-manager.ts L214-L247](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L214-L247)
 
  [src/cli/config-manager.ts L60-L109](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L60-L109)
 
  [src/cli/config-manager.ts L138-L207](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L138-L207)
 
-## Plugin Registration
+## 플러그인 등록 (Plugin Registration)
 
-### Configuration File Detection
+### 설정 파일 감지
 
-The installer detects existing OpenCode configuration using a priority system:
+설치 프로그램은 우선순위 시스템을 사용하여 기존 OpenCode 설정을 감지합니다:
 
 ```mermaid
 flowchart TD
@@ -175,54 +175,54 @@ flowchart TD
 Check["detectConfigFormat()"]
 Jsonc["~/.config/opencode/opencode.jsonc"]
 Json["~/.config/opencode/opencode.json"]
-None["Create new opencode.json"]
+None["새 opencode.json 생성"]
 
-Check -.->|"exists"| Jsonc
-Check -.->|"not exists"| Json
-Json -.->|"not exists"| None
-None -.->|"exists"| None
+Check -.->|"존재"| Jsonc
+Check -.->|"존재하지 않음"| Json
+Json -.->|"존재하지 않음"| None
+None -.->|"존재"| None
 None -.-> Json
 Json -.-> None
 ```
 
-**Priority Order:**
+**우선순위 순서:**
 
-1. `opencode.jsonc` (JSONC with comments)
-2. `opencode.json` (standard JSON)
-3. Create new `opencode.json` if neither exists
+1. `opencode.jsonc` (주석이 포함된 JSONC)
+2. `opencode.json` (표준 JSON)
+3. 둘 다 존재하지 않으면 새 `opencode.json` 생성
 
-**Sources:** [src/cli/config-manager.ts L35-L43](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L35-L43)
+**출처:** [src/cli/config-manager.ts L35-L43](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L35-L43)
 
  [src/shared/jsonc-parser.ts L52-L66](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/shared/jsonc-parser.ts#L52-L66)
 
-### Plugin Array Modification
+### 플러그인 배열 수정
 
-The installer modifies the `plugin` array in the OpenCode configuration:
+설치 프로그램은 OpenCode 설정의 `plugin` 배열을 수정합니다:
 
-**JSONC Format (Preserves Comments):**
+**JSONC 형식 (주석 보존):**
 
-The installer uses regex matching to locate the `plugin` array and inserts `oh-my-opencode` while preserving formatting and comments:
+설치 프로그램은 정규식 매칭을 사용하여 `plugin` 배열을 찾고, 포맷과 주석을 유지하면서 `oh-my-opencode`를 삽입합니다:
 
 ```
-// Pattern: /"plugin"\s*:\s*\[([\s\S]*?)\]/
-// Inserts: "${pluginName}" maintaining indentation
+// 패턴: /"plugin"\s*:\s*\[([\s\S]*?)\]/
+// 삽입: 들여쓰기를 유지하며 "${pluginName}" 추가
 ```
 
-**JSON Format:**
+**JSON 형식:**
 
-Parses as standard JSON, adds to array, and writes with `JSON.stringify(..., null, 2)`.
+표준 JSON으로 파싱하고, 배열에 추가한 후 `JSON.stringify(..., null, 2)`를 사용하여 다시 씁니다.
 
-**Idempotency:**
+**멱등성 (Idempotency):**
 
-The installer checks if `oh-my-opencode` (or any string starting with `oh-my-opencode`) already exists in the plugin array and skips registration if found.
+설치 프로그램은 `oh-my-opencode`(또는 `oh-my-opencode`로 시작하는 문자열)가 이미 플러그인 배열에 존재하는지 확인하고, 발견되면 등록을 건너뜁니다.
 
-**Sources:** [src/cli/config-manager.ts L60-L109](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L60-L109)
+**출처:** [src/cli/config-manager.ts L60-L109](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L60-L109)
 
  [src/shared/jsonc-parser.ts L9-L24](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/shared/jsonc-parser.ts#L9-L24)
 
-## Agent Model Assignment
+## 에이전트 모델 할당 (Agent Model Assignment)
 
-The configuration generator assigns AI models to agents based on detected subscriptions:
+설정 생성기는 감지된 구독 정보를 기반으로 에이전트에 AI 모델을 할당합니다:
 
 ```mermaid
 flowchart TD
@@ -230,10 +230,10 @@ flowchart TD
 Claude["hasClaude & isMax20"]
 ChatGPT["hasChatGPT"]
 Gemini["hasGemini"]
-Sisyphus["Sisyphus<br>(Main Orchestrator)"]
-Oracle["oracle<br>(Architecture)"]
-Librarian["librarian<br>(Research)"]
-Explore["explore<br>(Code Search)"]
+Sisyphus["Sisyphus<br>(메인 오케스트레이터)"]
+Oracle["oracle<br>(아키텍처)"]
+Librarian["librarian<br>(리서치)"]
+Explore["explore<br>(코드 검색)"]
 Frontend["frontend-ui-ux-engineer"]
 DocWriter["document-writer"]
 Multimodal["multimodal-looker"]
@@ -242,24 +242,24 @@ GPT52["openai/gpt-5.2"]
 GeminiFlash["google/gemini-3-flash"]
 GeminiProHigh["google/gemini-3-pro-high"]
 Haiku["anthropic/claude-haiku-4-5"]
-BigPickle["opencode/big-pickle<br>(Free)"]
+BigPickle["opencode/big-pickle<br>(무료)"]
 
-Claude -.->|"Yes"| Sisyphus
-Claude -.->|"No"| Sisyphus
+Claude -.->|"예"| Sisyphus
+Claude -.->|"아니오"| Sisyphus
 Sisyphus -.->|"hasGemini=false"| BigPickle
 Sisyphus -.->|"hasChatGPT=false"| OpusHigh
-ChatGPT -.->|"Yes"| Oracle
-ChatGPT -.->|"No"| Oracle
+ChatGPT -.->|"예"| Oracle
+ChatGPT -.->|"아니오"| Oracle
 Oracle -.->|"hasChatGPT=true"| GPT52
 Oracle -.->|"hasGemini=true"| OpusHigh
-Gemini -.->|"No"| Librarian
+Gemini -.->|"아니오"| Librarian
 Gemini -.->|"hasGemini=false & isMax20=true"| Explore
 Gemini -.->|"hasGemini=true"| Librarian
-Gemini -.->|"No"| Explore
+Gemini -.->|"아니오"| Explore
 Librarian -.->|"hasGemini=false & isMax20=false"| GeminiFlash
 Librarian -.->|"hasGemini=false & isMax20=false"| OpusHigh
 Librarian -.->|"hasGemini=true"| BigPickle
-Explore -.->|"Yes"| GeminiFlash
+Explore -.->|"예"| GeminiFlash
 Explore -.->|"hasGemini=false & isMax20=true"| Haiku
 Explore -.->|"hasGemini=false"| BigPickle
 Gemini -.->|"hasGemini=true"| Frontend
@@ -272,7 +272,7 @@ DocWriter -.-> OpusHigh
 Multimodal -.-> GeminiFlash
 Multimodal -.->|"hasClaude=false"| OpusHigh
 
-subgraph subGraph2 ["Model Options"]
+subgraph subGraph2 ["모델 옵션"]
     OpusHigh
     GPT52
     GeminiFlash
@@ -281,7 +281,7 @@ subgraph subGraph2 ["Model Options"]
     BigPickle
 end
 
-subgraph subGraph1 ["Agent Model Assignment Logic"]
+subgraph subGraph1 ["에이전트 모델 할당 로직"]
     Sisyphus
     Oracle
     Librarian
@@ -291,33 +291,33 @@ subgraph subGraph1 ["Agent Model Assignment Logic"]
     Multimodal
 end
 
-subgraph subGraph0 ["Input: Subscription Status"]
+subgraph subGraph0 ["입력: 구독 상태"]
     Claude
     ChatGPT
     Gemini
 end
 ```
 
-**Assignment Rules:**
+**할당 규칙:**
 
-| Subscription Status | Sisyphus | Oracle | Librarian | Explore | Frontend | DocWriter | Multimodal |
+| 구독 상태 | Sisyphus | Oracle | Librarian | Explore | Frontend | DocWriter | Multimodal |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| No subscriptions | `big-pickle` | `big-pickle` | `big-pickle` | `big-pickle` | `big-pickle` | `big-pickle` | `big-pickle` |
-| Claude only | `opus-4-5` | `opus-4-5` | `opus-4-5` | `big-pickle` | `opus-4-5` | `opus-4-5` | `opus-4-5` |
-| Claude Max20 only | `opus-4-5` | `opus-4-5` | `opus-4-5` | `haiku-4-5` | `opus-4-5` | `opus-4-5` | `opus-4-5` |
-| ChatGPT only | `big-pickle` | `gpt-5.2` | `big-pickle` | `big-pickle` | `big-pickle` | `big-pickle` | `big-pickle` |
-| Gemini only | `big-pickle` | `big-pickle` | `gemini-3-flash` | `gemini-3-flash` | `gemini-3-pro-high` | `gemini-3-flash` | `gemini-3-flash` |
-| All subscriptions | `opus-4-5` | `gpt-5.2` | `gemini-3-flash` | `gemini-3-flash` | `gemini-3-pro-high` | `gemini-3-flash` | `gemini-3-flash` |
+| 구독 없음 | `big-pickle` | `big-pickle` | `big-pickle` | `big-pickle` | `big-pickle` | `big-pickle` | `big-pickle` |
+| Claude 전용 | `opus-4-5` | `opus-4-5` | `opus-4-5` | `big-pickle` | `opus-4-5` | `opus-4-5` | `opus-4-5` |
+| Claude Max20 전용 | `opus-4-5` | `opus-4-5` | `opus-4-5` | `haiku-4-5` | `opus-4-5` | `opus-4-5` | `opus-4-5` |
+| ChatGPT 전용 | `big-pickle` | `gpt-5.2` | `big-pickle` | `big-pickle` | `big-pickle` | `big-pickle` | `big-pickle` |
+| Gemini 전용 | `big-pickle` | `big-pickle` | `gemini-3-flash` | `gemini-3-flash` | `gemini-3-pro-high` | `gemini-3-flash` | `gemini-3-flash` |
+| 모든 구독 보유 | `opus-4-5` | `gpt-5.2` | `gemini-3-flash` | `gemini-3-flash` | `gemini-3-pro-high` | `gemini-3-flash` | `gemini-3-flash` |
 
-**Note:** When `hasGemini=true`, the `google_auth` field is automatically set to `false` in the configuration, as external Antigravity OAuth plugin will be used instead of built-in Google auth.
+**참고:** `hasGemini=true`인 경우, 내장 Google 인증 대신 외부 Antigravity OAuth 플러그인이 사용되므로 설정에서 `google_auth` 필드가 자동으로 `false`로 설정됩니다.
 
-**Sources:** [src/cli/config-manager.ts L138-L185](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L138-L185)
+**출처:** [src/cli/config-manager.ts L138-L185](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L138-L185)
 
-## Configuration File Generation
+## 설정 파일 생성 (Configuration File Generation)
 
-### Generated Configuration Structure
+### 생성된 설정 구조
 
-The installer creates `~/.config/opencode/oh-my-opencode.json` with the following structure:
+설치 프로그램은 다음과 같은 구조로 `~/.config/opencode/oh-my-opencode.json`을 생성합니다:
 
 ```json
 {
@@ -335,22 +335,22 @@ The installer creates `~/.config/opencode/oh-my-opencode.json` with the followin
 }
 ```
 
-The `$schema` field enables IDE autocomplete and validation.
+`$schema` 필드는 IDE의 자동 완성 및 유효성 검사를 활성화합니다.
 
-**Sources:** [src/cli/config-manager.ts L138-L185](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L138-L185)
+**출처:** [src/cli/config-manager.ts L138-L185](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L138-L185)
 
-### Configuration Merging
+### 설정 병합 (Configuration Merging)
 
-If `oh-my-opencode.json` already exists, the installer performs a deep merge:
+`oh-my-opencode.json`이 이미 존재하는 경우, 설치 프로그램은 딥 머지(deep merge)를 수행합니다:
 
 ```mermaid
 flowchart TD
 
-Existing["Read Existing Config"]
-Delete["Delete existing.agents"]
-New["Generate New Config"]
+Existing["기존 설정 읽기"]
+Delete["existing.agents 삭제"]
+New["새 설정 생성"]
 Merge["deepMerge(existing, new)"]
-Write["Write Merged Config"]
+Write["병합된 설정 쓰기"]
 
 Existing -.-> Delete
 Delete -.-> New
@@ -358,92 +358,92 @@ New -.-> Merge
 Merge -.-> Write
 ```
 
-**Merge Behavior:**
+**병합 동작:**
 
-1. **Existing `agents` field is deleted** before merging to ensure clean agent model assignments
-2. Other fields (e.g., `disabled_hooks`, `experimental`) are preserved
-3. New fields from generated config are added
-4. Non-object fields are overwritten by new values
+1. 깨끗한 에이전트 모델 할당을 보장하기 위해 병합 전 **기존 `agents` 필드가 삭제**됩니다.
+2. 다른 필드(예: `disabled_hooks`, `experimental`)는 보존됩니다.
+3. 생성된 설정의 새 필드가 추가됩니다.
+4. 객체가 아닌 필드는 새 값으로 덮어씌워집니다.
 
-**Sources:** [src/cli/config-manager.ts L187-L207](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L187-L207)
+**출처:** [src/cli/config-manager.ts L187-L207](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L187-L207)
 
  [src/cli/config-manager.ts L111-L136](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L111-L136)
 
-## File Locations
+## 파일 위치 (File Locations)
 
-### User-Level Configuration
+### 사용자 수준 설정
 
-The installer determines the user config directory using platform-specific logic:
+설치 프로그램은 플랫폼별 로직을 사용하여 사용자 설정 디렉터리를 결정합니다:
 
 ```mermaid
 flowchart TD
 
-Platform["Platform?"]
+Platform["플랫폼?"]
 Unix["Linux/macOS"]
 Windows["Windows"]
-UnixPath["$XDG_CONFIG_HOME or<br>~/.config"]
-WinCrossPlatform["~/.config<br>(preferred)"]
-WinAppData["%APPDATA%<br>(fallback)"]
-CheckCross["~/.config/opencode/<br>oh-my-opencode.json<br>exists?"]
-CheckApp["%APPDATA%/opencode/<br>oh-my-opencode.json<br>exists?"]
+UnixPath["$XDG_CONFIG_HOME 또는<br>~/.config"]
+WinCrossPlatform["~/.config<br>(권장)"]
+WinAppData["%APPDATA%<br>(폴백)"]
+CheckCross["~/.config/opencode/<br>oh-my-opencode.json<br>존재 여부?"]
+CheckApp["%APPDATA%/opencode/<br>oh-my-opencode.json<br>존재 여부?"]
 
 Platform -.->|"linux/darwin"| Unix
 Platform -.->|"win32"| Windows
 Unix -.-> UnixPath
 Windows -.-> CheckCross
-CheckCross -.->|"Yes"| WinCrossPlatform
-CheckCross -.->|"No"| CheckApp
-CheckApp -.->|"Yes"| WinAppData
-CheckApp -.->|"No"| WinCrossPlatform
+CheckCross -.->|"예"| WinCrossPlatform
+CheckCross -.->|"아니오"| CheckApp
+CheckApp -.->|"예"| WinAppData
+CheckApp -.->|"아니오"| WinCrossPlatform
 ```
 
-**Config File Paths:**
+**설정 파일 경로:**
 
-| Platform | Primary Path | Fallback Path |
+| 플랫폼 | 기본 경로 | 폴백(Fallback) 경로 |
 | --- | --- | --- |
-| **Linux/macOS** | `~/.config/opencode/oh-my-opencode.json` | (none) |
+| **Linux/macOS** | `~/.config/opencode/oh-my-opencode.json` | (없음) |
 | **Windows** | `~/.config/opencode/oh-my-opencode.json` | `%APPDATA%\opencode\oh-my-opencode.json` |
 
-On Windows, the installer **prioritizes cross-platform path** (`~/.config`) but falls back to `%APPDATA%` for backward compatibility with existing installations.
+Windows에서 설치 프로그램은 **크로스 플랫폼 경로**(`~/.config`)를 우선시하지만, 기존 설치와의 하위 호환성을 위해 `%APPDATA%`로 폴백합니다.
 
-**Sources:** [src/shared/config-path.ts L1-L48](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/shared/config-path.ts#L1-L48)
+**출처:** [src/shared/config-path.ts L1-L48](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/shared/config-path.ts#L1-L48)
 
  [README.md L699-L706](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L699-L706)
 
-### OpenCode Configuration Paths
+### OpenCode 설정 경로
 
-| File | Purpose | Priority |
+| 파일 | 용도 | 우선순위 |
 | --- | --- | --- |
-| `~/.config/opencode/opencode.jsonc` | OpenCode config with comments | 1 (highest) |
-| `~/.config/opencode/opencode.json` | OpenCode config standard JSON | 2 |
-| `~/.config/opencode/oh-my-opencode.json` | Plugin user config | - |
-| `.opencode/oh-my-opencode.json` | Plugin project config | - |
+| `~/.config/opencode/opencode.jsonc` | 주석이 포함된 OpenCode 설정 | 1 (가장 높음) |
+| `~/.config/opencode/opencode.json` | 표준 JSON 형식의 OpenCode 설정 | 2 |
+| `~/.config/opencode/oh-my-opencode.json` | 플러그인 사용자 설정 | - |
+| `.opencode/oh-my-opencode.json` | 플러그인 프로젝트 설정 | - |
 
-**Sources:** [src/cli/config-manager.ts L7-L11](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L7-L11)
+**출처:** [src/cli/config-manager.ts L7-L11](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/config-manager.ts#L7-L11)
 
  [src/shared/config-path.ts L38-L47](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/shared/config-path.ts#L38-L47)
 
-## Verification
+## 확인 (Verification)
 
-After installation completes, verify the setup:
+설치가 완료된 후 설정을 확인하십시오:
 
 ```markdown
-# Check OpenCode version
-opencode --version  # Should be 1.0.150+
+# OpenCode 버전 확인
+opencode --version  # 1.0.150 이상이어야 함
 
-# Verify plugin registration
-cat ~/.config/opencode/opencode.json  # Should contain "oh-my-opencode" in plugin array
+# 플러그인 등록 확인
+cat ~/.config/opencode/opencode.json  # plugin 배열에 "oh-my-opencode"가 포함되어야 함
 
-# Check generated config
-cat ~/.config/opencode/oh-my-opencode.json  # Should contain agent model assignments
+# 생성된 설정 확인
+cat ~/.config/opencode/oh-my-opencode.json  # 에이전트 모델 할당이 포함되어야 함
 ```
 
-**Next Steps:**
+**다음 단계:**
 
-1. Configure authentication for enabled providers (see [Authentication Setup](../getting-started/Authentication-Setup.md))
-2. Customize agent settings if needed (see [Configuration Files](../getting-started/Configuration-Files.md))
-3. Review agent system documentation (see [Agent System](../agents/))
+1. 활성화된 제공자에 대한 인증을 구성합니다 ([인증 설정](../getting-started/Authentication-Setup.md) 참조)
+2. 필요한 경우 에이전트 설정을 사용자 정의합니다 ([설정 파일](../getting-started/Configuration-Files.md) 참조)
+3. 에이전트 시스템 문서를 검토합니다 ([에이전트 시스템](../agents/) 참조)
 
-**Sources:** [README.md L275-L279](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L275-L279)
+**출처:** [README.md L275-L279](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L275-L279)
 
  [README.md L393-L399](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L393-L399)

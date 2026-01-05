@@ -1,13 +1,13 @@
 ---
 layout: default
-title: Model Configuration
-parent: Advanced Topics
+title: 모델 구성
+parent: 고급 주제
 nav_order: 1
 ---
 
-# Model Configuration
+# 모델 구성 (Model Configuration)
 
-> **Relevant source files**
+> **관련 소스 파일**
 > * [.github/assets/sisyphus.png](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/.github/assets/sisyphus.png)
 > * [assets/oh-my-opencode.schema.json](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/assets/oh-my-opencode.schema.json)
 > * [src/agents/index.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/index.ts)
@@ -19,97 +19,95 @@ nav_order: 1
 > * [src/hooks/index.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/index.ts)
 > * [src/index.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts)
 
-This page documents how oh-my-opencode configures AI models for different agents, including model selection logic, model-specific API parameters (thinking vs reasoning effort), provider settings, and context limits. For general agent configuration including prompts and tools, see [Agent Configuration](/code-yeongyu/oh-my-opencode/4.3-agent-configuration). For the complete schema reference, see [Configuration Schema Reference](/code-yeongyu/oh-my-opencode/13.1-configuration-schema-reference).
+이 페이지는 oh-my-opencode가 모델 선택 로직, 모델별 API 파라미터(thinking vs reasoning effort), 제공자(provider) 설정 및 컨텍스트 제한(context limits)을 포함하여 다양한 에이전트를 위해 AI 모델을 구성하는 방법을 설명합니다. 프롬프트와 도구를 포함한 일반적인 에이전트 구성에 대해서는 [에이전트 구성](/code-yeongyu/oh-my-opencode/4.3-agent-configuration)을 참조하십시오. 전체 스키마 레퍼런스는 [구성 스키마 레퍼런스](/code-yeongyu/oh-my-opencode/13.1-configuration-schema-reference)를 참조하십시오.
 
-## Model Selection Precedence
+## 모델 선택 우선순위 (Model Selection Precedence)
 
-Model selection for agents follows a three-tier precedence hierarchy, with user overrides taking priority over system defaults.
+에이전트의 모델 선택은 3단계 우선순위 계층을 따르며, 사용자 오버라이드(override, 재정의)가 시스템 기본값보다 우선합니다.
 
-**Model Selection Precedence Diagram**
+**모델 선택 우선순위 다이어그램**
 
 ```mermaid
 flowchart TD
 
-Request["Agent Request<br>(e.g., Sisyphus)"]
-Check1["Check Agent Override<br>pluginConfig.agents[name].model"]
-Check2["Check System Default<br>(Sisyphus only)<br>config.model"]
-Check3["Use Built-in Default<br>(agent-specific)"]
-Override["Use Override Model<br>(highest priority)"]
-System["Use System Default<br>(Sisyphus only)"]
-Builtin["Use Built-in Default<br>(lowest priority)"]
-Configure["Configure Model API<br>isGptModel()?"]
-GPT["GPT Model<br>reasoningEffort: medium<br>textVerbosity: high<br>(for oracle)"]
-Claude["Claude Model<br>thinking: enabled<br>budgetTokens: 32000"]
+Request["에이전트 요청<br>(예: Sisyphus)"]
+Check1["에이전트 오버라이드 확인<br>pluginConfig.agents[name].model"]
+Check2["시스템 기본값 확인<br>(Sisyphus 전용)<br>config.model"]
+Check3["내장 기본값 사용<br>(에이전트별)"]
+Override["오버라이드 모델 사용<br>(최우선 순위)"]
+System["시스템 기본값 사용<br>(Sisyphus 전용)"]
+Builtin["내장 기본값 사용<br>(최저 순위)"]
+Configure["모델 API 구성<br>isGptModel()?"]
+GPT["GPT 모델<br>reasoningEffort: medium<br>textVerbosity: high<br>(Oracle용)"]
+Claude["Claude 모델<br>thinking: enabled<br>budgetTokens: 32000"]
 
 Request -.-> Check1
-Check1 -.->|"exists"| Override
-Check1 -.->|"not exists"| Check2
-Check2 -.->|"exists & Sisyphus"| System
-Check2 -.->|"not exists"| Check3
+Check1 -.->|"존재함"| Override
+Check1 -.->|"존재하지 않음"| Check2
+Check2 -.->|"존재함 & Sisyphus임"| System
+Check2 -.->|"존재하지 않음"| Check3
 Check3 -.-> Builtin
-Override -.->|"openai/* orgithub-copilot/gpt-*"| Configure
+Override -.->|"openai/* 또는 github-copilot/gpt-*"| Configure
 System -.-> Configure
-Builtin -.->|"otherwise"| Configure
+Builtin -.->|"그 외"| Configure
 Configure -.-> GPT
 Configure -.-> Claude
 ```
 
-Sources: [src/agents/utils.ts L79-L112](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.ts#L79-L112)
+출처: [src/agents/utils.ts L79-L112](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.ts#L79-L112)
 
  [src/agents/sisyphus.ts L528-L544](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/sisyphus.ts#L528-L544)
 
  [src/agents/types.ts L5-L7](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/types.ts#L5-L7)
 
-### Precedence Rules
+### 우선순위 규칙
 
-| Priority | Source | Scope | Example |
+| 우선순위 | 소스 | 범위 | 예시 |
 | --- | --- | --- | --- |
-| 1 (Highest) | `agents[name].model` override | Per-agent | `agents.Sisyphus.model: "openai/gpt-5.2"` |
-| 2 | System `config.model` | Sisyphus only | System default model passed to Sisyphus |
-| 3 (Lowest) | Built-in default | Per-agent | `anthropic/claude-opus-4-5` for Sisyphus, `openai/gpt-5.2` for Oracle |
+| 1 (최고) | `agents[name].model` 오버라이드 | 에이전트별 | `agents.Sisyphus.model: "openai/gpt-5.2"` |
+| 2 | 시스템 `config.model` | Sisyphus 전용 | Sisyphus에 전달된 시스템 기본 모델 |
+| 3 (최저) | 내장 기본값 | 에이전트별 | Sisyphus의 경우 `anthropic/claude-opus-4-5`, Oracle의 경우 `openai/gpt-5.2` |
 
-The Sisyphus agent is unique in that it inherits the system's default model if no override is specified [src/agents/utils.ts L95](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.ts#L95-L95)
+Sisyphus 에이전트는 오버라이드가 지정되지 않은 경우 시스템의 기본 모델을 상속받는다는 점에서 독특합니다 [src/agents/utils.ts L95](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.ts#L95-L95). 이를 통해 사용자의 주 모델 구독에 맞게 적응할 수 있습니다. 다른 모든 에이전트는 명시적으로 오버라이드되지 않는 한 내장된 기본값을 사용합니다.
 
- allowing it to adapt to the user's primary model subscription. All other agents use their built-in defaults unless explicitly overridden.
-
-Sources: [src/agents/utils.ts L79-L112](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.ts#L79-L112)
+출처: [src/agents/utils.ts L79-L112](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.ts#L79-L112)
 
  [src/index.ts L404-L409](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L404-L409)
 
-## Model-Specific API Parameters
+## 모델별 API 파라미터
 
-Different AI providers expose different inference control parameters. Oh-my-opencode detects the model type and configures appropriate parameters automatically.
+다양한 AI 제공자는 서로 다른 추론 제어 파라미터를 노출합니다. Oh-my-opencode는 모델 유형을 감지하고 적절한 파라미터를 자동으로 구성합니다.
 
 ### Thinking vs Reasoning Effort
 
-The system uses different parameters depending on whether the model is a GPT variant or a Claude variant:
+시스템은 모델이 GPT 변형인지 Claude 변형인지에 따라 다른 파라미터를 사용합니다.
 
-**Model Type Detection and Configuration**
+**모델 유형 감지 및 구성**
 
 ```mermaid
 flowchart TD
 
-Model["Model String"]
+Model["모델 문자열"]
 Detect["isGptModel()"]
-GPT_Check1["Starts with<br>openai/"]
-GPT_Check2["Starts with<br>github-copilot/gpt-"]
-GPT_Config["GPT Configuration"]
-Claude_Config["Claude Configuration"]
+GPT_Check1["openai/로 시작"]
+GPT_Check2["github-copilot/gpt-로 시작"]
+GPT_Config["GPT 구성"]
+Claude_Config["Claude 구성"]
 GPT_Params["reasoningEffort: 'medium'<br>(Oracle: textVerbosity: 'high')"]
 Claude_Params["thinking:<br>  type: 'enabled'<br>  budgetTokens: 32000"]
 
 Model -.-> Detect
-Detect -.->|"matches"| GPT_Check1
+Detect -.->|"일치"| GPT_Check1
 Detect -.-> GPT_Check2
 ```
 
-Sources: [src/agents/types.ts L5-L7](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/types.ts#L5-L7)
+출처: [src/agents/types.ts L5-L7](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/types.ts#L5-L7)
 
  [src/agents/sisyphus.ts L539-L543](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/sisyphus.ts#L539-L543)
 
-#### Claude Models: Thinking Configuration
+#### Claude 모델: Thinking 구성
 
-Claude models (Anthropic) use the `thinking` parameter to enable internal reasoning:
+Claude 모델(Anthropic)은 내부 추론을 활성화하기 위해 `thinking` 파라미터를 사용합니다.
 
 ```yaml
 {
@@ -120,13 +118,13 @@ Claude models (Anthropic) use the `thinking` parameter to enable internal reason
 }
 ```
 
-The `budgetTokens` field limits the maximum tokens the model can use for internal thinking before generating the response. This is applied to all Claude-based agents including Sisyphus [src/agents/sisyphus.ts L543](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/sisyphus.ts#L543-L543)
+`budgetTokens` 필드는 모델이 응답을 생성하기 전에 내부 사고를 위해 사용할 수 있는 최대 토큰을 제한합니다. 이는 Sisyphus를 포함한 모든 Claude 기반 에이전트에 적용됩니다 [src/agents/sisyphus.ts L543](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/sisyphus.ts#L543-L543).
 
-Sources: [src/agents/sisyphus.ts L528-L544](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/sisyphus.ts#L528-L544)
+출처: [src/agents/sisyphus.ts L528-L544](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/sisyphus.ts#L528-L544)
 
-#### GPT Models: Reasoning Effort
+#### GPT 모델: Reasoning Effort
 
-GPT models (OpenAI, GitHub Copilot) use `reasoningEffort` instead of thinking tokens:
+GPT 모델(OpenAI, GitHub Copilot)은 thinking 토큰 대신 `reasoningEffort`를 사용합니다.
 
 ```yaml
 {
@@ -134,65 +132,65 @@ GPT models (OpenAI, GitHub Copilot) use `reasoningEffort` instead of thinking to
 }
 ```
 
-Valid values are `"low"`, `"medium"`, and `"high"`. The system defaults to `"medium"` for all GPT-based agents [src/agents/sisyphus.ts L540](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/sisyphus.ts#L540-L540)
+유효한 값은 `"low"`, `"medium"`, `"high"`입니다. 시스템은 모든 GPT 기반 에이전트에 대해 기본적으로 `"medium"`을 사용합니다 [src/agents/sisyphus.ts L540](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/sisyphus.ts#L540-L540).
 
-For the Oracle agent specifically, GPT models also receive `textVerbosity: "high"` to maximize the detail in reasoning explanations, since Oracle's purpose is to provide comprehensive architectural guidance.
+특히 Oracle 에이전트의 경우, Oracle의 목적이 포괄적인 아키텍처 가이드를 제공하는 것이므로 추론 설명의 상세도를 극대화하기 위해 GPT 모델에 `textVerbosity: "high"`도 함께 전달됩니다.
 
-Sources: [src/agents/sisyphus.ts L528-L544](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/sisyphus.ts#L528-L544)
+출처: [src/agents/sisyphus.ts L528-L544](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/sisyphus.ts#L528-L544)
 
  [src/agents/utils.test.ts L17-L30](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.test.ts#L17-L30)
 
-### Configuration Table
+### 구성 테이블
 
-| Model Type | Detection Pattern | Parameters Applied | Example Models |
+| 모델 유형 | 감지 패턴 | 적용되는 파라미터 | 예시 모델 |
 | --- | --- | --- | --- |
 | GPT | `openai/*` | `reasoningEffort: "medium"` | `openai/gpt-5.2` |
 | GPT | `github-copilot/gpt-*` | `reasoningEffort: "medium"` | `github-copilot/gpt-5.2` |
-| Claude | Everything else | `thinking: { type: "enabled", budgetTokens: 32000 }` | `anthropic/claude-opus-4-5`, `anthropic/claude-sonnet-4-5` |
+| Claude | 그 외 모든 것 | `thinking: { type: "enabled", budgetTokens: 32000 }` | `anthropic/claude-opus-4-5`, `anthropic/claude-sonnet-4-5` |
 
-Sources: [src/agents/types.ts L5-L7](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/types.ts#L5-L7)
+출처: [src/agents/types.ts L5-L7](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/types.ts#L5-L7)
 
  [src/agents/sisyphus.ts L528-L544](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/sisyphus.ts#L528-L544)
 
-### Temperature and Top-P
+### Temperature 및 Top-P
 
-Standard sampling parameters are configurable per agent:
+표준 샘플링 파라미터는 에이전트별로 구성 가능합니다.
 
-| Parameter | Type | Range | Default | Purpose |
+| 파라미터 | 유형 | 범위 | 기본값 | 목적 |
 | --- | --- | --- | --- | --- |
-| `temperature` | number | 0.0 - 2.0 | Model-specific | Controls randomness in output |
-| `top_p` | number | 0.0 - 1.0 | Model-specific | Nucleus sampling threshold |
+| `temperature` | number | 0.0 - 2.0 | 모델별 | 출력의 무작위성 제어 |
+| `top_p` | number | 0.0 - 1.0 | 모델별 | 핵 샘플링(Nucleus sampling) 임계값 |
 
-These can be overridden in agent configuration [src/config/schema.ts L76-L77](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L76-L77)
+이 값들은 에이전트 구성에서 오버라이드할 수 있습니다 [src/config/schema.ts L76-L77](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L76-L77).
 
-Sources: [src/config/schema.ts L74-L89](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L74-L89)
+출처: [src/config/schema.ts L74-L89](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L74-L89)
 
-## Provider Configuration
+## 제공자 구성 (Provider Configuration)
 
-Provider-level settings are configured in OpenCode's main configuration and accessed by the plugin during initialization.
+제공자 수준의 설정은 OpenCode의 메인 구성에서 설정되며 초기화 중에 플러그인에 의해 액세스됩니다.
 
-### Context Limit Detection
+### 컨텍스트 제한 감지
 
-The plugin monitors and caches context limits from two sources:
+플러그인은 두 가지 소스에서 컨텍스트 제한을 모니터링하고 캐싱합니다.
 
-**Context Limit Resolution Flow**
+**컨텍스트 제한 확인 흐름**
 
 ```mermaid
 flowchart TD
 
-Config["config hook<br>initialization"]
-Check1["Read provider config<br>config.provider"]
-Check2["Check anthropic-beta<br>header"]
-Check3["Check model-specific<br>limit config"]
+Config["config hook<br>초기화"]
+Check1["제공자 구성 읽기<br>config.provider"]
+Check2["anthropic-beta<br>헤더 확인"]
+Check3["모델별<br>제한 구성 확인"]
 Cache["modelContextLimitsCache<br>Map<string, number>"]
 Beta["anthropicContext1MEnabled<br>= true"]
-Limit["Store limit in cache<br>key: providerID/modelID"]
-Runtime["getModelLimit()<br>at runtime"]
+Limit["캐시에 제한 저장<br>키: providerID/modelID"]
+Runtime["런타임 시<br>getModelLimit()"]
 CheckBeta["anthropic +<br>sonnet +<br>context-1m?"]
-CheckCache["Cached limit<br>exists?"]
-Return1M["Return 1,000,000"]
-ReturnCached["Return cached limit"]
-ReturnUndef["Return undefined"]
+CheckCache["캐시된 제한<br>존재함?"]
+Return1M["1,000,000 반환"]
+ReturnCached["캐시된 제한 반환"]
+ReturnUndef["undefined 반환"]
 
 Config -.-> Check1
 Check1 -.->|"anthropic-beta:context-1m"| Check2
@@ -202,31 +200,29 @@ Check3 -.-> Limit
 Beta -.-> Cache
 Limit -.-> Cache
 Cache -.-> Runtime
-Runtime -.->|"no"| CheckBeta
-CheckBeta -.->|"yes"| Return1M
-CheckBeta -.->|"no"| CheckCache
-CheckCache -.->|"yes"| ReturnCached
+Runtime -.->|"아니오"| CheckBeta
+CheckBeta -.->|"예"| Return1M
+CheckBeta -.->|"아니오"| CheckCache
+CheckCache -.->|"예"| ReturnCached
 CheckCache -.-> ReturnUndef
 ```
 
-Sources: [src/index.ts L224-L236](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L224-L236)
+출처: [src/index.ts L224-L236](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L224-L236)
 
  [src/index.ts L362-L386](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L362-L386)
 
-#### Anthropic Beta Feature Detection
+#### Anthropic Beta 기능 감지
 
-The plugin detects the `context-1m` beta feature from the Anthropic provider headers:
+플러그인은 Anthropic 제공자 헤더에서 `context-1m` 베타 기능을 감지합니다.
 
 ```javascript
 const anthropicBeta = providers?.anthropic?.options?.headers?.["anthropic-beta"];
 anthropicContext1MEnabled = anthropicBeta?.includes("context-1m") ?? false;
 ```
 
-When enabled, Sonnet models automatically receive a 1,000,000 token context limit [src/index.ts L369-L370](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L369-L370)
+활성화되면 Sonnet 모델은 자동으로 1,000,000 토큰 컨텍스트 제한을 부여받습니다 [src/index.ts L369-L370](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L369-L370) [src/index.ts L232-L235](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L232-L235).
 
- [src/index.ts L232-L235](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L232-L235)
-
-This allows users to enable extended context by configuring OpenCode's provider settings:
+이를 통해 사용자는 OpenCode의 제공자 설정을 구성하여 확장된 컨텍스트를 활성화할 수 있습니다.
 
 ```json
 {
@@ -242,13 +238,13 @@ This allows users to enable extended context by configuring OpenCode's provider 
 }
 ```
 
-Sources: [src/index.ts L224-L236](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L224-L236)
+출처: [src/index.ts L224-L236](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L224-L236)
 
  [src/index.ts L362-L386](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L362-L386)
 
-#### Model-Specific Limits
+#### 모델별 제한
 
-Context limits can be configured per-model in OpenCode's provider configuration:
+컨텍스트 제한은 OpenCode의 제공자 구성에서 모델별로 설정할 수 있습니다.
 
 ```json
 {
@@ -266,63 +262,61 @@ Context limits can be configured per-model in OpenCode's provider configuration:
 }
 ```
 
-The plugin caches these limits with the key format `providerID/modelID` for efficient lookup [src/index.ts L372-L385](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L372-L385)
+플러그인은 효율적인 조회를 위해 이러한 제한을 `providerID/modelID` 키 형식으로 캐싱합니다 [src/index.ts L372-L385](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L372-L385).
 
-Sources: [src/index.ts L362-L386](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L362-L386)
+출처: [src/index.ts L362-L386](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L362-L386)
 
-### Cache Structure
+### 캐시 구조
 
-| Variable | Type | Purpose | Access Pattern |
+| 변수 | 유형 | 목적 | 액세스 패턴 |
 | --- | --- | --- | --- |
-| `modelContextLimitsCache` | `Map<string, number>` | Stores per-model context limits | Key: `"providerID/modelID"` |
-| `anthropicContext1MEnabled` | `boolean` | Tracks 1M context beta feature | Special case for Anthropic Sonnet models |
-| `getModelLimit(providerID, modelID)` | Function | Retrieves limit at runtime | Used by preemptive compaction hook |
+| `modelContextLimitsCache` | `Map<string, number>` | 모델별 컨텍스트 제한 저장 | 키: `"providerID/modelID"` |
+| `anthropicContext1MEnabled` | `boolean` | 1M 컨텍스트 베타 기능 추적 | Anthropic Sonnet 모델을 위한 특수 사례 |
+| `getModelLimit(providerID, modelID)` | Function | 런타임 시 제한 조회 | 선제적 압축(preemptive compaction) 훅에서 사용 |
 
-The `getModelLimit` function provides a unified interface for context limit lookups, checking the 1M beta flag for Anthropic Sonnet models before falling back to cached values [src/index.ts L227-L236](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L227-L236)
+`getModelLimit` 함수는 컨텍스트 제한 조회를 위한 통합 인터페이스를 제공하며, 캐시된 값으로 돌아가기 전에 Anthropic Sonnet 모델에 대한 1M 베타 플래그를 먼저 확인합니다 [src/index.ts L227-L236](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L227-L236).
 
-Sources: [src/index.ts L224-L236](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L224-L236)
+출처: [src/index.ts L224-L236](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L224-L236)
 
-## Agent Override Configuration
+## 에이전트 오버라이드 구성
 
-Agent configurations can be overridden in the `oh-my-opencode.json` configuration file under the `agents` key.
+에이전트 구성은 `oh-my-opencode.json` 구성 파일의 `agents` 키 아래에서 오버라이드할 수 있습니다.
 
-### Available Override Fields
+### 사용 가능한 오버라이드 필드
 
-The `AgentOverrideConfig` schema defines all configurable parameters:
+`AgentOverrideConfig` 스키마는 모든 구성 가능한 파라미터를 정의합니다.
 
-| Field | Type | Description | Example |
+| 필드 | 유형 | 설명 | 예시 |
 | --- | --- | --- | --- |
-| `model` | `string` | Override model selection | `"openai/gpt-5.2"` |
-| `temperature` | `number` | Sampling temperature (0-2) | `0.7` |
-| `top_p` | `number` | Nucleus sampling (0-1) | `0.9` |
-| `prompt` | `string` | Replace entire system prompt | Full prompt text |
-| `prompt_append` | `string` | Append to system prompt | Additional instructions |
-| `tools` | `Record<string, boolean>` | Enable/disable specific tools | `{ "bash": false }` |
-| `disable` | `boolean` | Completely disable agent | `true` |
-| `description` | `string` | Change agent description | Custom description |
-| `mode` | `"subagent" \| "primary" \| "all"` | Agent invocation mode | `"subagent"` |
-| `color` | `string` | UI color (hex) | `"#FF5733"` |
-| `permission` | `AgentPermissionSchema` | Permission overrides | Permission object |
+| `model` | `string` | 모델 선택 오버라이드 | `"openai/gpt-5.2"` |
+| `temperature` | `number` | 샘플링 온도 (0-2) | `0.7` |
+| `top_p` | `number` | 핵 샘플링 (0-1) | `0.9` |
+| `prompt` | `string` | 전체 시스템 프롬프트 교체 | 전체 프롬프트 텍스트 |
+| `prompt_append` | `string` | 시스템 프롬프트에 추가 | 추가 지침 |
+| `tools` | `Record<string, boolean>` | 특정 도구 활성화/비활성화 | `{ "bash": false }` |
+| `disable` | `boolean` | 에이전트 완전히 비활성화 | `true` |
+| `description` | `string` | 에이전트 설명 변경 | 사용자 정의 설명 |
+| `mode` | `"subagent" \| "primary" \| "all"` | 에이전트 호출 모드 | `"subagent"` |
+| `color` | `string` | UI 색상 (hex) | `"#FF5733"` |
+| `permission` | `AgentPermissionSchema` | 권한 오버라이드 | 권한 객체 |
 
-Sources: [src/config/schema.ts L74-L89](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L74-L89)
+출처: [src/config/schema.ts L74-L89](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L74-L89)
 
-### Configuration Merge Behavior
+### 구성 병합 동작
 
-When an override is specified, the system performs a deep merge of the base configuration with the override [src/agents/utils.ts L65-L77](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.ts#L65-L77)
+오버라이드가 지정되면 시스템은 기본 구성과 오버라이드 구성을 딥 머지(deep merge, 깊은 병합)합니다 [src/agents/utils.ts L65-L77](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.ts#L65-L77).
 
-:
-
-**Override Merge Process**
+**오버라이드 병합 프로세스**
 
 ```mermaid
 flowchart TD
 
-Base["Base Agent Config<br>(from factory)"]
-Override["User Override<br>(from config file)"]
-Extract["Extract prompt_append<br>if present"]
-Merge["Deep merge<br>base + override"]
-Append["Append prompt_append<br>to merged.prompt"]
-Final["Final Agent Config"]
+Base["기본 에이전트 구성<br>(팩토리에서 생성)"]
+Override["사용자 오버라이드<br>(구성 파일에서 가져옴)"]
+Extract["prompt_append 추출<br>(존재하는 경우)"]
+Merge["딥 머지<br>base + override"]
+Append["prompt_append를<br>merged.prompt에 추가"]
+Final["최종 에이전트 구성"]
 
 Base -.-> Merge
 Override -.-> Extract
@@ -331,29 +325,29 @@ Merge -.-> Append
 Append -.-> Final
 ```
 
-The `prompt_append` field receives special handling: it's appended to the final merged prompt rather than replacing it [src/agents/utils.ts L72-L74](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.ts#L72-L74)
+`prompt_append` 필드는 특별하게 처리됩니다. 이 필드는 최종 병합된 프롬프트를 대체하는 대신 그 끝에 추가됩니다 [src/agents/utils.ts L72-L74](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.ts#L72-L74).
 
-Sources: [src/agents/utils.ts L65-L77](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.ts#L65-L77)
+출처: [src/agents/utils.ts L65-L77](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.ts#L65-L77)
 
-### Overridable Agents
+### 오버라이드 가능한 에이전트
 
-| Agent Name | Override Key | Default Model | Notes |
+| 에이전트 이름 | 오버라이드 키 | 기본 모델 | 비고 |
 | --- | --- | --- | --- |
-| Sisyphus | `"Sisyphus"` | `anthropic/claude-opus-4-5` | Primary orchestrator |
-| Oracle | `"oracle"` | `openai/gpt-5.2` | Architecture advisor |
-| Librarian | `"librarian"` | `anthropic/claude-sonnet-4-5` | External research |
-| Explore | `"explore"` | `google/gemini-grok` | Code search |
-| Frontend Engineer | `"frontend-ui-ux-engineer"` | `google/gemini-pro-1.5` | UI/UX work |
-| Document Writer | `"document-writer"` | `google/gemini-flash-2.0` | Documentation |
-| Multimodal Looker | `"multimodal-looker"` | `google/gemini-flash-2.0` | Media analysis |
-| OpenCode Builder | `"OpenCode-Builder"` | System default | Optional wrapper for build agent |
-| Planner Sisyphus | `"Planner-Sisyphus"` | System default | Optional wrapper for plan agent |
+| Sisyphus | `"Sisyphus"` | `anthropic/claude-opus-4-5` | 주 오케스트레이터 |
+| Oracle | `"oracle"` | `openai/gpt-5.2` | 아키텍처 조언자 |
+| Librarian | `"librarian"` | `anthropic/claude-sonnet-4-5` | 외부 리서치 |
+| Explore | `"explore"` | `google/gemini-grok` | 코드 검색 |
+| Frontend Engineer | `"frontend-ui-ux-engineer"` | `google/gemini-pro-1.5` | UI/UX 작업 |
+| Document Writer | `"document-writer"` | `google/gemini-flash-2.0` | 문서화 |
+| Multimodal Looker | `"multimodal-looker"` | `google/gemini-flash-2.0` | 미디어 분석 |
+| OpenCode Builder | `"OpenCode-Builder"` | 시스템 기본값 | 빌드 에이전트용 선택적 래퍼 |
+| Planner Sisyphus | `"Planner-Sisyphus"` | 시스템 기본값 | 플랜 에이전트용 선택적 래퍼 |
 
-Sources: [src/config/schema.ts L91-L103](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L91-L103)
+출처: [src/config/schema.ts L91-L103](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L91-L103)
 
-## Configuration Examples
+## 구성 예시
 
-### Example 1: Switching Sisyphus to GPT-5.2
+### 예시 1: Sisyphus를 GPT-5.2로 전환
 
 ```json
 {
@@ -366,13 +360,13 @@ Sources: [src/config/schema.ts L91-L103](https://github.com/code-yeongyu/oh-my-o
 }
 ```
 
-Effect: Sisyphus will use `reasoningEffort: "medium"` instead of `thinking` tokens [src/agents/utils.test.ts L17-L30](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.test.ts#L17-L30)
+결과: Sisyphus는 `thinking` 토큰 대신 `reasoningEffort: "medium"`을 사용하게 됩니다 [src/agents/utils.test.ts L17-L30](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.test.ts#L17-L30).
 
-Sources: [src/agents/utils.test.ts L17-L30](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.test.ts#L17-L30)
+출처: [src/agents/utils.test.ts L17-L30](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.test.ts#L17-L30)
 
  [src/config/schema.ts L91-L103](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L91-L103)
 
-### Example 2: Switching Oracle to Claude
+### 예시 2: Oracle을 Claude로 전환
 
 ```json
 {
@@ -384,11 +378,11 @@ Sources: [src/agents/utils.test.ts L17-L30](https://github.com/code-yeongyu/oh-m
 }
 ```
 
-Effect: Oracle will use `thinking: { type: "enabled", budgetTokens: 32000 }` instead of `reasoningEffort` and will lose the `textVerbosity: "high"` parameter [src/agents/utils.test.ts L58-L72](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.test.ts#L58-L72)
+결과: Oracle은 `reasoningEffort` 대신 `thinking: { type: "enabled", budgetTokens: 32000 }`를 사용하게 되며, `textVerbosity: "high"` 파라미터는 제거됩니다 [src/agents/utils.test.ts L58-L72](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.test.ts#L58-L72).
 
-Sources: [src/agents/utils.test.ts L58-L72](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.test.ts#L58-L72)
+출처: [src/agents/utils.test.ts L58-L72](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.test.ts#L58-L72)
 
-### Example 3: Reducing Temperature for Determinism
+### 예시 3: 결정론적 응답을 위해 Temperature 낮추기
 
 ```json
 {
@@ -403,11 +397,11 @@ Sources: [src/agents/utils.test.ts L58-L72](https://github.com/code-yeongyu/oh-m
 }
 ```
 
-Effect: Lower temperature values increase determinism in agent responses.
+결과: 낮은 temperature 값은 에이전트 응답의 결정론적 성격(determinism)을 높입니다.
 
-Sources: [src/config/schema.ts L74-L89](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L74-L89)
+출처: [src/config/schema.ts L74-L89](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L74-L89)
 
-### Example 4: Appending Custom Instructions
+### 예시 4: 사용자 정의 지침 추가
 
 ```json
 {
@@ -419,11 +413,11 @@ Sources: [src/config/schema.ts L74-L89](https://github.com/code-yeongyu/oh-my-op
 }
 ```
 
-Effect: The custom instruction is appended to the end of Sisyphus's system prompt [src/agents/utils.ts L72-L74](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.ts#L72-L74)
+결과: 사용자 정의 지침이 Sisyphus의 시스템 프롬프트 끝에 추가됩니다 [src/agents/utils.ts L72-L74](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.ts#L72-L74).
 
-Sources: [src/agents/utils.ts L65-L77](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.ts#L65-L77)
+출처: [src/agents/utils.ts L65-L77](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.ts#L65-L77)
 
-### Example 5: Combining Multiple Overrides
+### 예시 5: 여러 오버라이드 조합
 
 ```json
 {
@@ -440,32 +434,30 @@ Sources: [src/agents/utils.ts L65-L77](https://github.com/code-yeongyu/oh-my-ope
 }
 ```
 
-Effect: All overrides are merged with base configuration, switching to GPT model with custom temperature, additional instructions, and bash tool disabled.
+결과: 모든 오버라이드가 기본 구성과 병합되어, 사용자 정의 temperature, 추가 지침이 적용된 GPT 모델로 전환되고 bash 도구는 비활성화됩니다.
 
-Sources: [src/agents/utils.ts L65-L77](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.ts#L65-L77)
+출처: [src/agents/utils.ts L65-L77](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.ts#L65-L77)
 
  [src/config/schema.ts L74-L89](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L74-L89)
 
-## Environment Context Injection
+## 환경 컨텍스트 주입 (Environment Context Injection)
 
-Sisyphus and Librarian agents automatically receive environment context appended to their system prompts during agent creation [src/agents/utils.ts L99-L102](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.ts#L99-L102)
+Sisyphus 및 Librarian 에이전트는 에이전트 생성 중에 시스템 프롬프트에 환경 컨텍스트가 자동으로 추가됩니다 [src/agents/utils.ts L99-L102](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.ts#L99-L102).
 
-**Environment Context Structure**
+**환경 컨텍스트 구조**
 
-The injected context includes:
+주입되는 컨텍스트에는 다음이 포함됩니다.
 
-| Field | Source | Example Value |
+| 필드 | 소스 | 예시 값 |
 | --- | --- | --- |
-| Working directory | `directory` parameter | `/home/user/project` |
-| Platform | `process.platform` | `darwin`, `linux`, `win32` |
-| Today's date | `Date.toLocaleDateString()` | `Wed, Jan 15, 2025` |
-| Current time | `Date.toLocaleTimeString()` | `02:30:45 PM` |
-| Timezone | `Intl.DateTimeFormat().resolvedOptions().timeZone` | `America/Los_Angeles` |
-| Locale | `Intl.DateTimeFormat().resolvedOptions().locale` | `en-US` |
+| 작업 디렉토리 | `directory` 파라미터 | `/home/user/project` |
+| 플랫폼 | `process.platform` | `darwin`, `linux`, `win32` |
+| 오늘 날짜 | `Date.toLocaleDateString()` | `Wed, Jan 15, 2025` |
+| 현재 시간 | `Date.toLocaleTimeString()` | `02:30:45 PM` |
+| 시간대 | `Intl.DateTimeFormat().resolvedOptions().timeZone` | `America/Los_Angeles` |
+| 로케일 | `Intl.DateTimeFormat().resolvedOptions().locale` | `en-US` |
 
-The context is formatted as XML for consistent parsing [src/agents/utils.ts L32-L63](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.ts#L32-L63)
-
-:
+컨텍스트는 일관된 파싱을 위해 XML 형식으로 구성됩니다 [src/agents/utils.ts L32-L63](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.ts#L32-L63).
 
 ```xml
 <env>
@@ -478,8 +470,8 @@ The context is formatted as XML for consistent parsing [src/agents/utils.ts L32-
 </env>
 ```
 
-This ensures agents have accurate temporal and environmental context without requiring explicit user input.
+이를 통해 에이전트는 명시적인 사용자 입력 없이도 정확한 시간 및 환경 컨텍스트를 가질 수 있습니다.
 
-Sources: [src/agents/utils.ts L32-L63](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.ts#L32-L63)
+출처: [src/agents/utils.ts L32-L63](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.ts#L32-L63)
 
  [src/agents/utils.ts L99-L102](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.ts#L99-L102)

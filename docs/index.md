@@ -1,12 +1,12 @@
 ---
 layout: home
-title: Home
+title: 홈
 nav_order: 1
 ---
 
-# Overview
+# 개요 (Overview)
 
-> **Relevant source files**
+> **관련 소스 파일**
 > * [README.ja.md](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.ja.md)
 > * [README.ko.md](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.ko.md)
 > * [README.md](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md)
@@ -17,144 +17,137 @@ nav_order: 1
 > * [src/index.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts)
 > * [src/shared/config-path.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/shared/config-path.ts)
 
-oh-my-opencode is an advanced agent harness for [OpenCode](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/OpenCode)
+oh-my-opencode는 [OpenCode](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/OpenCode)를 위한 고급 에이전트 하네스(agent harness)로, LLM 에이전트를 단일 목적의 어시스턴트에서 규율을 갖춘 프로덕션급 개발 팀으로 변모시키도록 설계되었습니다. 이 플러그인은 멀티 에이전트 오케스트레이션(multi-agent orchestration), 병렬 실행 기능, 강력한 안정성 기능 및 포괄적인 도구 향상을 통해 OpenCode를 확장합니다.
 
- designed to transform LLM agents from single-purpose assistants into disciplined, production-grade development teams. The plugin extends OpenCode with multi-agent orchestration, parallel execution capabilities, robust reliability features, and comprehensive tool enhancements.
+**주요 탐색:**
 
-**Key Navigation:**
+* 시작하기: [2](../getting-started/) 설치 및 설정
+* 핵심 아키텍처: [3](../architecture/) 플러그인 생명주기 및 이벤트 시스템
+* 에이전트 시스템: [4](../agents/) 멀티 에이전트 오케스트레이션
+* 도구 생태계: [5](../tools/) 향상된 개발 도구
+* 백그라운드 실행: [6](../background-execution/) 병렬 에이전트 시스템
+* 안정성 기능: [7](../reliability/) 심층 방어(Defense-in-Depth) 안정성
 
-* Getting started: [2](../getting-started/) Installation & Configuration
-* Core architecture: [3](../architecture/) Plugin Lifecycle & Event System
-* Agent system: [4](../agents/) Multi-agent Orchestration
-* Tool ecosystem: [5](../tools/) Enhanced Development Tools
-* Background execution: [6](../background-execution/) Parallel Agent System
-* Reliability features: [7](../reliability/) Defense-in-Depth Reliability
+## oh-my-opencode란 무엇인가요?
 
-## What is oh-my-opencode?
+oh-my-opencode는 에이전트 기반 개발의 근본적인 과제인 **AI 에이전트를 실제 개발 팀처럼 작동하게 만드는 것**을 해결합니다. 이 플러그인은 다음을 제공합니다:
 
-oh-my-opencode addresses the fundamental challenge of agent-based development: **making AI agents work like real development teams**. The plugin provides:
+### 멀티 에이전트 오케스트레이션 (Multi-Agent Orchestration)
 
-### Multi-Agent Orchestration
+특정 작업에 최적화된 고유한 AI 모델을 사용하는 6개의 전문 에이전트:
 
-Six specialized agents with distinct AI models optimized for their specific tasks:
+* **Sisyphus** (Claude Opus 4.5): 공격적인 위임 기능을 갖춘 기본 오케스트레이터
+* **Oracle** (GPT-5.2): 아키텍처 설계 및 디버깅 어드바이저
+* **Librarian** (Claude Sonnet 4.5 / Gemini 3 Flash): 문서화 및 리서치 전문가
+* **Explore** (Grok Code / Gemini 3 Flash / Claude Haiku 4.5): 빠른 코드베이스 탐색
+* **Frontend UI/UX Engineer** (Gemini 3 Pro): 시각적 구현 전문가
+* **Document Writer** (Gemini 3 Flash): 기술 문서 작성 전문가
+* **Multimodal Looker** (Gemini 3 Flash): 미디어 분석 전문가
 
-* **Sisyphus** (Claude Opus 4.5): Primary orchestrator with aggressive delegation
-* **Oracle** (GPT-5.2): Architecture design and debugging advisor
-* **Librarian** (Claude Sonnet 4.5 / Gemini 3 Flash): Documentation and research specialist
-* **Explore** (Grok Code / Gemini 3 Flash / Claude Haiku 4.5): Fast codebase exploration
-* **Frontend UI/UX Engineer** (Gemini 3 Pro): Visual implementation specialist
-* **Document Writer** (Gemini 3 Flash): Technical writing expert
-* **Multimodal Looker** (Gemini 3 Flash): Media analysis specialist
+**출처:** [README.md L463-L473](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L463-L473)
 
-**Sources:** [README.md L463-L473](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L463-L473)
+### 병렬 백그라운드 실행
 
-### Parallel Background Execution
+`BackgroundManager` 시스템을 통한 진정한 병렬 처리를 통해 다음과 같은 워크플로우가 가능해집니다:
 
-True parallelism through the `BackgroundManager` system enabling workflows like:
+* Claude가 백엔드를 처리하는 동안 Gemini가 프론트엔드 구축
+* Claude가 대안적인 접근 방식을 시도하는 동안 GPT가 디버깅 수행
+* 구현을 계속하면서 여러 병렬 검색 수행
 
-* Gemini building frontend while Claude handles backend
-* GPT debugging while Claude tries alternative approaches
-* Multiple parallel searches with continued implementation
+**출처:** [README.md L484-L496](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L484-L496)
+[src/features/background-agent.ts L1-L300](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent.ts#L1-L300)
 
-**Sources:** [README.md L484-L496](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L484-L496)
+### 프로덕션급 안정성
 
- [src/features/background-agent.ts L1-L300](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent.ts#L1-L300)
+예방, 감지 및 복구 계층을 갖춘 심층 방어 안정성:
 
-### Production-Grade Reliability
+* **Session Recovery**: API 오류로부터 자동 복구
+* **Todo Continuation**: 모든 작업의 완료를 강제함
+* **Context Management**: 선제적 컴팩션(compaction), 동적 프루닝(pruning), 자동 트런케이션(truncation)
+* **Message Validation**: API 오류가 발생하기 전에 미리 방지
 
-Defense-in-depth reliability with prevention, detection, and recovery layers:
+**출처:** [README.md L674-L693](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L674-L693)
+[src/hooks/session-recovery.ts L1-L200](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/session-recovery.ts#L1-L200)
 
-* **Session Recovery**: Automatic recovery from API errors
-* **Todo Continuation**: Forces completion of all tasks
-* **Context Management**: Preemptive compaction, dynamic pruning, auto-truncation
-* **Message Validation**: Prevents API errors before they occur
+### 향상된 개발 도구
 
-**Sources:** [README.md L674-L693](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L674-L693)
+에이전트를 위한 IDE급 기능:
 
- [src/hooks/session-recovery.ts L1-L200](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/session-recovery.ts#L1-L200)
+* **LSP Tools**: 이름 변경(rename), 코드 액션(code actions), 진단(diagnostics)을 포함한 12가지 작업
+* **AST-Grep**: 25개 언어에 걸친 패턴 매칭 및 안전한 교체
+* **Interactive Bash**: 지속적인 셸을 위한 tmux 통합
+* **Session Management**: 이력 분석 및 검색
 
-### Enhanced Development Tools
+**출처:** [README.md L500-L536](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L500-L536)
+[src/tools/index.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/index.ts#L1-L100)
 
-IDE-grade capabilities for agents:
+### Claude Code 호환성
 
-* **LSP Tools**: 12 operations including rename, code actions, diagnostics
-* **AST-Grep**: Pattern matching and safe replacement across 25 languages
-* **Interactive Bash**: tmux integration for persistent shells
-* **Session Management**: Historical analysis and search
+다음을 완벽하게 지원하여 Claude Code로부터 원활한 마이그레이션이 가능합니다:
 
-**Sources:** [README.md L500-L536](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L500-L536)
-
- [src/tools/index.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/index.ts#L1-L100)
-
-### Claude Code Compatibility
-
-Seamless migration from Claude Code with full support for:
-
-* Commands, Skills, Agents, MCP servers
+* Commands, Skills, Agents, MCP 서버
 * Hooks (PreToolUse, PostToolUse, UserPromptSubmit, Stop)
-* Configuration files from `~/.claude/`
+* `~/.claude/`의 설정 파일
 
-**Sources:** [README.md L579-L665](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L579-L665)
+**출처:** [README.md L579-L665](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L579-L665)
 
-## Why oh-my-opencode?
+## 왜 oh-my-opencode인가요?
 
-The plugin emerged from $24,000 worth of token expenditure testing production workflows. Key differentiators:
+이 플러그인은 프로덕션 워크플로우를 테스트하는 과정에서 발생한 24,000달러 상당의 토큰 비용 지출을 통해 탄생했습니다. 주요 차별점은 다음과 같습니다:
 
-**Aggressive Delegation**: Sisyphus delegates everything possible to specialized agents, maintaining clean context and enabling parallel work streams.
+**공격적인 위임 (Aggressive Delegation)**: Sisyphus는 가능한 모든 것을 전문 에이전트에게 위임하여 깨끗한 컨텍스트를 유지하고 병렬 작업 스트림을 가능하게 합니다.
 
-**Disciplined Execution**: The Todo Continuation Enforcer prevents the chronic LLM habit of stopping mid-task. Sessions complete or they don't stop.
+**규율 있는 실행 (Disciplined Execution)**: Todo Continuation Enforcer는 작업 중간에 멈추는 LLM의 고질적인 습관을 방지합니다. 세션은 완료되거나, 아니면 멈추지 않습니다.
 
-**Context Intelligence**: Multiple strategies for context management (preemptive compaction, dynamic pruning, tool output truncation) prevent context anxiety.
+**컨텍스트 인텔리전스 (Context Intelligence)**: 컨텍스트 관리를 위한 여러 전략(선제적 컴팩션, 동적 프루닝, 도구 출력 트런케이션)을 통해 컨텍스트 부족에 대한 불안을 방지합니다.
 
-**Production Reliability**: Session recovery, message validation, and error handling systems ensure sessions survive API failures and model quirks.
+**프로덕션 안정성**: 세션 복구, 메시지 검증 및 오류 처리 시스템을 통해 API 장애 및 모델의 특이한 동작 속에서도 세션이 생존할 수 있도록 보장합니다.
 
-**Multi-Provider Support**: Works with ChatGPT, Claude, and Gemini subscriptions via authentication plugins (`opencode-antigravity-auth`, `opencode-openai-codex-auth`).
+**멀티 프로바이더 지원**: 인증 플러그인(`opencode-antigravity-auth`, `opencode-openai-codex-auth`)을 통해 ChatGPT, Claude, Gemini 구독과 함께 작동합니다.
 
-**Sources:** [README.md L1-L50](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L1-L50)
+**출처:** [README.md L1-L50](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L1-L50)
+[README.md L153-L194](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L153-L194)
 
- [README.md L153-L194](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L153-L194)
+## 시스템 아키텍처
 
-## System Architecture
+oh-my-opencode는 OpenCode의 플러그인 시스템과 깊게 통합된 6계층 아키텍처를 구현합니다:
 
-oh-my-opencode implements a six-layer architecture integrating deeply with OpenCode's plugin system:
+### 계층 1: 사용자 인터페이스 (User Interface)
 
-### Layer 1: User Interface
-
-**Entry Points:**
+**진입점:**
 
 ```mermaid
 flowchart TD
 
 CLI["bunx oh-my-opencode CLI"]
 GH["GitHub Actions<br>sisyphus-agent.yml"]
-User["User via OpenCode"]
+User["OpenCode를 통한 사용자"]
 Plugin["OhMyOpenCodePlugin"]
 
-CLI -.->|"install/run commands"| Plugin
-GH -.->|"@sisyphus-dev-ai mentions"| Plugin
+CLI -.->|"설치/실행 명령"| Plugin
+GH -.->|"@sisyphus-dev-ai 멘션"| Plugin
 User -.->|"@opencode-ai/sdk"| Plugin
 ```
 
-Three interaction modes:
+세 가지 상호작용 모드:
 
-* **CLI**: Installation (`bunx oh-my-opencode install`) and execution (`bunx oh-my-opencode run`)
-* **GitHub Actions**: Automated agent work via `@sisyphus-dev-ai` mentions in issues/PRs
-* **Direct User**: Standard OpenCode interaction with enhanced capabilities
+* **CLI**: 설치 (`bunx oh-my-opencode install`) 및 실행 (`bunx oh-my-opencode run`)
+* **GitHub Actions**: 이슈/PR에서 `@sisyphus-dev-ai` 멘션을 통한 자동화된 에이전트 작업
+* **직접 사용자**: 향상된 기능을 갖춘 표준 OpenCode 상호작용
 
-**Sources:** [README.md L196-L428](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L196-L428)
+**출처:** [README.md L196-L428](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L196-L428)
+[.github/workflows/sisyphus-agent.yml L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/.github/workflows/sisyphus-agent.yml#L1-L100)
 
- [.github/workflows/sisyphus-agent.yml L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/.github/workflows/sisyphus-agent.yml#L1-L100)
+### 계층 2: 플러그인 코어 (Plugin Core)
 
-### Layer 2: Plugin Core
-
-**Core Components:**
+**핵심 구성 요소:**
 
 ```mermaid
 flowchart TD
 
 Entry["OhMyOpenCodePlugin<br>src/index.ts:219"]
 ConfigSystem["loadPluginConfig()<br>src/index.ts:189"]
-HookRegistry["Hook Registration<br>src/index.ts:238-305"]
+HookRegistry["Hook 등록<br>src/index.ts:238-305"]
 AgentFactory["createBuiltinAgents()<br>src/agents/index.ts"]
 UserConfig["~/.config/opencode/<br>oh-my-opencode.json"]
 ProjectConfig[".opencode/<br>oh-my-opencode.json"]
@@ -172,26 +165,25 @@ HookRegistry -.-> TodoEnforcer
 HookRegistry -.-> ContextMonitor
 ```
 
-The `OhMyOpenCodePlugin` function serves as the main entry point, orchestrating:
+`OhMyOpenCodePlugin` 함수는 메인 진입점 역할을 하며 다음을 오케스트레이션합니다:
 
-* Configuration loading with two-tier hierarchy (user + project)
-* Hook initialization (20+ event interceptors)
-* Agent factory instantiation
-* Tool registration
-* MCP integration
+* 2단계 계층 구조(사용자 + 프로젝트)를 통한 설정 로딩
+* 훅 초기화 (20개 이상의 이벤트 인터셉터)
+* 에이전트 팩토리 인스턴스화
+* 도구 등록
+* MCP 통합
 
-**Sources:** [src/index.ts L219-L556](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L219-L556)
+**출처:** [src/index.ts L219-L556](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L219-L556)
+[src/index.ts L189-L217](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L189-L217)
 
- [src/index.ts L189-L217](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L189-L217)
+### 계층 3: 에이전트 오케스트레이션 (Agent Orchestration)
 
-### Layer 3: Agent Orchestration
-
-**Sisyphus Orchestration Model:**
+**Sisyphus 오케스트레이션 모델:**
 
 ```mermaid
 flowchart TD
 
-Sisyphus["Sisyphus Agent<br>anthropic/claude-opus-4-5<br>src/agents/sisyphus/index.ts"]
+Sisyphus["Sisyphus 에이전트<br>anthropic/claude-opus-4-5<br>src/agents/sisyphus/index.ts"]
 Oracle["oracle<br>openai/gpt-5.2<br>src/agents/oracle.ts"]
 Librarian["librarian<br>anthropic/claude-sonnet-4-5<br>src/agents/librarian.ts"]
 Explore["explore<br>opencode/grok-code<br>src/agents/explore.ts"]
@@ -199,35 +191,34 @@ Frontend["frontend-ui-ux-engineer<br>google/gemini-3-pro<br>src/agents/frontend.
 DocWriter["document-writer<br>google/gemini-3-flash<br>src/agents/document-writer.ts"]
 Multimodal["multimodal-looker<br>google/gemini-3-flash<br>src/agents/multimodal.ts"]
 
-Sisyphus -.->|"external researchparallel async"| Oracle
-Sisyphus -.->|"codebase searchparallel async"| Librarian
-Sisyphus -.->|"ALL visual changesblocking sync"| Explore
-Sisyphus -.->|"documentation tasksblocking sync"| Frontend
+Sisyphus -.->|"외부 리서치<br>병렬 비동기"| Oracle
+Sisyphus -.->|"코드베이스 검색<br>병렬 비동기"| Librarian
+Sisyphus -.->|"모든 시각적 변경<br>블로킹 동기"| Explore
+Sisyphus -.->|"문서화 작업<br>블로킹 동기"| Frontend
 Sisyphus -.-> DocWriter
-Sisyphus -.->|"media analysisblocking sync"| Multimodal
+Sisyphus -.->|"미디어 분석<br>블로킹 동기"| Multimodal
 ```
 
-Agent factory (`createBuiltinAgents`) constructs specialized agents with:
+에이전트 팩토리(`createBuiltinAgents`)는 다음을 갖춘 전문 에이전트를 생성합니다:
 
-* Model overrides from configuration
-* Tool access restrictions (read-only vs read-write)
-* Permission boundaries
-* Environment context injection
+* 설정에 따른 모델 오버라이드(override)
+* 도구 액세스 제한 (읽기 전용 vs 읽기-쓰기)
+* 권한 경계
+* 환경 컨텍스트 주입
 
-**Sources:** [src/agents/index.ts L1-L200](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/index.ts#L1-L200)
+**출처:** [src/agents/index.ts L1-L200](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/index.ts#L1-L200)
+[src/agents/sisyphus/index.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/sisyphus/index.ts#L1-L100)
 
- [src/agents/sisyphus/index.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/sisyphus/index.ts#L1-L100)
+### 계층 4: 도구 및 서비스 계층 (Tool & Service Layer)
 
-### Layer 4: Tool & Service Layer
-
-**Enhanced Tool Ecosystem:**
+**향상된 도구 생태계:**
 
 ```mermaid
 flowchart TD
 
-Context7["context7<br>Official docs"]
-WebSearch["websearch_exa<br>Real-time search"]
-GrepApp["grep_app<br>GitHub search"]
+Context7["context7<br>공식 문서"]
+WebSearch["websearch_exa<br>실시간 검색"]
+GrepApp["grep_app<br>GitHub 검색"]
 SessList["session_list"]
 SessRead["session_read"]
 SessSearch["session_search"]
@@ -241,30 +232,30 @@ LspGoto["lsp_goto_definition"]
 LspRename["lsp_rename"]
 LspActions["lsp_code_actions"]
 
-subgraph MCPs ["MCP Integrationsrc/mcp/"]
+subgraph MCPs ["MCP 통합<br>src/mcp/"]
     Context7
     WebSearch
     GrepApp
 end
 
-subgraph Session ["Session Toolssrc/tools/session-*.ts"]
+subgraph Session ["세션 도구<br>src/tools/session-*.ts"]
     SessList
     SessRead
     SessSearch
 end
 
-subgraph Background ["Background Toolssrc/features/background-agent.ts"]
+subgraph Background ["백그라운드 도구<br>src/features/background-agent.ts"]
     BgTask
     BgOutput
     BgCancel
 end
 
-subgraph AST ["AST-Grepsrc/tools/ast-grep.ts"]
+subgraph AST ["AST-Grep<br>src/tools/ast-grep.ts"]
     AstSearch
     AstReplace
 end
 
-subgraph LSP ["LSP Toolssrc/tools/lsp-*.ts"]
+subgraph LSP ["LSP 도구<br>src/tools/lsp-*.ts"]
     LspHover
     LspGoto
     LspRename
@@ -272,21 +263,20 @@ subgraph LSP ["LSP Toolssrc/tools/lsp-*.ts"]
 end
 ```
 
-Key tool categories:
+주요 도구 카테고리:
 
-* **LSP Tools (12 operations)**: Type info, navigation, refactoring, diagnostics
-* **AST-Grep (2 operations)**: Pattern search/replace across 25 languages
-* **Background Tools (3 operations)**: Async agent spawning and monitoring
-* **Session Tools (4 operations)**: Historical analysis and search
-* **MCPs (3 providers)**: External knowledge sources
+* **LSP Tools (12가지 작업)**: 타입 정보, 탐색, 리팩토링, 진단
+* **AST-Grep (2가지 작업)**: 25개 언어에 걸친 패턴 검색/교체
+* **Background Tools (3가지 작업)**: 비동기 에이전트 생성 및 모니터링
+* **Session Tools (4가지 작업)**: 이력 분석 및 검색
+* **MCPs (3개 프로바이더)**: 외부 지식 소스
 
-**Sources:** [src/tools/index.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/index.ts#L1-L100)
+**출처:** [src/tools/index.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/index.ts#L1-L100)
+[src/mcp/index.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/mcp/index.ts#L1-L100)
 
- [src/mcp/index.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/mcp/index.ts#L1-L100)
+### 계층 5: 안정성 계층 (Reliability Layer)
 
-### Layer 5: Reliability Layer
-
-**Defense-in-Depth Architecture:**
+**심층 방어 아키텍처:**
 
 ```mermaid
 flowchart TD
@@ -295,7 +285,7 @@ SessionRec["SessionRecovery<br>src/hooks/session-recovery.ts"]
 TodoCont["TodoContinuation<br>src/hooks/todo-continuation-enforcer.ts"]
 AutoCompact["AnthropicAutoCompact<br>src/hooks/anthropic-context-window-limit-recovery.ts"]
 ContextMon["ContextWindowMonitor<br>src/hooks/context-window-monitor.ts"]
-ErrorDetect["Error Pattern Detection<br>src/hooks/session-recovery.ts"]
+ErrorDetect["오류 패턴 감지<br>src/hooks/session-recovery.ts"]
 ThinkVal["ThinkingBlockValidator<br>src/hooks/thinking-block-validator.ts"]
 EmptySan["EmptyMessageSanitizer<br>src/hooks/empty-message-sanitizer.ts"]
 NonInteractive["NonInteractiveEnv<br>src/hooks/non-interactive-env.ts"]
@@ -303,39 +293,37 @@ NonInteractive["NonInteractiveEnv<br>src/hooks/non-interactive-env.ts"]
 Prevention -.-> Detection
 Detection -.-> Recovery
 
-subgraph Recovery ["Recovery LayerReactive"]
+subgraph Recovery ["복구 계층<br>반응형"]
     SessionRec
     TodoCont
     AutoCompact
 end
 
-subgraph Detection ["Detection LayerMonitoring"]
+subgraph Detection ["감지 계층<br>모니터링"]
     ContextMon
     ErrorDetect
 end
 
-subgraph Prevention ["Prevention LayerProactive"]
+subgraph Prevention ["예방 계층<br>선제적"]
     ThinkVal
     EmptySan
     NonInteractive
 end
 ```
 
-Three-layer approach:
+3단계 접근 방식:
 
-* **Prevention**: Validates messages before API calls (thinking blocks, empty content, interactive prompts)
-* **Detection**: Monitors context usage, error patterns, task completion
-* **Recovery**: Automatic fixes for session errors, context limit recovery, forced task continuation
+* **예방 (Prevention)**: API 호출 전 메시지 검증 (생각 블록, 빈 내용, 대화형 프롬프트)
+* **감지 (Detection)**: 컨텍스트 사용량, 오류 패턴, 작업 완료 여부 모니터링
+* **복구 (Recovery)**: 세션 오류 자동 수정, 컨텍스트 제한 복구, 강제 작업 계속
 
-**Sources:** [src/hooks/session-recovery.ts L1-L200](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/session-recovery.ts#L1-L200)
+**출처:** [src/hooks/session-recovery.ts L1-L200](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/session-recovery.ts#L1-L200)
+[src/hooks/todo-continuation-enforcer.ts L1-L150](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/todo-continuation-enforcer.ts#L1-L150)
+[src/hooks/context-window-monitor.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/context-window-monitor.ts#L1-L100)
 
- [src/hooks/todo-continuation-enforcer.ts L1-L150](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/todo-continuation-enforcer.ts#L1-L150)
+### 계층 6: 외부 통합 (External Integration)
 
- [src/hooks/context-window-monitor.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/context-window-monitor.ts#L1-L100)
-
-### Layer 6: External Integration
-
-**Provider & Compatibility:**
+**프로바이더 및 호환성:**
 
 ```mermaid
 flowchart TD
@@ -353,7 +341,7 @@ Plugin["OhMyOpenCodePlugin"]
 Auth -.-> Plugin
 Compat -.-> Plugin
 
-subgraph Compat ["Claude Code Compatibilitysrc/features/claude-code-*"]
+subgraph Compat ["Claude Code 호환성<br>src/features/claude-code-*"]
     Commands
     Skills
     Agents
@@ -361,48 +349,46 @@ subgraph Compat ["Claude Code Compatibilitysrc/features/claude-code-*"]
     Hooks
 end
 
-subgraph Auth ["Authentication Plugins"]
+subgraph Auth ["인증 플러그인"]
     Anthropic
     Antigravity
     Codex
 end
 ```
 
-External integrations:
+외부 통합 요소:
 
-* **OpenCode SDK**: Foundation API via `@opencode-ai/sdk`
-* **Authentication**: Three plugins for major AI providers
-* **Claude Code**: Full compatibility with `~/.claude/` configurations
+* **OpenCode SDK**: `@opencode-ai/sdk`를 통한 파운데이션 API
+* **인증 (Authentication)**: 주요 AI 프로바이더를 위한 3가지 플러그인
+* **Claude Code**: `~/.claude/` 설정과의 완벽한 호환성
 
-**Sources:** [src/index.ts L328-L331](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L328-L331)
+**출처:** [src/index.ts L328-L331](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L328-L331)
+[src/features/claude-code-command-loader.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/claude-code-command-loader.ts#L1-L100)
+[src/features/claude-code-mcp-loader.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/claude-code-mcp-loader.ts#L1-L100)
 
- [src/features/claude-code-command-loader.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/claude-code-command-loader.ts#L1-L100)
+## 플러그인 초기화 시퀀스
 
- [src/features/claude-code-mcp-loader.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/claude-code-mcp-loader.ts#L1-L100)
+`OhMyOpenCodePlugin` 함수는 OpenCode의 플러그인 인터페이스를 구현하며, 구조화된 초기화 시퀀스를 실행합니다:
 
-## Plugin Initialization Sequence
-
-The `OhMyOpenCodePlugin` function implements OpenCode's plugin interface, executing a structured initialization sequence:
-
-**Initialization Flow:**
+**초기화 흐름:**
 
 ```mermaid
 flowchart TD
 
-Start["OpenCode loads plugin"]
+Start["OpenCode가 플러그인 로드"]
 LoadConfig["loadPluginConfig()<br>src/index.ts:220"]
 DetectFiles["detectConfigFile()<br>src/shared/index.ts"]
 ParseJsonc["parseJsonc()<br>src/shared/index.ts"]
 ValidateSchema["OhMyOpenCodeConfigSchema.safeParse()<br>src/config/schema.ts"]
 Migrate["migrateConfigFile()<br>src/index.ts:96"]
-InitHooks["Initialize Hook Handlers<br>src/index.ts:238-305"]
+InitHooks["훅 핸들러 초기화<br>src/index.ts:238-305"]
 InitBgManager["new BackgroundManager()<br>src/features/background-agent.ts:54"]
 InitAuth["createGoogleAntigravityAuthPlugin()<br>src/auth/antigravity.ts"]
 BuildAgents["createBuiltinAgents()<br>src/agents/index.ts"]
 LoadClaude["loadAllPluginComponents()<br>src/features/claude-code-plugin-loader.ts"]
-RegisterConfig["config hook<br>src/index.ts:362"]
-RegisterTools["tool registration<br>src/index.ts:338"]
-RegisterEvents["event hook<br>src/index.ts:558"]
+RegisterConfig["config 훅<br>src/index.ts:362"]
+RegisterTools["도구 등록<br>src/index.ts:338"]
+RegisterEvents["이벤트 훅<br>src/index.ts:558"]
 
 Start -.-> LoadConfig
 LoadConfig -.-> DetectFiles
@@ -420,45 +406,42 @@ RegisterConfig -.-> RegisterTools
 RegisterTools -.-> RegisterEvents
 ```
 
-**Key Steps:**
+**주요 단계:**
 
-1. **Configuration Loading** (`loadPluginConfig`): * Detects `.jsonc` or `.json` files at user and project paths * Parses JSONC (supports comments and trailing commas) * Validates against Zod schema (`OhMyOpenCodeConfigSchema`) * Migrates legacy `omo` agent names to `Sisyphus` * Merges user + project configs (project overrides user)
-2. **Hook Initialization** (lines 238-305): * Creates 20+ hook handlers based on `disabled_hooks` config * Each hook returns `null` if disabled, handler functions if enabled * Examples: `createSessionRecoveryHook`, `createTodoContinuationEnforcer`
-3. **Manager Initialization**: * `BackgroundManager` for async agent execution * Google Auth plugin if `google_auth !== false` * Tool factories (`createCallOmoAgent`, `createLookAt`, `createSkillTool`)
-4. **Agent Registration** (`config` hook, line 362): * Builds specialized agents via `createBuiltinAgents` * Loads Claude Code compatible agents/skills/commands * Sets Sisyphus as `default_agent` if enabled * Configures tool access per agent
-5. **Runtime Registration**: * Tools: LSP, AST-grep, background, session, specialized * Events: Routes OpenCode events to hook handlers * Chat transformations: Message validation and sanitization
+1. **설정 로딩** (`loadPluginConfig`): * 사용자 및 프로젝트 경로에서 `.jsonc` 또는 `.json` 파일 감지 * JSONC 파싱 (주석 및 트레일링 콤마 지원) * Zod 스키마(`OhMyOpenCodeConfigSchema`)를 통한 검증 * 레거시 `omo` 에이전트 이름을 `Sisyphus`로 마이그레이션 * 사용자 + 프로젝트 설정 병합 (프로젝트가 사용자 설정을 덮어씀)
+2. **훅 초기화** (238-305행): * `disabled_hooks` 설정에 따라 20개 이상의 훅 핸들러 생성 * 비활성화된 경우 각 훅은 `null`을 반환하고, 활성화된 경우 핸들러 함수를 반환 * 예: `createSessionRecoveryHook`, `createTodoContinuationEnforcer`
+3. **매니저 초기화**: * 비동기 에이전트 실행을 위한 `BackgroundManager` * `google_auth !== false`인 경우 Google Auth 플러그인 * 도구 팩토리 (`createCallOmoAgent`, `createLookAt`, `createSkillTool`)
+4. **에이전트 등록** (`config` 훅, 362행): * `createBuiltinAgents`를 통해 전문 에이전트 구축 * Claude Code 호환 에이전트/스킬/명령 로드 * 활성화된 경우 Sisyphus를 `default_agent`로 설정 * 에이전트별 도구 액세스 권한 설정
+5. **런타임 등록**: * 도구: LSP, AST-grep, 백그라운드, 세션, 전문 도구 * 이벤트: OpenCode 이벤트를 훅 핸들러로 라우팅 * 채팅 변환: 메시지 검증 및 정리(sanitization)
 
-**Sources:** [src/index.ts L219-L556](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L219-L556)
+**출처:** [src/index.ts L219-L556](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L219-L556)
+[src/index.ts L189-L217](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L189-L217)
+[src/index.ts L96-L123](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L96-L123)
+[src/config/schema.ts L1-L205](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L1-L205)
 
- [src/index.ts L189-L217](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L189-L217)
+## 설정 시스템 (Configuration System)
 
- [src/index.ts L96-L123](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L96-L123)
+설정 시스템은 JSONC 지원, 런타임 검증 및 자동 마이그레이션 기능을 갖춘 2단계 계층 구조를 구현합니다:
 
- [src/config/schema.ts L1-L205](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L1-L205)
-
-## Configuration System
-
-The configuration system implements a two-tier hierarchy with JSONC support, runtime validation, and automatic migration:
-
-### Configuration Hierarchy
+### 설정 계층 구조
 
 ```mermaid
 flowchart TD
 
-User["User Config<br>~/.config/opencode/oh-my-opencode.{json,jsonc}"]
-Project["Project Config<br>.opencode/oh-my-opencode.{json,jsonc}"]
+User["사용자 설정<br>~/.config/opencode/oh-my-opencode.{json,jsonc}"]
+Project["프로젝트 설정<br>.opencode/oh-my-opencode.{json,jsonc}"]
 Detect["detectConfigFile()<br>src/shared/index.ts:detectConfigFile"]
 Parse["parseJsonc()<br>src/shared/index.ts:parseJsonc"]
 Validate["OhMyOpenCodeConfigSchema.safeParse()<br>src/config/schema.ts:178"]
 Migrate["migrateConfigFile()<br>src/index.ts:96"]
 Merge["mergeConfigs()<br>src/index.ts:153"]
-Runtime["Runtime Configuration"]
+Runtime["런타임 설정"]
 AgentOverrides["agents: {...}"]
 DisabledToggles["disabled_hooks/mcps/agents"]
 SisyphusConfig["sisyphus_agent: {...}"]
 ExperimentalFlags["experimental: {...}"]
 
-User -.->|".jsonc preferred"| Detect
+User -.->|".jsonc 우선"| Detect
 Project -.-> Detect
 Detect -.-> Parse
 Parse -.-> Validate
@@ -471,32 +454,32 @@ Runtime -.-> SisyphusConfig
 Runtime -.-> ExperimentalFlags
 ```
 
-### Configuration Priority
+### 설정 우선순위
 
-| Priority | Path | OS-Specific Behavior |
+| 우선순위 | 경로 | OS별 동작 |
 | --- | --- | --- |
-| 1 (Highest) | `.opencode/oh-my-opencode.{jsonc,json}` | Project-level, `.jsonc` preferred |
-| 2 (User) | `~/.config/opencode/oh-my-opencode.{jsonc,json}` | Linux/macOS standard |
-| 2 (User) | `%APPDATA%\opencode\oh-my-opencode.{jsonc,json}` | Windows fallback |
+| 1 (가장 높음) | `.opencode/oh-my-opencode.{jsonc,json}` | 프로젝트 레벨, `.jsonc` 우선 |
+| 2 (사용자) | `~/.config/opencode/oh-my-opencode.{jsonc,json}` | Linux/macOS 표준 |
+| 2 (사용자) | `%APPDATA%\opencode\oh-my-opencode.{jsonc,json}` | Windows 폴백(fallback) |
 
-**Cross-Platform Path Resolution:**
-The `getUserConfigDir()` function (src/shared/config-path.ts:13) implements smart path detection:
+**크로스 플랫폼 경로 확인:**
+`getUserConfigDir()` 함수 (src/shared/config-path.ts:13)는 스마트 경로 감지를 구현합니다:
 
-* Windows: Checks `~/.config` first (cross-platform), falls back to `%APPDATA%`
-* Linux/macOS: Uses `$XDG_CONFIG_HOME` or `~/.config`
+* Windows: `~/.config`를 먼저 확인(크로스 플랫폼)하고, 없으면 `%APPDATA%`를 사용
+* Linux/macOS: `$XDG_CONFIG_HOME` 또는 `~/.config` 사용
 
-### JSONC Support Features
+### JSONC 지원 기능
 
-The `parseJsonc()` function supports:
+`parseJsonc()` 함수는 다음을 지원합니다:
 
-* Line comments: `// comment`
-* Block comments: `/* comment */`
-* Trailing commas: `{ "key": "value", }`
-* File detection prefers `.jsonc` over `.json`
+* 한 줄 주석: `// 주석`
+* 블록 주석: `/* 주석 */`
+* 트레일링 콤마: `{ "key": "value", }`
+* 파일 감지 시 `.json`보다 `.jsonc`를 선호함
 
-### Configuration Schema
+### 설정 스키마 (Configuration Schema)
 
-The `OhMyOpenCodeConfigSchema` (Zod schema) validates:
+`OhMyOpenCodeConfigSchema` (Zod 스키마)는 다음을 검증합니다:
 
 ```
 // src/config/schema.ts:178-191
@@ -514,160 +497,145 @@ The `OhMyOpenCodeConfigSchema` (Zod schema) validates:
 }
 ```
 
-### Migration System
+### 마이그레이션 시스템
 
-The `migrateConfigFile()` function (src/index.ts:96) automatically:
+`migrateConfigFile()` 함수 (src/index.ts:96)는 다음을 자동으로 수행합니다:
 
-* Converts `omo` → `Sisyphus` agent names
-* Renames `omo_agent` → `sisyphus_agent` config keys
-* Writes migrated config back to disk
-* Logs migration actions
+* `omo` → `Sisyphus` 에이전트 이름 변환
+* `omo_agent` → `sisyphus_agent` 설정 키 이름 변경
+* 마이그레이션된 설정을 디스크에 다시 기록
+* 마이그레이션 작업 로그 기록
 
-### Merge Strategy
+### 병합 전략 (Merge Strategy)
 
-The `mergeConfigs()` function (src/index.ts:153) implements deep merge:
+`mergeConfigs()` 함수 (src/index.ts:153)는 딥 머지(deep merge)를 구현합니다:
 
-* Objects: Recursively merged (project overrides user)
-* Arrays: Union of both configs (disabled_* arrays are deduplicated)
-* Primitives: Project value takes precedence
+* 객체: 재귀적으로 병합 (프로젝트가 사용자를 덮어씀)
+* 배열: 두 설정의 합집합 (disabled_* 배열은 중복 제거됨)
+* 원시 값(Primitives): 프로젝트 값이 우선함
 
-**Sources:** [src/index.ts L189-L217](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L189-L217)
+**출처:** [src/index.ts L189-L217](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L189-L217)
+[src/index.ts L153-L187](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L153-L187)
+[src/index.ts L96-L123](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L96-L123)
+[src/config/schema.ts L178-L205](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L178-L205)
+[src/shared/config-path.ts L13-L33](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/shared/config-path.ts#L13-L33)
 
- [src/index.ts L153-L187](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L153-L187)
+## 에이전트 오케스트레이션 모델
 
- [src/index.ts L96-L123](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/index.ts#L96-L123)
+에이전트 시스템은 **기본 오케스트레이터와 전문가(primary-orchestrator-with-specialists)** 패턴을 구현하며, Sisyphus가 작업 분류에 따라 도메인 전문가에게 위임합니다:
 
- [src/config/schema.ts L178-L205](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L178-L205)
-
- [src/shared/config-path.ts L13-L33](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/shared/config-path.ts#L13-L33)
-
- [src/shared/index.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/shared/index.ts#LNaN-LNaN)
-
- [src/shared/index.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/shared/index.ts#LNaN-LNaN)
-
-## Agent Orchestration Model
-
-The agent system implements a **primary-orchestrator-with-specialists** pattern, where Sisyphus delegates to domain experts based on task classification:
-
-### Orchestration Hierarchy
+### 오케스트레이션 계층 구조
 
 ```mermaid
 flowchart TD
 
-User["User Request<br>(with optional keywords:<br>ultrawork, search, analyze)"]
+User["사용자 요청<br>(선택적 키워드 포함:<br>ultrawork, search, analyze)"]
 KeywordDetect["KeywordDetector<br>src/hooks/keyword-detector.ts"]
-Sisyphus["Sisyphus Agent<br>anthropic/claude-opus-4-5<br>src/agents/sisyphus/index.ts"]
-Oracle["oracle<br>openai/gpt-5.2<br>src/agents/oracle.ts<br><br>Architecture & Debugging"]
-Librarian["librarian<br>anthropic/claude-sonnet-4-5<br>src/agents/librarian.ts<br><br>External Research"]
-Explore["explore<br>opencode/grok-code<br>src/agents/explore.ts<br><br>Codebase Search"]
-Frontend["frontend-ui-ux-engineer<br>google/gemini-3-pro<br>src/agents/frontend.ts<br><br>ALL Visual Changes"]
-DocWriter["document-writer<br>google/gemini-3-flash<br>src/agents/document-writer.ts<br><br>Documentation"]
-Multimodal["multimodal-looker<br>google/gemini-3-flash<br>src/agents/multimodal.ts<br><br>Media Analysis"]
-CallAgent["call_omo_agent tool<br>src/tools/call-omo-agent.ts"]
+Sisyphus["Sisyphus 에이전트<br>anthropic/claude-opus-4-5<br>src/agents/sisyphus/index.ts"]
+Oracle["oracle<br>openai/gpt-5.2<br>src/agents/oracle.ts<br><br>아키텍처 및 디버깅"]
+Librarian["librarian<br>anthropic/claude-sonnet-4-5<br>src/agents/librarian.ts<br><br>외부 리서치"]
+Explore["explore<br>opencode/grok-code<br>src/agents/explore.ts<br><br>코드베이스 검색"]
+Frontend["frontend-ui-ux-engineer<br>google/gemini-3-pro<br>src/agents/frontend.ts<br><br>모든 시각적 변경"]
+DocWriter["document-writer<br>google/gemini-3-flash<br>src/agents/document-writer.ts<br><br>문서화"]
+Multimodal["multimodal-looker<br>google/gemini-3-flash<br>src/agents/multimodal.ts<br><br>미디어 분석"]
+CallAgent["call_omo_agent 도구<br>src/tools/call-omo-agent.ts"]
 BgManager["BackgroundManager<br>src/features/background-agent.ts:54"]
 
-User -.->|"activates special modes"| KeywordDetect
-KeywordDetect -.->|"run_in_background: false(blocking)"| Sisyphus
-Sisyphus -.->|"run_in_background: false(blocking, 3+ failures)"| CallAgent
-CallAgent -.->|"run_in_background: true(async)"| BgManager
-BgManager -.->|"run_in_background: true(async)"| Librarian
+User -.->|"특수 모드 활성화"| KeywordDetect
+KeywordDetect -.->|"run_in_background: false(블로킹)"| Sisyphus
+Sisyphus -.->|"run_in_background: false(블로킹, 3회 이상 실패 시)"| CallAgent
+CallAgent -.->|"run_in_background: true(비동기)"| BgManager
+BgManager -.->|"run_in_background: true(비동기)"| Librarian
 BgManager -.-> Explore
 Sisyphus -.-> Oracle
-Sisyphus -.->|"run_in_background: false(blocking)"| Frontend
-Sisyphus -.->|"run_in_background: false(blocking, all UI work)"| DocWriter
+Sisyphus -.->|"run_in_background: false(블로킹)"| Frontend
+Sisyphus -.->|"run_in_background: false(블로킹, 모든 UI 작업)"| DocWriter
 Sisyphus -.-> Multimodal
 
-subgraph ReadWrite ["Read-Write Specialists"]
+subgraph ReadWrite ["읽기-쓰기 전문가"]
     Frontend
     DocWriter
     Multimodal
 end
 
-subgraph ReadOnly ["Read-Only Specialists"]
+subgraph ReadOnly ["읽기 전용 전문가"]
     Oracle
     Librarian
     Explore
 end
 ```
 
-### Agent Factory Implementation
+### 에이전트 팩토리 구현
 
-The `createBuiltinAgents()` function (src/agents/index.ts) constructs agents with:
+`createBuiltinAgents()` 함수 (src/agents/index.ts)는 다음을 사용하여 에이전트를 구축합니다:
 
-**Agent Configuration Table:**
+**에이전트 설정 표:**
 
-| Agent | Model | Mode | Tool Access | Delegation Pattern |
+| 에이전트 | 모델 | 모드 | 도구 액세스 | 위임 패턴 |
 | --- | --- | --- | --- | --- |
-| `Sisyphus` | `anthropic/claude-opus-4-5` | Primary | All + `background_task` | Aggressive delegation |
-| `oracle` | `openai/gpt-5.2` | Subagent | LSP + AST (read-only) | Blocking, expensive reasoning |
-| `librarian` | `anthropic/claude-sonnet-4-5` or `google/gemini-3-flash` | Subagent | MCPs + read tools | Parallel async |
-| `explore` | `opencode/grok-code` or `google/gemini-3-flash` or `anthropic/claude-haiku-4-5` | Subagent | grep, LSP, AST (read-only) | Parallel async |
-| `frontend-ui-ux-engineer` | `google/gemini-3-pro` | Subagent | All except `background_task` | Blocking sync |
-| `document-writer` | `google/gemini-3-flash` | Subagent | read + write | Blocking sync |
-| `multimodal-looker` | `google/gemini-3-flash` | Subagent | `look_at` only | Blocking sync |
+| `Sisyphus` | `anthropic/claude-opus-4-5` | 기본 | 전체 + `background_task` | 공격적인 위임 |
+| `oracle` | `openai/gpt-5.2` | 서브에이전트 | LSP + AST (읽기 전용) | 블로킹, 고비용 추론 |
+| `librarian` | `anthropic/claude-sonnet-4-5` 또는 `google/gemini-3-flash` | 서브에이전트 | MCPs + 읽기 도구 | 병렬 비동기 |
+| `explore` | `opencode/grok-code` 또는 `google/gemini-3-flash` 또는 `anthropic/claude-haiku-4-5` | 서브에이전트 | grep, LSP, AST (읽기 전용) | 병렬 비동기 |
+| `frontend-ui-ux-engineer` | `google/gemini-3-pro` | 서브에이전트 | `background_task` 제외 전체 | 블로킹 동기 |
+| `document-writer` | `google/gemini-3-flash` | 서브에이전트 | 읽기 + 쓰기 | 블로킹 동기 |
+| `multimodal-looker` | `google/gemini-3-flash` | 서브에이전트 | `look_at` 전용 | 블로킹 동기 |
 
-### Delegation Rules
+### 위임 규칙
 
-**Clear boundaries prevent overlap:**
+**명확한 경계로 중복 방지:**
 
-* **Oracle**: Called only after 3+ implementation failures for strategic advice
-* **Librarian**: External research (docs, GitHub, OSS examples), never touches code
-* **Explore**: Internal codebase search with multiple angles, read-only
-* **Frontend**: Handles ALL visual changes (Sisyphus NEVER touches styling)
-* **DocWriter**: All documentation tasks (README, API docs, guides)
-* **Multimodal**: Media file interpretation (PDFs, images, diagrams)
+* **Oracle**: 전략적 조언을 위해 구현 실패가 3회 이상 발생한 후에만 호출됨
+* **Librarian**: 외부 리서치(문서, GitHub, OSS 예제), 코드는 절대 건드리지 않음
+* **Explore**: 다양한 각도에서의 내부 코드베이스 검색, 읽기 전용
+* **Frontend**: 모든 시각적 변경 처리 (Sisyphus는 스타일링을 절대 건드리지 않음)
+* **DocWriter**: 모든 문서화 작업 (README, API 문서, 가이드)
+* **Multimodal**: 미디어 파일 해석 (PDF, 이미지, 다이어그램)
 
-### Background vs Blocking Execution
+### 백그라운드 vs 블로킹 실행
 
-**Parallel Pattern** (`run_in_background: true`):
+**병렬 패턴** (`run_in_background: true`):
 
-* `librarian` and `explore` always run async
-* Enables "Gemini builds frontend while Claude handles backend"
-* Parent session receives notification on completion
+* `librarian`과 `explore`는 항상 비동기로 실행됨
+* "Claude가 백엔드를 처리하는 동안 Gemini가 프론트엔드 구축" 가능
+* 부모 세션은 완료 시 알림을 받음
 
-**Blocking Pattern** (`run_in_background: false`):
+**블로킹 패턴** (`run_in_background: false`):
 
-* `oracle`, `frontend`, `document-writer`, `multimodal` run synchronously
-* Prevents recursive spawning (frontend cannot spawn more background tasks)
-* Ensures critical decisions get immediate attention
+* `oracle`, `frontend`, `document-writer`, `multimodal`은 동기적으로 실행됨
+* 재귀적 생성 방지 (프론트엔드는 더 이상의 백그라운드 작업을 생성할 수 없음)
+* 중요한 결정이 즉각적인 주의를 받도록 보장
 
-### Model Selection Strategy
+### 모델 선택 전략
 
-Models are chosen based on capabilities:
+모델은 기능에 따라 선택됩니다:
 
-* **Opus 4.5 High**: Extended thinking (32k budget) for complex orchestration
-* **GPT-5.2 Medium**: Stellar logical reasoning for architecture
-* **Sonnet 4.5**: Deep codebase understanding and GitHub research
-* **Grok Code**: Free, fast contextual grep for exploration
-* **Gemini 3 Pro**: Creative UI generation with high quality
-* **Gemini 3 Flash**: Efficient for documentation and media analysis
+* **Opus 4.5 High**: 복잡한 오케스트레이션을 위한 확장된 사고(32k 예산)
+* **GPT-5.2 Medium**: 아키텍처를 위한 뛰어난 논리적 추론
+* **Sonnet 4.5**: 깊은 코드베이스 이해 및 GitHub 리서치
+* **Grok Code**: 탐색을 위한 무료이며 빠른 컨텍스트 기반 grep
+* **Gemini 3 Pro**: 고품질의 창의적인 UI 생성
+* **Gemini 3 Flash**: 문서화 및 미디어 분석에 효율적
 
-**Configuration Overrides:**
-When `opencode-antigravity-auth` is installed, models automatically switch:
+**설정 오버라이드:**
+`opencode-antigravity-auth`가 설치되면 모델이 자동으로 전환됩니다:
 
 * `librarian`: `anthropic/claude-sonnet-4-5` → `google/gemini-3-flash`
 * `explore`: `opencode/grok-code` → `google/gemini-3-flash`
-* When Claude max20 available: `explore` → `anthropic/claude-haiku-4-5`
+* Claude max20 사용 가능 시: `explore` → `anthropic/claude-haiku-4-5`
 
-**Sources:** [src/agents/index.ts L1-L200](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/index.ts#L1-L200)
+**출처:** [src/agents/index.ts L1-L200](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/index.ts#L1-L200)
+[src/agents/sisyphus/index.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/sisyphus/index.ts#L1-L100)
+[src/agents/oracle.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/oracle.ts#L1-L100)
+[src/agents/librarian.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/librarian.ts#L1-L100)
+[src/agents/explore.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/explore.ts#L1-L100)
+[src/agents/frontend.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/frontend.ts#L1-L100)
+[src/tools/call-omo-agent.ts L1-L150](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/call-omo-agent.ts#L1-L150)
+[src/features/background-agent.ts L54-L300](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent.ts#L54-L300)
 
- [src/agents/sisyphus/index.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/sisyphus/index.ts#L1-L100)
+## 훅 시스템 아키텍처 (Hook System Architecture)
 
- [src/agents/oracle.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/oracle.ts#L1-L100)
-
- [src/agents/librarian.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/librarian.ts#L1-L100)
-
- [src/agents/explore.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/explore.ts#L1-L100)
-
- [src/agents/frontend.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/frontend.ts#L1-L100)
-
- [src/tools/call-omo-agent.ts L1-L150](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/call-omo-agent.ts#L1-L150)
-
- [src/features/background-agent.ts L54-L300](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent.ts#L54-L300)
-
-## Hook System Architecture
-
-The hook system intercepts OpenCode lifecycle events to inject custom behavior:
+훅 시스템은 OpenCode 생명주기 이벤트를 가로채서 커스텀 동작을 주입합니다:
 
 ```mermaid
 flowchart TD
@@ -691,7 +659,7 @@ ToolExecuteBefore -.-> PreToolUse
 ToolExecuteAfter -.-> ToolTruncator
 MessageUpdated -.-> ContextMonitor
 
-subgraph Hooks ["Hook Handlers"]
+subgraph Hooks ["훅 핸들러"]
     SessionRecovery
     TodoContinue
     ContextMonitor
@@ -699,7 +667,7 @@ subgraph Hooks ["Hook Handlers"]
     ToolTruncator
 end
 
-subgraph Events ["OpenCode Events"]
+subgraph Events ["OpenCode 이벤트"]
     SessionCreated
     SessionIdle
     SessionError
@@ -709,19 +677,16 @@ subgraph Events ["OpenCode Events"]
 end
 ```
 
-**Sources**: [src/hooks/index.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/index.ts#L1-L100)
+**출처**: [src/hooks/index.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/index.ts#L1-L100)
+[src/hooks/session-recovery.ts L1-L200](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/session-recovery.ts#L1-L200)
+[src/hooks/todo-continuation.ts L1-L150](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/todo-continuation.ts#L1-L150)
+[src/hooks/context-monitor.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/context-window-monitor.ts#L1-L100)
 
- [src/hooks/session-recovery.ts L1-L200](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/session-recovery.ts#L1-L200)
+훅 레지스트리(`src/hooks/index.ts`)는 모든 훅 구현체의 컬렉션을 유지합니다. 각 훅은 `disabled_hooks` 설정 배열을 통해 개별적으로 비활성화할 수 있습니다.
 
- [src/hooks/todo-continuation.ts L1-L150](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/todo-continuation.ts#L1-L150)
+## 도구 향상 시스템 (Tool Enhancement System)
 
- [src/hooks/context-monitor.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/context-monitor.ts#L1-L100)
-
-The hook registry (`src/hooks/index.ts`) maintains a collection of all hook implementations. Each hook can be individually disabled via the `disabled_hooks` configuration array.
-
-## Tool Enhancement System
-
-The plugin replaces and extends OpenCode's base tools:
+플러그인은 OpenCode의 기본 도구를 교체하고 확장합니다:
 
 ```mermaid
 flowchart TD
@@ -729,24 +694,24 @@ flowchart TD
 BgTask["background_task<br>[src/tools/background-task.ts]"]
 BgOutput["background_output<br>[src/tools/background-output.ts]"]
 BgCancel["background_cancel<br>[src/tools/background-cancel.ts]"]
-BaseGrep["grep (no timeout)"]
-BaseGlob["glob (no timeout)"]
-BaseLSP["LSP (analysis only)"]
+BaseGrep["grep (타임아웃 없음)"]
+BaseGlob["glob (타임아웃 없음)"]
+BaseLSP["LSP (분석 전용)"]
 BaseBash["bash"]
-EnhGrep["grep with timeout<br>[src/tools/grep.ts]"]
-EnhGlob["glob with timeout<br>[src/tools/glob.ts]"]
+EnhGrep["타임아웃이 있는 grep<br>[src/tools/grep.ts]"]
+EnhGlob["타임아웃이 있는 glob<br>[src/tools/glob.ts]"]
 LSPRename["lsp_rename<br>[src/tools/lsp-rename.ts]"]
 LSPCodeActions["lsp_code_actions<br>[src/tools/lsp-code-actions.ts]"]
 ASTGrep["ast_grep_search<br>[src/tools/ast-grep.ts]"]
 InteractiveBash["interactive_bash<br>[src/tools/interactive-bash.ts]"]
 
-BaseGrep -.->|"replaces"| EnhGrep
-BaseGlob -.->|"replaces"| EnhGlob
-BaseLSP -.->|"extends"| LSPRename
-BaseLSP -.->|"extends"| LSPCodeActions
-BaseBash -.->|"enhances"| InteractiveBash
+BaseGrep -.->|"교체"| EnhGrep
+BaseGlob -.->|"교체"| EnhGlob
+BaseLSP -.->|"확장"| LSPRename
+BaseLSP -.->|"확장"| LSPCodeActions
+BaseBash -.->|"향상"| InteractiveBash
 
-subgraph Enhanced ["oh-my-opencode Enhanced Tools"]
+subgraph Enhanced ["oh-my-opencode 향상된 도구"]
     EnhGrep
     EnhGlob
     LSPRename
@@ -755,141 +720,130 @@ subgraph Enhanced ["oh-my-opencode Enhanced Tools"]
     InteractiveBash
 end
 
-subgraph Base ["OpenCode Base Tools"]
+subgraph Base ["OpenCode 기본 도구"]
     BaseGrep
     BaseGlob
     BaseLSP
     BaseBash
 end
 
-subgraph Background ["Background Execution"]
+subgraph Background ["백그라운드 실행"]
     BgTask
     BgOutput
     BgCancel
 end
 ```
 
-**Sources**: [src/tools/grep.ts L1-L150](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/grep.ts#L1-L150)
+**출처**: [src/tools/grep.ts L1-L150](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/grep.ts#L1-L150)
+[src/tools/glob.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/glob.ts#L1-L100)
+[src/tools/lsp-rename.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/lsp-rename.ts#L1-L100)
+[src/tools/lsp-code-actions.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/lsp-code-actions.ts#L1-L100)
+[src/tools/ast-grep.ts L1-L200](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/ast-grep.ts#L1-L200)
+[src/tools/interactive-bash.ts L1-L300](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/interactive-bash.ts#L1-L300)
+[src/tools/background-task.ts L1-L200](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/background-task.ts#L1-L200)
 
- [src/tools/glob.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/glob.ts#L1-L100)
+## 백그라운드 실행 아키텍처
 
- [src/tools/lsp-rename.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/lsp-rename.ts#L1-L100)
-
- [src/tools/lsp-code-actions.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/lsp-code-actions.ts#L1-L100)
-
- [src/tools/ast-grep.ts L1-L200](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/ast-grep.ts#L1-L200)
-
- [src/tools/interactive-bash.ts L1-L300](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/interactive-bash.ts#L1-L300)
-
- [src/tools/background-task.ts L1-L200](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/background-task.ts#L1-L200)
-
-## Background Execution Architecture
-
-The background task system enables parallel agent execution:
+백그라운드 작업 시스템은 병렬 에이전트 실행을 가능하게 합니다:
 
 ```mermaid
 flowchart TD
 
-MainAgent["Main Agent Session"]
-BgTask["background_task tool<br>[src/tools/background-task.ts]"]
-CallAgent["call_omo_agent tool<br>[src/tools/call-omo-agent.ts]"]
+MainAgent["메인 에이전트 세션"]
+BgTask["background_task 도구<br>[src/tools/background-task.ts]"]
+CallAgent["call_omo_agent 도구<br>[src/tools/call-omo-agent.ts]"]
 BgManager["BackgroundManager<br>[src/background-manager.ts]"]
-TaskRegistry["Task Registry<br>Map"]
-SubSession["Background Agent Session"]
-Notification["Toast Notification<br>[src/shared/notification.ts]"]
+TaskRegistry["작업 레지스트리<br>Map"]
+SubSession["백그라운드 에이전트 세션"]
+Notification["토스트 알림<br>[src/shared/notification.ts]"]
 
 MainAgent -.-> BgTask
 MainAgent -.-> CallAgent
 BgTask -.-> BgManager
-CallAgent -.->|"completion event"| BgManager
+CallAgent -.->|"완료 이벤트"| BgManager
 BgManager -.-> TaskRegistry
 BgManager -.-> SubSession
-SubSession -.->|"notifies parent"| BgManager
+SubSession -.->|"부모에게 알림"| BgManager
 BgManager -.-> Notification
 Notification -.-> MainAgent
 ```
 
-**Sources**: [src/background-manager.ts L1-L300](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/background-manager.ts#L1-L300)
+**출처**: [src/background-manager.ts L1-L300](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/background-manager.ts#L1-L300)
+[src/tools/background-task.ts L1-L200](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/background-task.ts#L1-L200)
+[src/tools/call-omo-agent.ts L1-L150](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/call-omo-agent.ts#L1-L150)
+[src/shared/notification.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/shared/notification.ts#L1-L100)
 
- [src/tools/background-task.ts L1-L200](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/background-task.ts#L1-L200)
+`BackgroundManager` 클래스는 세션 간의 부모-자식 관계를 추적하는 계층적 작업 레지스트리를 유지합니다. 백그라운드 작업이 완료되면 데스크톱 알림 및 메시지 주입을 통해 부모 세션에 알립니다.
 
- [src/tools/call-omo-agent.ts L1-L150](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/call-omo-agent.ts#L1-L150)
+## 외부 지식 통합 (MCPs)
 
- [src/shared/notification.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/shared/notification.ts#L1-L100)
+플러그인은 외부 지식 액세스를 위해 세 가지 MCP(Model Context Protocol) 서버를 제공합니다:
 
-The `BackgroundManager` class maintains a hierarchical task registry tracking parent-child relationships between sessions. When a background task completes, it notifies the parent session via desktop notification and message injection.
-
-## External Knowledge Integration (MCPs)
-
-The plugin provides three Model Context Protocol (MCP) servers for external knowledge access:
-
-### Built-in MCP Servers
+### 내장 MCP 서버
 
 ```mermaid
 flowchart TD
 
 Context7["context7<br>@modelcontextprotocol/server-context7"]
-WebSearch["websearch_exa<br>Custom implementation"]
-GrepApp["grep_app<br>Custom implementation"]
-Librarian["librarian agent"]
-User["User"]
+WebSearch["websearch_exa<br>커스텀 구현"]
+GrepApp["grep_app<br>커스텀 구현"]
+Librarian["librarian 에이전트"]
+User["사용자"]
 
-Context7 -.->|"resolve-library-idget-docs"| Librarian
-WebSearch -.->|"search(2025+ filtering)"| Librarian
-GrepApp -.->|"search_code(GitHub repos)"| Librarian
-Librarian -.->|"evidence-based answers"| User
+Context7 -.->|"resolve-library-id<br>get-docs"| Librarian
+WebSearch -.->|"search(2025+ 필터링)"| Librarian
+GrepApp -.->|"search_code(GitHub 저장소)"| Librarian
+Librarian -.->|"증거 기반 답변"| User
 
-subgraph MCPs ["MCP Serverssrc/mcp/"]
+subgraph MCPs ["MCP 서버<br>src/mcp/"]
     Context7
     WebSearch
     GrepApp
 end
 ```
 
-### MCP Configuration
+### MCP 설정
 
-| MCP | Tools | Use Case | Can Disable |
+| MCP | 도구 | 유스케이스 | 비활성화 가능 여부 |
 | --- | --- | --- | --- |
-| `context7` | `resolve-library-id`, `get-docs` | Official documentation (NPM, PyPI, Cargo, etc.) | `disabled_mcps: ["context7"]` |
-| `websearch_exa` | `search` | Real-time web search with 2025+ date filtering | `disabled_mcps: ["websearch_exa"]` |
-| `grep_app` | `search_code` | GitHub code search across millions of repos | `disabled_mcps: ["grep_app"]` |
+| `context7` | `resolve-library-id`, `get-docs` | 공식 문서 (NPM, PyPI, Cargo 등) | `disabled_mcps: ["context7"]` |
+| `websearch_exa` | `search` | 2025년 이후 날짜 필터링을 포함한 실시간 웹 검색 | `disabled_mcps: ["websearch_exa"]` |
+| `grep_app` | `search_code` | 수백만 개의 저장소에 걸친 GitHub 코드 검색 | `disabled_mcps: ["grep_app"]` |
 
-**MCP Creation:**
-The `createBuiltinMcps()` function (src/mcp/index.ts) constructs MCP configurations:
+**MCP 생성:**
+`createBuiltinMcps()` 함수 (src/mcp/index.ts)는 MCP 설정을 구축합니다:
 
-* Filters based on `disabled_mcps` config array
-* Returns server configurations for OpenCode's MCP system
-* Each MCP runs as a separate subprocess with stdio communication
+* `disabled_mcps` 설정 배열을 기반으로 필터링
+* OpenCode의 MCP 시스템을 위한 서버 설정 반환
+* 각 MCP는 stdio 통신을 사용하는 별도의 서브프로세스로 실행됨
 
-**Agent Access:**
+**에이전트 액세스:**
 
-* **Librarian**: Has access to all three MCPs by default
-* **Explore**: Can use `grep_app` for external code search
-* Other agents: No MCP access (maintain focus boundaries)
+* **Librarian**: 기본적으로 세 가지 MCP 모두에 액세스할 수 있음
+* **Explore**: 외부 코드 검색을 위해 `grep_app`을 사용할 수 있음
+* 기타 에이전트: MCP 액세스 권한 없음 (집중 경계 유지)
 
-### Claude Code MCP Compatibility
+### Claude Code MCP 호환성
 
-The plugin also loads MCPs from Claude Code paths:
+플러그인은 Claude Code 경로에서도 MCP를 로드합니다:
 
-* `~/.claude/.mcp.json` (user-level)
-* `./.mcp.json` (project-level)
-* `./.claude/.mcp.json` (local, git-ignored)
+* `~/.claude/.mcp.json` (사용자 레벨)
+* `./.mcp.json` (프로젝트 레벨)
+* `./.claude/.mcp.json` (로컬, git-ignored)
 
-Loaded via `loadMcpConfigs()` in src/features/claude-code-mcp-loader.ts with:
+src/features/claude-code-mcp-loader.ts의 `loadMcpConfigs()`를 통해 다음 기능을 제공하며 로드됩니다:
 
-* Environment variable expansion (`${VAR}` syntax)
-* Merge with built-in MCPs
-* Can disable via `claude_code.mcp: false`
+* 환경 변수 확장 (`${VAR}` 구문)
+* 내장 MCP와 병합
+* `claude_code.mcp: false`를 통해 비활성화 가능
 
-**Sources:** [src/mcp/index.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/mcp/index.ts#L1-L100)
+**출처:** [src/mcp/index.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/mcp/index.ts#L1-L100)
+[src/mcp/builtin.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/mcp/builtin.ts#L1-L100)
+[src/features/claude-code-mcp-loader.ts L1-L150](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/claude-code-mcp-loader.ts#L1-L150)
 
- [src/mcp/builtin.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/mcp/builtin.ts#L1-L100)
+## Claude Code 호환성 계층 (Claude Code Compatibility Layer)
 
- [src/features/claude-code-mcp-loader.ts L1-L150](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/claude-code-mcp-loader.ts#L1-L150)
-
-## Claude Code Compatibility Layer
-
-The plugin maintains full backward compatibility with Claude Code configurations:
+플러그인은 Claude Code 설정과의 완전한 하위 호환성을 유지합니다:
 
 ```mermaid
 flowchart TD
@@ -904,10 +858,10 @@ CommandLoader["loadCommands()<br>[src/claude-code/commands.ts]"]
 SkillLoader["loadSkills()<br>[src/claude-code/skills.ts]"]
 AgentLoader["loadAgents()<br>[src/claude-code/agents.ts]"]
 MCPLoader["loadMCPConfig()<br>[src/claude-code/mcp.ts]"]
-HookRegistry["Hook Registry"]
-CommandRegistry["Command Registry"]
-AgentRegistry["Agent Registry"]
-MCPRegistry["MCP Registry"]
+HookRegistry["Hook 레지스트리"]
+CommandRegistry["명령 레지스트리"]
+AgentRegistry["에이전트 레지스트리"]
+MCPRegistry["MCP 레지스트리"]
 
 ClaudeSettings -.-> HookLoader
 ClaudeCommands -.-> CommandLoader
@@ -919,14 +873,14 @@ CommandLoader -.-> CommandRegistry
 AgentLoader -.-> AgentRegistry
 MCPLoader -.-> MCPRegistry
 
-subgraph Runtime ["OpenCode Runtime"]
+subgraph Runtime ["OpenCode 런타임"]
     HookRegistry
     CommandRegistry
     AgentRegistry
     MCPRegistry
 end
 
-subgraph Loaders ["oh-my-opencode Loaders"]
+subgraph Loaders ["oh-my-opencode 로더"]
     HookLoader
     CommandLoader
     SkillLoader
@@ -934,7 +888,7 @@ subgraph Loaders ["oh-my-opencode Loaders"]
     MCPLoader
 end
 
-subgraph ClaudeCode ["Claude Code Paths"]
+subgraph ClaudeCode ["Claude Code 경로"]
     ClaudeSettings
     ClaudeCommands
     ClaudeSkills
@@ -943,33 +897,27 @@ subgraph ClaudeCode ["Claude Code Paths"]
 end
 ```
 
-**Sources**: [src/claude-code/hooks.ts L1-L150](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/claude-code/hooks.ts#L1-L150)
+**출처**: [src/claude-code/hooks.ts L1-L150](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/claude-code/hooks.ts#L1-L150)
+[src/claude-code/commands.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/claude-code/commands.ts#L1-L100)
+[src/claude-code/skills.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/claude-code/skills.ts#L1-L100)
+[src/claude-code/agents.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/claude-code/agents.ts#L1-L100)
+[src/claude-code/mcp.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/claude-code/mcp.ts#L1-L100)
 
- [src/claude-code/commands.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/claude-code/commands.ts#L1-L100)
+각 호환성 로더는 `claude_code` 설정 객체(`claude_code.hooks`, `claude_code.commands` 등)를 통해 개별적으로 비활성화할 수 있습니다.
 
- [src/claude-code/skills.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/claude-code/skills.ts#L1-L100)
+## 상태 관리 (State Management)
 
- [src/claude-code/agents.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/claude-code/agents.ts#L1-L100)
+플러그인은 메모리 내 상태와 영구 상태를 모두 유지합니다:
 
- [src/claude-code/mcp.ts L1-L100](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/claude-code/mcp.ts#L1-L100)
-
-Each compatibility loader can be individually disabled via the `claude_code` configuration object (`claude_code.hooks`, `claude_code.commands`, etc.).
-
-## State Management
-
-The plugin maintains both in-memory and persistent state:
-
-| State Type | Storage Location | Purpose | Managed By |
+| 상태 유형 | 저장 위치 | 목적 | 관리 주체 |
 | --- | --- | --- | --- |
-| Session State | In-memory Maps | Per-session tracking of injected rules, background tasks | Hook handlers |
-| Background Tasks | `BackgroundManager` instance | Hierarchical task registry | [src/background-manager.ts L1-L300](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/background-manager.ts#L1-L300) |
-| Interactive Bash | JSON files | tmux session tracking | [src/tools/interactive-bash.ts L1-L300](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/interactive-bash.ts#L1-L300) |
-| Auto-Compact | In-memory flags | Retry tracking for context compaction | [src/hooks/anthropic-auto-compact.ts L1-L200](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/anthropic-auto-compact.ts#L1-L200) |
+| 세션 상태 | 메모리 내 Map | 주입된 규칙, 백그라운드 작업의 세션별 추적 | 훅 핸들러 |
+| 백그라운드 작업 | `BackgroundManager` 인스턴스 | 계층적 작업 레지스트리 | [src/background-manager.ts L1-L300](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/background-manager.ts#L1-L300) |
+| Interactive Bash | JSON 파일 | tmux 세션 추적 | [src/tools/interactive-bash.ts L1-L300](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/interactive-bash.ts#L1-L300) |
+| Auto-Compact | 메모리 내 플래그 | 컨텍스트 컴팩션을 위한 재시도 추적 | [src/hooks/anthropic-auto-compact.ts L1-L200](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/anthropic-auto-compact.ts#L1-L200) |
 
-Session-level state is not persisted across plugin reloads. Background task state survives as long as the OpenCode process remains active.
+세션 레벨 상태는 플러그인 재로드 시 유지되지 않습니다. 백그라운드 작업 상태는 OpenCode 프로세스가 활성 상태로 유지되는 동안 생존합니다.
 
-**Sources**: [src/background-manager.ts L1-L300](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/background-manager.ts#L1-L300)
-
- [src/tools/interactive-bash.ts L1-L300](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/interactive-bash.ts#L1-L300)
-
- [src/hooks/anthropic-auto-compact.ts L1-L200](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/anthropic-auto-compact.ts#L1-L200)
+**출처**: [src/background-manager.ts L1-L300](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/background-manager.ts#L1-L300)
+[src/tools/interactive-bash.ts L1-L300](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/interactive-bash.ts#L1-L300)
+[src/hooks/anthropic-auto-compact.ts L1-L200](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/anthropic-auto-compact.ts#L1-L200)

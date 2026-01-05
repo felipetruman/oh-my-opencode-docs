@@ -1,13 +1,13 @@
 ---
 layout: default
-title: Configuration Files
-parent: Getting Started
+title: 설정 파일 (Configuration Files)
+parent: 시작하기 (Getting Started)
 nav_order: 2
 ---
 
-# Configuration Files
+# 설정 파일 (Configuration Files)
 
-> **Relevant source files**
+> **관련 소스 파일**
 > * [README.ja.md](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.ja.md)
 > * [README.ko.md](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.ko.md)
 > * [README.md](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md)
@@ -23,54 +23,54 @@ nav_order: 2
 > * [src/shared/jsonc-parser.test.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/shared/jsonc-parser.test.ts)
 > * [src/shared/jsonc-parser.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/shared/jsonc-parser.ts)
 
-Configuration files control oh-my-opencode behavior including agent settings, hook toggles, MCP servers, and Claude Code compatibility. This page explains where configuration files are located, basic structure, and how to use them.
+설정 파일은 에이전트(agent) 설정, 훅(hook) 토글, MCP 서버, 그리고 Claude Code 호환성을 포함한 oh-my-opencode의 동작을 제어합니다. 이 페이지에서는 설정 파일의 위치, 기본 구조 및 사용 방법에 대해 설명합니다.
 
-For detailed configuration loading and merging logic, see [Configuration System](/code-yeongyu/oh-my-opencode/3.2-configuration-system). For specific agent configuration options, see [Agent Configuration](#4.4).
+상세한 설정 로드 및 병합(merging) 로직은 [설정 시스템 (Configuration System)](/code-yeongyu/oh-my-opencode/3.2-configuration-system)을 참조하십시오. 특정 에이전트 설정 옵션은 [에이전트 설정 (#4.4)](#4.4) 섹션을 확인하시기 바랍니다.
 
-## File Locations
+## 파일 위치 (File Locations)
 
-oh-my-opencode uses a two-tier configuration system: user-level and project-level. Project settings override user settings.
+oh-my-opencode는 사용자 수준(user-level)과 프로젝트 수준(project-level)의 2단계 설정 시스템을 사용합니다. 프로젝트 설정은 사용자 설정을 재정의(override)합니다.
 
 ```mermaid
 flowchart TD
 
-Project["Project Configuration<br>.opencode/oh-my-opencode.json<br>Highest Priority"]
-User["User Configuration<br>Platform-specific paths<br>Lower Priority"]
-Windows["Windows<br>~/.config/opencode/oh-my-opencode.json (preferred)<br>or %APPDATA%\opencode\oh-my-opencode.json"]
-Unix["macOS/Linux<br>~/.config/opencode/oh-my-opencode.json<br>or $XDG_CONFIG_HOME/opencode/oh-my-opencode.json"]
+Project["프로젝트 설정<br>.opencode/oh-my-opencode.json<br>최우선 순위"]
+User["사용자 설정<br>플랫폼별 경로<br>낮은 순위"]
+Windows["Windows<br>~/.config/opencode/oh-my-opencode.json (권장)<br>또는 %APPDATA%\opencode\oh-my-opencode.json"]
+Unix["macOS/Linux<br>~/.config/opencode/oh-my-opencode.json<br>또는 $XDG_CONFIG_HOME/opencode/oh-my-opencode.json"]
 
 User -.-> Windows
 User -.-> Unix
 
-subgraph subGraph1 ["Platform Paths"]
+subgraph subGraph1 ["플랫폼별 경로"]
     Windows
     Unix
 end
 
-subgraph subGraph0 ["Configuration Hierarchy"]
+subgraph subGraph0 ["설정 계층 구조"]
     Project
     User
-    Project -.->|"Overrides"| User
+    Project -.->|"재정의(Overrides)"| User
 end
 ```
 
-**Configuration File Hierarchy**
+**설정 파일 계층 구조**
 
-| Level | Path | Platform | Priority |
+| 계층 | 경로 | 플랫폼 | 우선순위 |
 | --- | --- | --- | --- |
-| Project | `.opencode/oh-my-opencode.json` | All | 1 (highest) |
-| User | `~/.config/opencode/oh-my-opencode.json` | Windows (preferred), macOS, Linux | 2 |
-| User | `%APPDATA%\opencode\oh-my-opencode.json` | Windows (fallback) | 2 |
+| 프로젝트 | `.opencode/oh-my-opencode.json` | 전체 | 1 (최고) |
+| 사용자 | `~/.config/opencode/oh-my-opencode.json` | Windows (권장), macOS, Linux | 2 |
+| 사용자 | `%APPDATA%\opencode\oh-my-opencode.json` | Windows (폴백) | 2 |
 
-The user configuration path follows XDG Base Directory Specification on Unix systems. On Windows, `~/.config/opencode/` is preferred for cross-platform consistency, with `%APPDATA%\opencode\` as fallback for backward compatibility.
+사용자 설정 경로는 Unix 시스템의 XDG Base Directory Specification을 따릅니다. Windows에서는 크로스 플랫폼 일관성을 위해 `~/.config/opencode/`를 권장하며, 하위 호환성을 위해 `%APPDATA%\opencode\`를 폴백(fallback)으로 지원합니다.
 
-Sources: [src/shared/config-path.ts L1-L48](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/shared/config-path.ts#L1-L48)
+출처: [src/shared/config-path.ts L1-L48](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/shared/config-path.ts#L1-L48)
 
  [README.md L707-L715](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L707-L715)
 
-## Basic Structure
+## 기본 구조 (Basic Structure)
 
-Configuration files are JSON with optional schema reference for IDE autocomplete:
+설정 파일은 JSON 형식이며, IDE 자동 완성을 위한 선택적 스키마 참조를 포함할 수 있습니다:
 
 ```json
 {
@@ -85,61 +85,61 @@ Configuration files are JSON with optional schema reference for IDE autocomplete
 }
 ```
 
-Project configuration overrides user configuration. For nested objects like `agents`, project settings merge with user settings rather than replacing entirely. This allows partial overrides - for example, changing only `agents.explore.model` without affecting other `explore` settings.
+프로젝트 설정은 사용자 설정을 재정의합니다. `agents`와 같은 중첩된 객체의 경우, 프로젝트 설정은 사용자 설정을 완전히 대체하는 대신 병합됩니다. 이를 통해 다른 `explore` 설정에 영향을 주지 않고 `agents.explore.model`만 변경하는 등의 부분적 재정의가 가능합니다.
 
-For detailed merging behavior, see [Configuration System](/code-yeongyu/oh-my-opencode/3.2-configuration-system).
+상세한 병합 동작은 [설정 시스템 (Configuration System)](/code-yeongyu/oh-my-opencode/3.2-configuration-system)을 참조하십시오.
 
-Sources: [README.md L718-L722](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L718-L722)
+출처: [README.md L718-L722](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L718-L722)
 
  [assets/oh-my-opencode.schema.json L1-L10](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/assets/oh-my-opencode.schema.json#L1-L10)
 
-## Configuration Reference
+## 설정 참조 (Configuration Reference)
 
-### Top-Level Fields
+### 최상위 필드 (Top-Level Fields)
 
-| Field | Type | Schema | Description |
+| 필드 | 타입 | 스키마 | 설명 |
 | --- | --- | --- | --- |
-| `$schema` | string | optional | URL for JSON Schema validation |
-| `disabled_mcps` | string[] | `McpNameSchema[]` | MCP servers to disable |
-| `disabled_agents` | string[] | `BuiltinAgentNameSchema[]` | Built-in agents to disable |
-| `disabled_hooks` | string[] | `HookNameSchema[]` | Hooks to disable |
-| `agents` | object | `AgentOverridesSchema` | Agent configuration overrides |
-| `claude_code` | object | `ClaudeCodeConfigSchema` | Claude Code compatibility toggles |
-| `google_auth` | boolean | optional | Enable Google Antigravity OAuth |
-| `omo_agent` | object | `OmoAgentConfigSchema` | OmO agent enablement |
+| `$schema` | string | 선택 사항 | JSON Schema 유효성 검사를 위한 URL |
+| `disabled_mcps` | string[] | `McpNameSchema[]` | 비활성화할 MCP 서버 목록 |
+| `disabled_agents` | string[] | `BuiltinAgentNameSchema[]` | 비활성화할 내장 에이전트 목록 |
+| `disabled_hooks` | string[] | `HookNameSchema[]` | 비활성화할 훅 목록 |
+| `agents` | object | `AgentOverridesSchema` | 에이전트 설정 재정의 |
+| `claude_code` | object | `ClaudeCodeConfigSchema` | Claude Code 호환성 토글 |
+| `google_auth` | boolean | 선택 사항 | Google Antigravity OAuth 활성화 |
+| `omo_agent` | object | `OmoAgentConfigSchema` | OmO 에이전트 활성화 설정 |
 
-Sources: [src/config/schema.ts L108-L117](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L108-L117)
+출처: [src/config/schema.ts L108-L117](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L108-L117)
 
  [assets/oh-my-opencode.schema.json L1-L1211](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/assets/oh-my-opencode.schema.json#L1-L1211)
 
-### Agent Configuration
+### 에이전트 설정 (Agent Configuration)
 
-Each agent can be configured with the following options:
+각 에이전트는 다음 옵션으로 설정할 수 있습니다:
 
-| Field | Type | Description | Example |
+| 필드 | 타입 | 설명 | 예시 |
 | --- | --- | --- | --- |
-| `model` | string | Model identifier | `"anthropic/claude-opus-4-5"` |
-| `temperature` | number (0.0-2.0) | Sampling temperature | `0.7` |
-| `top_p` | number (0.0-1.0) | Nucleus sampling | `0.95` |
-| `prompt` | string | System prompt override | Custom instructions |
-| `tools` | object | Tool access control | `{"bash": false}` |
-| `disable` | boolean | Disable agent | `true` |
-| `description` | string | Agent description | Custom description |
-| `mode` | string | Invocation mode | `"subagent"`, `"primary"`, `"all"` |
-| `color` | string | UI color (hex) | `"#FF6B35"` |
-| `permission` | object | Permissions | See below |
+| `model` | string | 모델 식별자 | `"anthropic/claude-opus-4-5"` |
+| `temperature` | number (0.0-2.0) | 샘플링 온도 | `0.7` |
+| `top_p` | number (0.0-1.0) | 핵 샘플링(Nucleus sampling) | `0.95` |
+| `prompt` | string | 시스템 프롬프트 재정의 | 사용자 정의 지침 |
+| `tools` | object | 도구 접근 제어 | `{"bash": false}` |
+| `disable` | boolean | 에이전트 비활성화 | `true` |
+| `description` | string | 에이전트 설명 | 사용자 정의 설명 |
+| `mode` | string | 호출 모드 | `"subagent"`, `"primary"`, `"all"` |
+| `color` | string | UI 색상 (hex) | `"#FF6B35"` |
+| `permission` | object | 권한 설정 | 아래 참조 |
 
-Permission options:
+권한(Permission) 옵션:
 
-| Permission | Values | Description |
+| 권한 | 값 | 설명 |
 | --- | --- | --- |
-| `edit` | `ask`, `allow`, `deny` | File editing permission |
-| `bash` | `ask`, `allow`, `deny`, or object | Bash execution (can be per-command) |
-| `webfetch` | `ask`, `allow`, `deny` | Web request permission |
-| `doom_loop` | `ask`, `allow`, `deny` | Infinite loop override |
-| `external_directory` | `ask`, `allow`, `deny` | Access outside project root |
+| `edit` | `ask`, `allow`, `deny` | 파일 수정 권한 |
+| `bash` | `ask`, `allow`, `deny` 또는 객체 | Bash 실행 권한 (명령어별 설정 가능) |
+| `webfetch` | `ask`, `allow`, `deny` | 웹 요청 권한 |
+| `doom_loop` | `ask`, `allow`, `deny` | 무한 루프 재정의 |
+| `external_directory` | `ask`, `allow`, `deny` | 프로젝트 루트 외부 접근 권한 |
 
-**Example:**
+**예시:**
 
 ```json
 {
@@ -156,19 +156,19 @@ Permission options:
 }
 ```
 
-Available agents: `Sisyphus`, `Planner-Sisyphus`, `build`, `plan`, `oracle`, `librarian`, `explore`, `frontend-ui-ux-engineer`, `document-writer`, `multimodal-looker`
+사용 가능한 에이전트: `Sisyphus`, `Planner-Sisyphus`, `build`, `plan`, `oracle`, `librarian`, `explore`, `frontend-ui-ux-engineer`, `document-writer`, `multimodal-looker`
 
-Agent names are case-insensitive (e.g., `"omo"`, `"OmO"`, `"OMO"` all work).
+에이전트 이름은 대소문자를 구분하지 않습니다 (예: `"omo"`, `"OmO"`, `"OMO"` 모두 작동).
 
-Sources: [README.md L751-L796](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L751-L796)
+출처: [README.md L751-L796](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L751-L796)
 
  [assets/oh-my-opencode.schema.json L66-L400](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/assets/oh-my-opencode.schema.json#L66-L400)
 
-### Claude Code Compatibility
+### Claude Code 호환성 (Claude Code Compatibility)
 
-The `claude_code` object controls Claude Code compatibility features. All features are enabled by default.
+`claude_code` 객체는 Claude Code 호환성 기능을 제어합니다. 모든 기능은 기본적으로 활성화되어 있습니다.
 
-| Field | Default | Disables Loading From |
+| 필드 | 기본값 | 로드 비활성화 대상 |
 | --- | --- | --- |
 | `mcp` | `true` | `~/.claude/.mcp.json`, `./.mcp.json`, `./.claude/.mcp.json` |
 | `commands` | `true` | `~/.claude/commands/*.md`, `./.claude/commands/*.md` |
@@ -176,9 +176,9 @@ The `claude_code` object controls Claude Code compatibility features. All featur
 | `agents` | `true` | `~/.claude/agents/*.md` |
 | `hooks` | `true` | `~/.claude/settings.json`, `./.claude/settings.local.json` |
 
-Built-in features (built-in agents, built-in MCPs, OpenCode commands) are unaffected by these toggles.
+내장 기능(내장 에이전트, 내장 MCP, OpenCode 명령어)은 이 토글의 영향을 받지 않습니다.
 
-**Example:**
+**예시:**
 
 ```json
 {
@@ -189,21 +189,21 @@ Built-in features (built-in agents, built-in MCPs, OpenCode commands) are unaffe
 }
 ```
 
-For full compatibility details, see [Claude Code Compatibility](/code-yeongyu/oh-my-opencode/9-claude-code-compatibility).
+전체 호환성 세부 사항은 [Claude Code 호환성 (Claude Code Compatibility)](/code-yeongyu/oh-my-opencode/9-claude-code-compatibility)을 참조하십시오.
 
-Sources: [README.md L656-L677](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L656-L677)
+출처: [README.md L656-L677](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L656-L677)
 
-### Sisyphus Agent
+### Sisyphus 에이전트 (Sisyphus Agent)
 
-The `sisyphus_agent` object controls whether Sisyphus orchestrator replaces default agents:
+`sisyphus_agent` 객체는 Sisyphus 오케스트레이터가 기본 에이전트를 대체할지 여부를 제어합니다.
 
-| Field | Type | Default | Effect |
+| 필드 | 타입 | 기본값 | 효과 |
 | --- | --- | --- | --- |
-| `disabled` | boolean | `false` | When `true`, restores `build`/`plan` as primary agents |
+| `disabled` | boolean | `false` | `true`일 경우, `build`/`plan`을 기본 에이전트로 복구 |
 
-When disabled, the original OpenCode `build` and `plan` agents remain primary. When enabled (default), Sisyphus and Planner-Sisyphus become primary agents, with `build` and `plan` demoted to subagents.
+비활성화 시, 원래의 OpenCode `build` 및 `plan` 에이전트가 기본(primary) 에이전트로 유지됩니다. 활성화 시(기본값), Sisyphus 및 Planner-Sisyphus가 기본 에이전트가 되며 `build` 및 `plan`은 서브에이전트(subagent)로 강등됩니다.
 
-**Example:**
+**예시:**
 
 ```json
 {
@@ -213,11 +213,11 @@ When disabled, the original OpenCode `build` and `plan` agents remain primary. W
 }
 ```
 
-Sources: [README.md L809-L845](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L809-L845)
+출처: [README.md L809-L845](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L809-L845)
 
-### Other Configuration Options
+### 기타 설정 옵션 (Other Configuration Options)
 
-**Disabling Features:**
+**기능 비활성화:**
 
 ```json
 {
@@ -227,11 +227,11 @@ Sources: [README.md L809-L845](https://github.com/code-yeongyu/oh-my-opencode/bl
 }
 ```
 
-Available MCPs: `websearch_exa`, `context7`, `grep_app`
+사용 가능한 MCP: `websearch_exa`, `context7`, `grep_app`
 
-Available hooks: `todo-continuation-enforcer`, `context-window-monitor`, `session-recovery`, `session-notification`, `comment-checker`, `grep-output-truncator`, `tool-output-truncator`, `directory-agents-injector`, `directory-readme-injector`, `empty-task-response-detector`, `think-mode`, `anthropic-auto-compact`, `rules-injector`, `background-notification`, `auto-update-checker`, `startup-toast`, `keyword-detector`, `agent-usage-reminder`, `non-interactive-env`, `interactive-bash-session`, `empty-message-sanitizer`
+사용 가능한 훅: `todo-continuation-enforcer`, `context-window-monitor`, `session-recovery`, `session-notification`, `comment-checker`, `grep-output-truncator`, `tool-output-truncator`, `directory-agents-injector`, `directory-readme-injector`, `empty-task-response-detector`, `think-mode`, `anthropic-auto-compact`, `rules-injector`, `background-notification`, `auto-update-checker`, `startup-toast`, `keyword-detector`, `agent-usage-reminder`, `non-interactive-env`, `interactive-bash-session`, `empty-message-sanitizer`
 
-**Google Authentication:**
+**Google 인증:**
 
 ```json
 {
@@ -239,7 +239,7 @@ Available hooks: `todo-continuation-enforcer`, `context-window-monitor`, `sessio
 }
 ```
 
-When using external plugins like `opencode-antigravity-auth`, disable built-in auth:
+`opencode-antigravity-auth`와 같은 외부 플러그인을 사용할 경우, 내장 인증을 비활성화하십시오:
 
 ```json
 {
@@ -250,7 +250,7 @@ When using external plugins like `opencode-antigravity-auth`, disable built-in a
 }
 ```
 
-**Experimental Features:**
+**실험적 기능:**
 
 ```json
 {
@@ -261,13 +261,13 @@ When using external plugins like `opencode-antigravity-auth`, disable built-in a
 }
 ```
 
-Sources: [README.md L798-L808](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L798-L808)
+출처: [README.md L798-L808](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L798-L808)
 
  [README.md L847-L855](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L847-L855)
 
-## JSON Schema Support
+## JSON Schema 지원 (JSON Schema Support)
 
-The plugin provides a JSON Schema file for IDE autocomplete support at `assets/oh-my-opencode.schema.json`. Users can reference it with:
+이 플러그인은 IDE 자동 완성 지원을 위해 `assets/oh-my-opencode.schema.json`에서 JSON Schema 파일을 제공합니다. 사용자는 다음과 같이 참조할 수 있습니다:
 
 ```json
 {
@@ -275,10 +275,8 @@ The plugin provides a JSON Schema file for IDE autocomplete support at `assets/o
 }
 ```
 
-The JSON Schema mirrors the Zod schema structure defined in [src/config/schema.ts L108-L117](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L108-L117)
+이 JSON Schema는 [src/config/schema.ts L108-L117](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/config/schema.ts#L108-L117)에 정의된 Zod 스키마 구조를 반영하며, JSON Schema를 지원하는 IDE에서 유효성 검사, 자동 완성 및 문서를 제공합니다.
 
- and provides validation, autocomplete, and documentation in IDEs that support JSON Schema.
-
-Sources: [assets/oh-my-opencode.schema.json L1-L1211](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/assets/oh-my-opencode.schema.json#L1-L1211)
+출처: [assets/oh-my-opencode.schema.json L1-L1211](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/assets/oh-my-opencode.schema.json#L1-L1211)
 
  [README.md L485-L491](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/README.md#L485-L491)

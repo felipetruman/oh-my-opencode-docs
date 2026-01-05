@@ -1,13 +1,13 @@
 ---
 layout: default
-title: Background Task Tools
+title: 백그라운드 작업 도구 (Background Task Tools)
 parent: Tools
 nav_order: 1
 ---
 
-# Background Task Tools
+# 백그라운드 작업 도구 (Background Task Tools)
 
-> **Relevant source files**
+> **관련 소스 파일**
 > * [.opencode/background-tasks.json](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/.opencode/background-tasks.json)
 > * [src/features/background-agent/index.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/index.ts)
 > * [src/features/background-agent/manager.test.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.test.ts)
@@ -23,24 +23,24 @@ nav_order: 1
 > * [src/tools/look-at/constants.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/look-at/constants.ts)
 > * [src/tools/look-at/tools.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/look-at/tools.ts)
 
-## Purpose and Scope
+## 목적 및 범위 (Purpose and Scope)
 
-Background task tools enable asynchronous agent execution within the oh-my-opencode system. This page documents the tools that create, monitor, and manage background tasks: `background_task`, `background_output`, `background_cancel`, and the async mode of `call_omo_agent`. For the background task management infrastructure, see [Background Execution System](../background-execution/). For synchronous agent delegation, see [Analytical Agents](/code-yeongyu/oh-my-opencode/4.2-specialized-agents).
+백그라운드 작업 도구는 oh-my-opencode 시스템 내에서 비동기(Asynchronous) 에이전트 실행을 가능하게 합니다. 이 페이지에서는 백그라운드 작업을 생성, 모니터링 및 관리하는 도구인 `background_task`, `background_output`, `background_cancel` 및 `call_omo_agent` 의 비동기 모드에 대해 설명합니다. 백그라운드 작업 관리 인프라에 대한 자세한 내용은 [Background Execution System](../background-execution/)을 참조하십시오. 동기식(Synchronous) 에이전트 위임에 대해서는 [Analytical Agents](/code-yeongyu/oh-my-opencode/4.2-specialized-agents)를 참조하십시오.
 
-These tools allow agents to spawn parallel work that executes in isolated sessions while the parent agent continues other tasks. The system automatically notifies the parent agent when background tasks complete.
+이러한 도구들을 통해 에이전트는 부모 에이전트가 다른 작업을 계속 수행하는 동안, 격리된 세션에서 실행되는 병렬 작업을 생성할 수 있습니다. 시스템은 백그라운드 작업이 완료되면 부모 에이전트에게 자동으로 알림을 보냅니다.
 
 ---
 
-## Tool Overview
+## 도구 개요 (Tool Overview)
 
-The system provides four tools for background task management:
+시스템은 백그라운드 작업 관리를 위해 네 가지 도구를 제공합니다.
 
-| Tool Name | Purpose | Returns | Primary Use Case |
+| 도구 이름 | 목적 | 반환값 | 주요 사용 사례 |
 | --- | --- | --- | --- |
-| `background_task` | Launch any agent as background task | Task ID | Parallel execution of arbitrary agents |
-| `background_output` | Get output from background task | Task status or results | Check progress or retrieve completed results |
-| `background_cancel` | Cancel running background task(s) | Success/failure message | Abort unwanted tasks before final answer |
-| `call_omo_agent` | Invoke explore/librarian (sync or async) | Task ID (async) or results (sync) | Specialized agent delegation |
+| `background_task` | 모든 에이전트를 백그라운드 작업으로 실행 | Task ID | 임의의 에이전트 병렬 실행 |
+| `background_output` | 백그라운드 작업의 출력 가져오기 | 작업 상태 또는 결과 | 진행 상황 확인 또는 완료된 결과 회수 |
+| `background_cancel` | 실행 중인 백그라운드 작업 취소 | 성공/실패 메시지 | 최종 답변 전 불필요한 작업 중단 |
+| `call_omo_agent` | explore/librarian 호출 (동기 또는 비동기) | Task ID (비동기) 또는 결과 (동기) | 특화된 에이전트 위임 |
 
 Sources: [src/tools/background-task/tools.ts L1-L332](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/background-task/tools.ts#L1-L332)
 
@@ -50,11 +50,11 @@ Sources: [src/tools/background-task/tools.ts L1-L332](https://github.com/code-ye
 
 ---
 
-## background_task Tool
+## background_task 도구
 
-### Description
+### 설명 (Description)
 
-The `background_task` tool launches any registered agent as a background task, returning immediately with a task ID. The system creates an isolated session and executes the agent asynchronously, notifying the parent session upon completion.
+`background_task` 도구는 등록된 모든 에이전트를 백그라운드 작업으로 실행하며, 즉시 작업 ID(Task ID)를 반환합니다. 시스템은 격리된 세션을 생성하고 에이전트를 비동기적으로 실행하며, 완료 시 부모 세션에 알림을 보냅니다.
 
 ```javascript
 export const BACKGROUND_TASK_DESCRIPTION = `Run agent task in background. Returns task_id immediately; notifies on completion.
@@ -66,21 +66,21 @@ Sources: [src/tools/background-task/constants.ts L1-L3](https://github.com/code-
 
  [src/tools/background-task/tools.ts L23-L63](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/background-task/tools.ts#L23-L63)
 
-### Tool Arguments
+### 도구 인자 (Tool Arguments)
 
 ```yaml
 {
-  description: string  // Short task description (shown in status)
-  prompt: string      // Full detailed prompt for the agent
-  agent: string       // Agent type to use (any registered agent)
+  description: string  // 짧은 작업 설명 (상태 표시줄에 표시됨)
+  prompt: string      // 에이전트를 위한 상세 프롬프트 전체 내용
+  agent: string       // 사용할 에이전트 유형 (등록된 모든 에이전트 가능)
 }
 ```
 
-The `agent` parameter accepts any agent registered in the system, unlike `call_omo_agent` which restricts to explore/librarian.
+`agent` 파라미터는 explore/librarian으로 제한되는 `call_omo_agent`와 달리 시스템에 등록된 모든 에이전트를 수용합니다.
 
 Sources: [src/tools/background-task/tools.ts L26-L30](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/background-task/tools.ts#L26-L30)
 
-### Execution Flow
+### 실행 흐름 (Execution Flow)
 
 ```mermaid
 flowchart TD
@@ -107,13 +107,13 @@ SessionIdle -.-> Notify
 Notify -.-> ParentPrompt
 ```
 
-**Figure 1: background_task Execution Flow**
+**그림 1: background_task 실행 흐름**
 
 Sources: [src/tools/background-task/tools.ts L31-L62](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/background-task/tools.ts#L31-L62)
 
  [src/features/background-agent/manager.ts L69-L137](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L69-L137)
 
-### Return Value
+### 반환값 (Return Value)
 
 ```yaml
 Background task launched successfully.
@@ -132,9 +132,9 @@ Use `background_output` tool with task_id="bg_wzsdt60b" to check progress:
 
 Sources: [src/tools/background-task/tools.ts L45-L56](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/background-task/tools.ts#L45-L56)
 
-### Tool Restrictions
+### 도구 제한 사항 (Tool Restrictions)
 
-Background tasks automatically disable recursive background tools:
+백그라운드 작업은 재귀적인 백그라운드 도구 사용을 자동으로 비활성화합니다.
 
 ```yaml
 tools: {
@@ -143,17 +143,17 @@ tools: {
 }
 ```
 
-This prevents infinite nesting of background tasks and ensures clean task hierarchies.
+이는 백그라운드 작업의 무한 중첩을 방지하고 깔끔한 작업 계층 구조를 보장합니다.
 
 Sources: [src/features/background-agent/manager.ts L113-L116](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L113-L116)
 
-### Error Handling
+### 오류 처리 (Error Handling)
 
-The tool handles several error cases:
+이 도구는 다음과 같은 여러 오류 케이스를 처리합니다.
 
-* **Missing agent parameter**: Returns error message requesting agent specification
-* **Invalid agent name**: Catches agent creation errors and provides helpful message
-* **Session creation failure**: Throws error with detailed message from API
+* **에이전트 파라미터 누락**: 에이전트 지정을 요청하는 오류 메시지를 반환합니다.
+* **유효하지 않은 에이전트 이름**: 에이전트 생성 오류를 포착하고 유용한 메시지를 제공합니다.
+* **세션 생성 실패**: API의 상세 메시지와 함께 오류를 발생시킵니다.
 
 ```
 if (!args.agent || args.agent.trim() === "") {
@@ -167,11 +167,11 @@ Sources: [src/tools/background-task/tools.ts L32-L34](https://github.com/code-ye
 
 ---
 
-## background_output Tool
+## background_output 도구
 
-### Description
+### 설명 (Description)
 
-The `background_output` tool retrieves status or results from a background task. It supports both non-blocking status checks and blocking waits for completion.
+`background_output` 도구는 백그라운드 작업의 상태 또는 결과를 조회합니다. 비차단(Non-blocking) 상태 확인과 완료될 때까지 기다리는 차단(Blocking) 대기를 모두 지원합니다.
 
 ```javascript
 export const BACKGROUND_OUTPUT_DESCRIPTION = `Get output from background task. System notifies on completion, so block=true rarely needed.`
@@ -181,21 +181,21 @@ Sources: [src/tools/background-task/constants.ts L5](https://github.com/code-yeo
 
  [src/tools/background-task/tools.ts L196-L260](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/background-task/tools.ts#L196-L260)
 
-### Tool Arguments
+### 도구 인자 (Tool Arguments)
 
 ```yaml
 {
-  task_id: string         // Task ID to get output from
-  block?: boolean        // Wait for completion (default: false)
-  timeout?: number       // Max wait time in ms (default: 60000, max: 600000)
+  task_id: string         // 출력을 가져올 작업 ID
+  block?: boolean        // 완료될 때까지 대기 (기본값: false)
+  timeout?: number       // 최대 대기 시간(ms) (기본값: 60000, 최대: 600000)
 }
 ```
 
-The `block` parameter is optional and defaults to `false` since the system automatically notifies when tasks complete. Blocking is rarely needed but available for edge cases.
+시스템이 작업 완료 시 자동으로 알림을 보내므로 `block` 파라미터는 선택 사항이며 기본값은 `false`입니다. 차단 대기는 거의 필요하지 않지만 특수한 경우를 위해 제공됩니다.
 
 Sources: [src/tools/background-task/tools.ts L199-L203](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/background-task/tools.ts#L199-L203)
 
-### Execution Logic
+### 실행 로직 (Execution Logic)
 
 ```mermaid
 flowchart TD
@@ -229,13 +229,13 @@ TimeoutCheck -.-> PollLoop
 TimeoutCheck -.->|"Yes"| FormatStatus
 ```
 
-**Figure 2: background_output Execution Logic**
+**그림 2: background_output 실행 로직**
 
 Sources: [src/tools/background-task/tools.ts L204-L258](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/background-task/tools.ts#L204-L258)
 
-### Response Format - Running Task
+### 응답 형식 - 실행 중인 작업 (Response Format - Running Task)
 
-When the task is still running, `formatTaskStatus()` returns a markdown table with progress information:
+작업이 여전히 실행 중일 때, `formatTaskStatus()`는 진행 정보를 담은 마크다운 테이블을 반환합니다.
 
 ```markdown
 # Task Status
@@ -269,9 +269,9 @@ I found 47 references to "opencode" across the codebase...
 
 Sources: [src/tools/background-task/tools.ts L74-L125](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/background-task/tools.ts#L74-L125)
 
-### Response Format - Completed Task
+### 응답 형식 - 완료된 작업 (Response Format - Completed Task)
 
-When the task is completed, `formatTaskResult()` fetches session messages and returns the final assistant response:
+작업이 완료되면, `formatTaskResult()`는 세션 메시지를 가져와 최종 어시스턴트 응답을 반환합니다.
 
 ```yaml
 Task Result
@@ -288,13 +288,13 @@ Session ID: ses_4f3e89f0dffeooeXNVx5QCifse
 
 Sources: [src/tools/background-task/tools.ts L127-L194](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/background-task/tools.ts#L127-L194)
 
-### Blocking Behavior
+### 차단 동작 (Blocking Behavior)
 
-When `block=true`, the tool polls the task every 1000ms until:
+`block=true`인 경우, 도구는 다음 상황이 발생할 때까지 1000ms마다 작업을 폴링(Polling)합니다.
 
-* Task completes (returns `formatTaskResult()`)
-* Task errors or is cancelled (returns `formatTaskStatus()`)
-* Timeout is exceeded (returns timeout message with current status)
+* 작업 완료 (`formatTaskResult()` 반환)
+* 작업 오류 또는 취소 (`formatTaskStatus()` 반환)
+* 타임아웃 초과 (현재 상태와 함께 타임아웃 메시지 반환)
 
 ```javascript
 while (Date.now() - startTime < timeoutMs) {
@@ -316,11 +316,11 @@ Sources: [src/tools/background-task/tools.ts L230-L247](https://github.com/code-
 
 ---
 
-## background_cancel Tool
+## background_cancel 도구
 
-### Description
+### 설명 (Description)
 
-The `background_cancel` tool cancels running background tasks, either individually by task ID or all tasks at once. This is particularly useful before providing final answers to ensure no lingering background work.
+`background_cancel` 도구는 실행 중인 백그라운드 작업을 개별 작업 ID 또는 전체 작업을 한 번에 취소합니다. 이는 최종 답변을 제공하기 전에 남아 있는 백그라운드 작업이 없도록 보장하는 데 특히 유용합니다.
 
 ```javascript
 export const BACKGROUND_CANCEL_DESCRIPTION = `Cancel running background task(s). Use all=true to cancel ALL before final answer.`
@@ -330,20 +330,20 @@ Sources: [src/tools/background-task/constants.ts L7](https://github.com/code-yeo
 
  [src/tools/background-task/tools.ts L262-L331](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/background-task/tools.ts#L262-L331)
 
-### Tool Arguments
+### 도구 인자 (Tool Arguments)
 
 ```
 {
-  taskId?: string      // Task ID to cancel (required if all=false)
-  all?: boolean       // Cancel all running background tasks (default: false)
+  taskId?: string      // 취소할 작업 ID (all=false인 경우 필수)
+  all?: boolean       // 실행 중인 모든 백그라운드 작업 취소 (기본값: false)
 }
 ```
 
-Either `taskId` or `all=true` must be provided. The tool validates this requirement.
+`taskId` 또는 `all=true` 중 하나가 제공되어야 합니다. 도구는 이 요구 사항을 검증합니다.
 
 Sources: [src/tools/background-task/tools.ts L265-L268](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/background-task/tools.ts#L265-L268)
 
-### Cancellation Logic
+### 취소 로직 (Cancellation Logic)
 
 ```mermaid
 flowchart TD
@@ -376,18 +376,18 @@ AbortSession -.-> UpdateStatus
 UpdateStatus -.-> ReturnSuccess
 ```
 
-**Figure 3: background_cancel Cancellation Flow**
+**그림 3: background_cancel 취소 흐름**
 
 Sources: [src/tools/background-task/tools.ts L269-L330](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/background-task/tools.ts#L269-L330)
 
-### Cancel All Mode
+### 전체 취소 모드 (Cancel All Mode)
 
-When `all=true`, the tool:
+`all=true`인 경우, 도구는 다음을 수행합니다.
 
-1. Retrieves all descendant tasks of the current session using `manager.getAllDescendantTasks()`
-2. Filters to only running tasks
-3. Aborts each task's session via `client.session.abort()` (fire-and-forget)
-4. Updates task status to `"cancelled"` in the registry
+1. `manager.getAllDescendantTasks()`를 사용하여 현재 세션의 모든 하위 작업을 가져옵니다.
+2. 실행 중인 작업만 필터링합니다.
+3. `client.session.abort()`를 통해 각 작업의 세션을 중단합니다 (fire-and-forget 방식).
+4. 레지스트리에서 작업 상태를 `"cancelled"`로 업데이트합니다.
 
 ```javascript
 const tasks = manager.getAllDescendantTasks(toolContext.sessionID)
@@ -405,16 +405,16 @@ for (const task of runningTasks) {
 
 Sources: [src/tools/background-task/tools.ts L278-L294](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/background-task/tools.ts#L278-L294)
 
-### Single Task Cancellation
+### 단일 작업 취소 (Single Task Cancellation)
 
-When cancelling a specific task:
+특정 작업을 취소할 때:
 
-1. Validates task exists
-2. Checks task is currently running (only running tasks can be cancelled)
-3. Aborts the session (fire-and-forget to avoid aborting main session)
-4. Updates task status to `"cancelled"`
+1. 작업이 존재하는지 확인합니다.
+2. 작업이 현재 실행 중인지 확인합니다 (실행 중인 작업만 취소 가능).
+3. 세션을 중단합니다 (메인 세션 중단을 방지하기 위해 fire-and-forget 방식 사용).
+4. 작업 상태를 `"cancelled"`로 업데이트합니다.
 
-**Important**: The abort request is fire-and-forget (no `await`) to prevent aborting the main session.
+**중요**: 중단 요청은 메인 세션이 중단되는 것을 방지하기 위해 `await` 없이 fire-and-forget 방식으로 수행됩니다.
 
 ```javascript
 // Fire-and-forget: abort request without await
@@ -430,11 +430,11 @@ Sources: [src/tools/background-task/tools.ts L311-L318](https://github.com/code-
 
 ---
 
-## call_omo_agent Tool (Async Mode)
+## call_omo_agent 도구 (비동기 모드)
 
-### Overview
+### 개요 (Overview)
 
-The `call_omo_agent` tool provides specialized agent delegation for explore and librarian agents. When used with `run_in_background=true`, it functions as a background task tool with additional agent restrictions. For synchronous execution details, see [Analytical Agents](/code-yeongyu/oh-my-opencode/4.2-specialized-agents).
+`call_omo_agent` 도구는 explore 및 librarian 에이전트를 위한 특화된 에이전트 위임 기능을 제공합니다. `run_in_background=true`와 함께 사용하면 추가적인 에이전트 제한이 있는 백그라운드 작업 도구로 작동합니다. 동기 실행에 대한 자세한 내용은 [Analytical Agents](/code-yeongyu/oh-my-opencode/4.2-specialized-agents)를 참조하십시오.
 
 ```javascript
 export const CALL_OMO_AGENT_DESCRIPTION = `Spawn explore/librarian agent. run_in_background REQUIRED (true=async with task_id, false=sync).
@@ -448,19 +448,19 @@ Sources: [src/tools/call-omo-agent/constants.ts L3-L8](https://github.com/code-y
 
  [src/tools/call-omo-agent/tools.ts L7-L46](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/call-omo-agent/tools.ts#L7-L46)
 
-### Tool Arguments
+### 도구 인자 (Tool Arguments)
 
 ```yaml
 {
-  description: string           // Short (3-5 words) task description
-  prompt: string               // Full detailed prompt for the subagent
-  subagent_type: string        // "explore" or "librarian" only
-  run_in_background: boolean   // REQUIRED: true=async, false=sync
-  session_id?: string          // Continue session (sync mode only)
+  description: string           // 짧은(3-5단어) 작업 설명
+  prompt: string               // 서브 에이전트를 위한 상세 프롬프트 전체 내용
+  subagent_type: string        // "explore" 또는 "librarian"만 가능
+  run_in_background: boolean   // 필수: true=비동기, false=동기
+  session_id?: string          // 세션 계속하기 (동기 모드 전용)
 }
 ```
 
-The `subagent_type` is restricted to explore and librarian to prevent recursion:
+재귀를 방지하기 위해 `subagent_type`은 explore와 librarian으로 제한됩니다.
 
 ```javascript
 export const ALLOWED_AGENTS = ["explore", "librarian"] as const
@@ -470,9 +470,9 @@ Sources: [src/tools/call-omo-agent/tools.ts L18-L28](https://github.com/code-yeo
 
  [src/tools/call-omo-agent/constants.ts L1](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/call-omo-agent/constants.ts#L1-L1)
 
-### Async Execution
+### 비동기 실행 (Async Execution)
 
-When `run_in_background=true`, the tool delegates to `BackgroundManager.launch()` identically to `background_task`:
+`run_in_background=true`인 경우, 이 도구는 `background_task`와 동일하게 `BackgroundManager.launch()`에 위임합니다.
 
 ```javascript
 async function executeBackground(
@@ -496,17 +496,17 @@ Task ID: ${task.id}
 
 Sources: [src/tools/call-omo-agent/tools.ts L48-L77](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/call-omo-agent/tools.ts#L48-L77)
 
-### Comparison to background_task
+### background_task와의 비교
 
-| Feature | background_task | call_omo_agent (async) |
+| 기능 | background_task | call_omo_agent (비동기) |
 | --- | --- | --- |
-| **Agent Restriction** | Any registered agent | explore, librarian only |
-| **Synchronous Mode** | Not available | Available with `run_in_background=false` |
-| **Session Continuation** | Not supported | Supported in sync mode only |
-| **Use Case** | Generic background work | Research/exploration delegation |
-| **Implementation** | Direct BackgroundManager call | Delegates to BackgroundManager in async mode |
+| **에이전트 제한** | 등록된 모든 에이전트 | explore, librarian 전용 |
+| **동기 모드** | 지원 안 함 | `run_in_background=false`로 지원 |
+| **세션 유지** | 지원 안 함 | 동기 모드에서만 지원 |
+| **사용 사례** | 일반적인 백그라운드 작업 | 조사/탐색 위임 |
+| **구현 방식** | BackgroundManager 직접 호출 | 비동기 모드에서 BackgroundManager에 위임 |
 
-Both tools use the same `BackgroundManager.launch()` method for async execution, with `call_omo_agent` adding agent restrictions and sync mode support.
+두 도구 모두 비동기 실행을 위해 동일한 `BackgroundManager.launch()` 메서드를 사용하며, `call_omo_agent`는 에이전트 제한 및 동기 모드 지원을 추가합니다.
 
 Sources: [src/tools/call-omo-agent/tools.ts L36-L46](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/call-omo-agent/tools.ts#L36-L46)
 
@@ -514,27 +514,27 @@ Sources: [src/tools/call-omo-agent/tools.ts L36-L46](https://github.com/code-yeo
 
 ---
 
-## Tool Access Control
+## 도구 액세스 제어 (Tool Access Control)
 
-All four background task tools are controlled through agent configuration:
+네 가지 백그라운드 작업 도구는 모두 에이전트 구성을 통해 제어됩니다.
 
-| Tool | Sisyphus | Oracle | Explore | Librarian | Other Agents |
+| 도구 | Sisyphus | Oracle | Explore | Librarian | 기타 에이전트 |
 | --- | --- | --- | --- | --- | --- |
-| `background_task` | ✅ | ✅ | ❌ | ❌ | ✅ (default) |
-| `background_output` | ✅ | ✅ | ✅ | ✅ | ✅ (default) |
-| `background_cancel` | ✅ | ✅ | ✅ | ✅ | ✅ (default) |
-| `call_omo_agent` | ✅ | ✅ | ❌ | ❌ | ✅ (default) |
+| `background_task` | ✅ | ✅ | ❌ | ❌ | ✅ (기본값) |
+| `background_output` | ✅ | ✅ | ✅ | ✅ | ✅ (기본값) |
+| `background_cancel` | ✅ | ✅ | ✅ | ✅ | ✅ (기본값) |
+| `call_omo_agent` | ✅ | ✅ | ❌ | ❌ | ✅ (기본값) |
 
-**Rationale for explore/librarian restrictions**:
+**explore/librarian 제한 근거**:
 
-* These agents are read-only research agents designed to be invoked, not to invoke others
-* Allowing `background_task` would enable recursion (explore → background explore → ...)
-* They can still retrieve background results via `background_output`
-* They can cancel unwanted tasks via `background_cancel`
+* 이 에이전트들은 다른 에이전트를 호출하기보다는 호출되도록 설계된 읽기 전용 조사 에이전트입니다.
+* `background_task`를 허용하면 재귀(explore → background explore → ...)가 발생할 수 있습니다.
+* 이들은 여전히 `background_output`을 통해 백그라운드 결과를 회수할 수 있습니다.
+* `background_cancel`을 통해 원치 않는 작업을 취소할 수 있습니다.
 
 Sources: [Diagram 2 from architecture overview](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/Diagram 2 from architecture overview)
 
-### Recursion Prevention
+### 재귀 방지 (Recursion Prevention)
 
 ```mermaid
 flowchart TD
@@ -557,19 +557,19 @@ TaskRegistry -.-> Explore
 Librarian -.-> Librarian
 ```
 
-**Figure 4: Tool Access Prevents Recursion**
+**그림 4: 도구 액세스를 통한 재귀 방지**
 
-Background task creation tools (`background_task`, `call_omo_agent`) are disabled for explore and librarian to prevent recursive delegation. These agents can still interact with existing background tasks via output/cancel tools.
+백그라운드 작업 생성 도구(`background_task`, `call_omo_agent`)는 재귀적 위임을 방지하기 위해 explore 및 librarian에 대해 비활성화됩니다. 이러한 에이전트들은 여전히 출력/취소 도구를 통해 기존 백그라운드 작업과 상호 작용할 수 있습니다.
 
 Sources: [Diagram 2 from architecture overview](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/Diagram 2 from architecture overview)
 
 ---
 
-## Integration with BackgroundManager
+## BackgroundManager와의 통합
 
-All background task tools interact with the `BackgroundManager` class, which orchestrates task lifecycle management.
+모든 백그라운드 작업 도구는 작업 수명 주기 관리를 오케스트레이션하는 `BackgroundManager` 클래스와 상호 작용합니다.
 
-### Task Lifecycle State Machine
+### 작업 수명 주기 상태 머신 (Task Lifecycle State Machine)
 
 ```mermaid
 stateDiagram-v2
@@ -585,61 +585,61 @@ stateDiagram-v2
     cancelled --> [*] : "task removed"
 ```
 
-**Figure 5: Background Task State Transitions**
+**그림 5: 백그라운드 작업 상태 전이**
 
 Sources: [src/features/background-agent/manager.ts L69-L137](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L69-L137)
 
  [src/features/background-agent/manager.ts L192-L256](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L192-L256)
 
-### BackgroundManager Key Methods
+### BackgroundManager 주요 메서드
 
-| Method | Purpose | Called By |
+| 메서드 | 목적 | 호출 주체 |
 | --- | --- | --- |
-| `launch(LaunchInput)` | Create and start background task | background_task, call_omo_agent |
-| `getTask(id)` | Retrieve task by ID | background_output |
-| `getTasksByParentSession(sessionID)` | Get direct child tasks | background_cancel (all mode) |
-| `getAllDescendantTasks(sessionID)` | Recursively get all descendants | background_cancel (all mode) |
-| `findBySession(sessionID)` | Find task by session ID | Internal event handlers |
-| `handleEvent(event)` | Process session events for tasks | Plugin event system |
-| `notifyParentSession(task)` | Send completion notification | Internal on completion |
+| `launch(LaunchInput)` | 백그라운드 작업 생성 및 시작 | background_task, call_omo_agent |
+| `getTask(id)` | ID로 작업 조회 | background_output |
+| `getTasksByParentSession(sessionID)` | 직계 자식 작업 가져오기 | background_cancel (전체 모드) |
+| `getAllDescendantTasks(sessionID)` | 모든 하위 작업을 재귀적으로 가져오기 | background_cancel (전체 모드) |
+| `findBySession(sessionID)` | 세션 ID로 작업 찾기 | 내부 이벤트 핸들러 |
+| `handleEvent(event)` | 작업을 위한 세션 이벤트 처리 | 플러그인 이벤트 시스템 |
+| `notifyParentSession(task)` | 완료 알림 전송 | 완료 시 내부 호출 |
 
 Sources: [src/features/background-agent/manager.ts L55-L442](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L55-L442)
 
-### BackgroundTask Data Structure
+### BackgroundTask 데이터 구조
 
 ```sql
 interface BackgroundTask {
-  id: string                    // "bg_{uuid}" format
-  sessionID: string             // Created child session ID
-  parentSessionID: string       // Parent session ID
-  parentMessageID: string       // Message that launched task
-  description: string           // Short task description
-  prompt: string               // Full prompt sent to agent
-  agent: string                // Agent type (any registered agent)
+  id: string                    // "bg_{uuid}" 형식
+  sessionID: string             // 생성된 자식 세션 ID
+  parentSessionID: string       // 부모 세션 ID
+  parentMessageID: string       // 작업을 실행한 메시지
+  description: string           // 짧은 작업 설명
+  prompt: string               // 에이전트에게 전송된 전체 프롬프트
+  agent: string                // 에이전트 유형 (등록된 모든 에이전트)
   status: "running" | "completed" | "error" | "cancelled"
   startedAt: Date
   completedAt?: Date
   error?: string
   progress?: {
-    toolCalls: number          // Total tool invocations
-    lastTool?: string          // Most recent tool name
-    lastUpdate: Date           // Last progress update time
-    lastMessage?: string       // Most recent assistant message
-    lastMessageAt?: Date       // Timestamp of last message
+    toolCalls: number          // 총 도구 호출 횟수
+    lastTool?: string          // 가장 최근 도구 이름
+    lastUpdate: Date           // 마지막 진행 상황 업데이트 시간
+    lastMessage?: string       // 가장 최근 어시스턴트 메시지
+    lastMessageAt?: Date       // 마지막 메시지 타임스탬프
   }
 }
 ```
 
-This structure is populated during `manager.launch()` and updated via event handlers throughout the task lifecycle.
+이 구조는 `manager.launch()` 중에 채워지며 작업 수명 주기 동안 이벤트 핸들러를 통해 업데이트됩니다.
 
 Sources: [src/features/background-agent/manager.ts L88-L102](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/features/background-agent/manager.ts#L88-L102)
 
-### Progress Tracking
+### 진행 상황 추적 (Progress Tracking)
 
-The BackgroundManager tracks task progress through two mechanisms:
+BackgroundManager는 두 가지 메커니즘을 통해 작업 진행 상황을 추적합니다.
 
-1. **Event-driven updates**: `message.part.updated` events increment `toolCalls` and update `lastTool`
-2. **Polling mechanism**: Every 2 seconds, fetches session messages to update progress for all running tasks
+1. **이벤트 기반 업데이트**: `message.part.updated` 이벤트가 `toolCalls`를 증가시키고 `lastTool`을 업데이트합니다.
+2. **폴링 메커니즘**: 2초마다 세션 메시지를 가져와 실행 중인 모든 작업의 진행 상황을 업데이트합니다.
 
 ```javascript
 private async pollRunningTasks(): Promise<void> {
@@ -666,45 +666,45 @@ Sources: [src/features/background-agent/manager.ts L362-L441](https://github.com
 
 ---
 
-## Usage Patterns
+## 사용 패턴 (Usage Patterns)
 
-### Pattern 1: Launch and Poll
+### 패턴 1: 실행 및 폴링 (Launch and Poll)
 
-Basic pattern for background task execution:
+백그라운드 작업 실행을 위한 기본 패턴입니다.
 
 ```yaml
-// Step 1: Launch background task
+// 1단계: 백그라운드 작업 실행
 background_task({
   description: "Analyze codebase structure",
   prompt: "Analyze the overall architecture and module organization of this codebase",
   agent: "explore",
 })
 
-// Returns immediately:
+// 즉시 반환:
 // Task ID: bg_a1b2c3d4
 // Status: running
 
-// Step 2: Check progress (optional)
+// 2단계: 진행 상황 확인 (선택 사항)
 background_output({
   task_id: "bg_a1b2c3d4",
   block: false,
 })
 
-// Returns status with progress info:
+// 진행 정보와 함께 상태 반환:
 // Status: **running**
 // Last tool: grep
 // Duration: 45s
 
-// Step 3: System auto-notifies when complete
+// 3단계: 완료 시 시스템 자동 알림
 // [BACKGROUND TASK COMPLETED] Task "Analyze codebase structure" finished in 2m 15s.
 
-// Step 4: Retrieve final results
+// 4단계: 최종 결과 회수
 background_output({
   task_id: "bg_a1b2c3d4",
   block: false,
 })
 
-// Returns completed results:
+// 완료된 결과 반환:
 // Task Result
 // {full assistant response}
 ```
@@ -713,110 +713,110 @@ Sources: [src/tools/background-task/tools.ts L31-L62](https://github.com/code-ye
 
  [src/tools/background-task/tools.ts L204-L258](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/background-task/tools.ts#L204-L258)
 
-### Pattern 2: Parallel Multi-Agent Execution
+### 패턴 2: 병렬 다중 에이전트 실행 (Parallel Multi-Agent Execution)
 
-Launch multiple agents simultaneously for parallel work:
+병렬 작업을 위해 여러 에이전트를 동시에 실행합니다.
 
 ```sql
-// Launch 3 background tasks in parallel
+// 3개의 백그라운드 작업을 병렬로 실행
 background_task({
   description: "Explore frontend code",
   prompt: "Analyze React components and state management patterns",
   agent: "explore",
 })
-// Returns: bg_task1
+// 반환: bg_task1
 
 background_task({
   description: "Research testing strategies",
   prompt: "Find documentation on React Testing Library best practices",
   agent: "librarian",
 })
-// Returns: bg_task2
+// 반환: bg_task2
 
 background_task({
   description: "Generate API docs",
   prompt: "Create comprehensive API documentation for all REST endpoints",
   agent: "document-writer",
 })
-// Returns: bg_task3
+// 반환: bg_task3
 
-// All three tasks execute concurrently
-// Agent continues other work
-// Notifications arrive as tasks complete
+// 세 작업이 모두 동시에 실행됨
+// 에이전트는 다른 작업을 계속 수행
+// 작업이 완료됨에 따라 알림이 도착함
 ```
 
-This enables the parallel execution pattern shown in Diagram 5 from the architecture overview.
+이는 아키텍처 개요의 Diagram 5에 표시된 병렬 실행 패턴을 가능하게 합니다.
 
 Sources: [Diagram 5 from architecture overview](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/Diagram 5 from architecture overview)
 
  [src/tools/background-task/tools.ts L23-L63](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/background-task/tools.ts#L23-L63)
 
-### Pattern 3: Cancel Before Final Answer
+### 패턴 3: 최종 답변 전 취소 (Cancel Before Final Answer)
 
-Clean up running background tasks before providing final response:
+최종 응답을 제공하기 전에 실행 중인 백그라운드 작업을 정리합니다.
 
 ```yaml
-// Agent has launched several background tasks
-// but decides they're no longer needed
+// 에이전트가 여러 백그라운드 작업을 실행했지만
+// 더 이상 필요하지 않다고 판단함
 
-// Cancel all running background tasks
+// 실행 중인 모든 백그라운드 작업 취소
 background_cancel({
   all: true,
 })
 
-// Returns:
+// 반환:
 // ✅ Cancelled 3 background task(s):
 // - bg_task1: Explore frontend code
 // - bg_task2: Research testing strategies
 // - bg_task3: Generate API docs
 
-// Now safe to provide final answer without lingering work
+// 이제 남아 있는 작업 없이 안전하게 최종 답변 제공 가능
 ```
 
-This is the recommended pattern in the tool description: "Use all=true to cancel ALL before final answer."
+이는 도구 설명에서 권장되는 패턴입니다: "최종 답변 전 모든 작업을 취소하려면 all=true를 사용하십시오."
 
 Sources: [src/tools/background-task/tools.ts L278-L298](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/background-task/tools.ts#L278-L298)
 
  [src/tools/background-task/constants.ts L7](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/background-task/constants.ts#L7-L7)
 
-### Pattern 4: Blocking Wait (Rare)
+### 패턴 4: 차단 대기 (Blocking Wait - 드묾)
 
-Occasionally used when immediate results are required despite system notifications:
+시스템 알림에도 불구하고 즉각적인 결과가 필요한 경우 가끔 사용됩니다.
 
 ```yaml
-// Launch task and wait for completion
+// 작업 실행 및 완료 대기
 background_task({
   description: "Quick search",
   prompt: "Find the main configuration file",
   agent: "explore",
 })
-// Returns: Task ID: bg_xyz123
+// 반환: Task ID: bg_xyz123
 
-// Block until completion (with 30s timeout)
+// 완료될 때까지 차단 대기 (30초 타임아웃)
 background_output({
   task_id: "bg_xyz123",
   block: true,
   timeout: 30000,
 })
 
-// Blocks for up to 30 seconds
-// Returns either:
-// - Completed results if task finishes
-// - Timeout message if still running after 30s
+// 최대 30초 동안 차단됨
+// 다음 중 하나를 반환:
+// - 작업이 끝나면 완료된 결과
+// - 30초 후에도 실행 중이면 타임아웃 메시지
 ```
 
-The tool description notes this is "rarely needed since system notifies".
+도구 설명에서는 "시스템이 알림을 보내므로 거의 필요하지 않음"이라고 명시되어 있습니다.
 
 Sources: [src/tools/background-task/tools.ts L229-L254](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/background-task/tools.ts#L229-L254)
 
  [src/tools/background-task/constants.ts L5](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/background-task/constants.ts#L5-L5)
 
-### Pattern 5: Specialized Agent Delegation (call_omo_agent)
+### 패턴 5: 특화된 에이전트 위임 (call_omo_agent)
 
-Use `call_omo_agent` for explore/librarian delegation with extra constraints:
+추가 제약 조건이 있는 explore/librarian 위임을 위해 `call_omo_agent`를 사용합니다.
 
 ```yaml
-// Delegate to explore agent (async mode)
+// explore 에이전트에게 위임 (비동기 모드)
 call_omo_agent({
   description: "Search for tests",
   prompt: "Find all test files and summarize the testing approach",
@@ -824,17 +824,17 @@ call_omo_agent({
   run_in_background: true,
 })
 
-// Functionally equivalent to:
+// 기능적으로 다음과 동일함:
 background_task({
   description: "Search for tests",
   prompt: "Find all test files and summarize the testing approach",
   agent: "explore",
 })
 
-// Use call_omo_agent when:
-// - Agent restrictions (explore/librarian only) are desired
-// - Consistency with sync mode usage (session continuation)
-// - Working with code that expects call_omo_agent specifically
+// 다음과 같은 경우 call_omo_agent 사용:
+// - 에이전트 제한(explore/librarian 전용)이 필요한 경우
+// - 동기 모드 사용(세션 유지)과의 일관성 유지
+// - 구체적으로 call_omo_agent를 기대하는 코드와 작업하는 경우
 ```
 
 Sources: [src/tools/call-omo-agent/tools.ts L48-L77](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/call-omo-agent/tools.ts#L48-L77)
@@ -843,16 +843,16 @@ Sources: [src/tools/call-omo-agent/tools.ts L48-L77](https://github.com/code-yeo
 
 ---
 
-## Tool Definition Location
+## 도구 정의 위치 (Tool Definition Location)
 
-The complete implementation of `call_omo_agent` is located in:
+`call_omo_agent`의 전체 구현은 다음 위치에 있습니다.
 
-* **Tool definition**: [src/tools/call-omo-agent/tools.ts L7-L178](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/call-omo-agent/tools.ts#L7-L178)
-* **Type definitions**: [src/tools/call-omo-agent/types.ts L1-L28](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/call-omo-agent/types.ts#L1-L28)
-* **Constants**: [src/tools/call-omo-agent/constants.ts L1-L24](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/call-omo-agent/constants.ts#L1-L24)
-* **Public exports**: [src/tools/call-omo-agent/index.ts L1-L4](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/call-omo-agent/index.ts#L1-L4)
+* **도구 정의**: [src/tools/call-omo-agent/tools.ts L7-L178](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/call-omo-agent/tools.ts#L7-L178)
+* **타입 정의**: [src/tools/call-omo-agent/types.ts L1-L28](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/call-omo-agent/types.ts#L1-L28)
+* **상수**: [src/tools/call-omo-agent/constants.ts L1-L24](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/call-omo-agent/constants.ts#L1-L24)
+* **공개 익스포트**: [src/tools/call-omo-agent/index.ts L1-L4](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/call-omo-agent/index.ts#L1-L4)
 
-The tool is registered with the plugin system during initialization and made available to agents based on their permission configuration.
+이 도구는 초기화 중에 플러그인 시스템에 등록되며 권한 구성에 따라 에이전트가 사용할 수 있게 됩니다.
 
 Sources: [src/tools/call-omo-agent/tools.ts L1-L179](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/tools/call-omo-agent/tools.ts#L1-L179)
 

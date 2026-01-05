@@ -1,13 +1,13 @@
 ---
 layout: default
-title: GitHub Workflow Integration
+title: GitHub 워크플로우 통합
 parent: Agents
 nav_order: 1
 ---
 
-# GitHub Workflow Integration
+# GitHub 워크플로우 통합 (GitHub Workflow Integration)
 
-> **Relevant source files**
+> **관련 소스 파일**
 > * [.github/assets/sisyphus.png](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/.github/assets/sisyphus.png)
 > * [.github/workflows/sisyphus-agent.yml](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/.github/workflows/sisyphus-agent.yml)
 > * [src/agents/index.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/index.ts)
@@ -23,95 +23,95 @@ nav_order: 1
 > * [src/cli/run/runner.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/run/runner.ts)
 > * [src/cli/run/types.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/run/types.ts)
 
-## Purpose and Scope
+## 목적 및 범위
 
-This document describes Sisyphus's specialized workflow for GitHub Actions integration, enabling automated repository work through issue and PR comments. When users mention `@sisyphus-dev-ai` in GitHub issues or pull requests, the system automatically investigates, implements, verifies, and creates pull requests.
+이 문서는 이슈 및 PR(Pull Request) 댓글을 통해 자동화된 저장소 작업을 가능하게 하는 Sisyphus의 GitHub Actions 통합 전용 워크플로우를 설명합니다. 사용자가 GitHub 이슈나 풀 리퀘스트에서 `@sisyphus-dev-ai`를 멘션하면, 시스템은 자동으로 조사, 구현, 검증을 수행하고 풀 리퀘스트를 생성합니다.
 
-This page focuses on the GitHub Actions trigger mechanism, environment configuration, and special prompt context. For Sisyphus's general workflow phases, see [Workflow Phases](/code-yeongyu/oh-my-opencode/4.1.1-workflow-phases). For todo-based task tracking used during execution, see [Todo Management](/code-yeongyu/oh-my-opencode/4.1.2-todo-management). For the general CLI run command behavior, see [CLI Run Command](/code-yeongyu/oh-my-opencode/10.2-cli-run-command).
+이 페이지는 GitHub Actions 트리거 메커니즘, 환경 구성 및 특수 프롬프트 컨텍스트(Prompt Context)에 초점을 맞춥니다. Sisyphus의 일반적인 워크플로우 단계에 대해서는 [워크플로우 단계(Workflow Phases)](/code-yeongyu/oh-my-opencode/4.1.1-workflow-phases)를 참조하십시오. 실행 중 사용되는 할 일(todo) 기반 작업 추적에 대해서는 [할 일 관리(Todo Management)](/code-yeongyu/oh-my-opencode/4.1.2-todo-management)를 참조하십시오. 일반적인 CLI 실행 명령 동작에 대해서는 [CLI 실행 명령(CLI Run Command)](/code-yeongyu/oh-my-opencode/10.2-cli-run-command)을 참조하십시오.
 
 ---
 
-## Trigger Mechanism
+## 트리거 메커니즘 (Trigger Mechanism)
 
-The GitHub Actions workflow activates on two event types: manual `workflow_dispatch` or `issue_comment` events containing the `@sisyphus-dev-ai` mention.
+GitHub Actions 워크플로우는 수동 `workflow_dispatch` 또는 `@sisyphus-dev-ai` 멘션이 포함된 `issue_comment` 이벤트의 두 가지 유형에서 활성화됩니다.
 
-### Permission-Based Activation
+### 권한 기반 활성화
 
 ```mermaid
 flowchart TD
 
-Comment["issue_comment event<br>Comment created"]
-Check1["Contains<br>@sisyphus-dev-ai?"]
-Check2["Author is<br>sisyphus-dev-ai?"]
-Check3["Author association<br>in whitelist?"]
-Execute["Execute workflow"]
-Skip["Skip workflow"]
+Comment["issue_comment 이벤트<br>댓글 생성됨"]
+Check1["@sisyphus-dev-ai<br>포함 여부?"]
+Check2["작성자가<br>sisyphus-dev-ai인가?"]
+Check3["작성자 권한이<br>화이트리스트에 있는가?"]
+Execute["워크플로우 실행"]
+Skip["워크플로우 건너뛰기"]
 
 Comment -.-> Check1
-Check1 -.->|"No"| Skip
-Check1 -.->|"Yes"| Check2
-Check2 -.->|"Yes"| Skip
-Check2 -.->|"No"| Check3
+Check1 -.->|"아니오"| Skip
+Check1 -.->|"예"| Check2
+Check2 -.->|"예"| Skip
+Check2 -.->|"아니오"| Check3
 Check3 -.->|"OWNER/MEMBER/COLLABORATOR"| Execute
-Check3 -.->|"Other"| Skip
+Check3 -.->|"기타"| Skip
 ```
 
-**Allowed author associations:**
+**허용된 작성자 권한(Author associations):**
 
-* `OWNER`: Repository owner
-* `MEMBER`: Organization member
-* `COLLABORATOR`: Repository collaborator
+* `OWNER`: 저장소 소유자
+* `MEMBER`: 조직 구성원
+* `COLLABORATOR`: 저장소 협력자
 
-The workflow explicitly excludes self-mentions to prevent infinite loops when sisyphus-dev-ai comments on its own work.
+워크플로우는 sisyphus-dev-ai가 자신의 작업에 댓글을 달 때 발생할 수 있는 무한 루프를 방지하기 위해 자기 자신에 대한 멘션은 명시적으로 제외합니다.
 
-Sources: [.github/workflows/sisyphus-agent.yml L17-L22](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/.github/workflows/sisyphus-agent.yml#L17-L22)
+출처: [.github/workflows/sisyphus-agent.yml L17-L22](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/.github/workflows/sisyphus-agent.yml#L17-L22)
 
-### Context Collection
+### 컨텍스트 수집
 
-The workflow determines whether the comment is on an issue or pull request by querying the GitHub API:
+워크플로우는 GitHub API를 쿼리하여 댓글이 이슈에 달린 것인지 아니면 풀 리퀘스트에 달린 것인지 판단합니다.
 
-| Context Type | Detection Method | Output Variables |
+| 컨텍스트 유형 | 감지 방법 | 출력 변수 |
 | --- | --- | --- |
-| Pull Request | `gh api "repos/$REPO/issues/${ISSUE_NUM}"` with `.pull_request` field present | `type=pr`, `number=${ISSUE_NUM}` |
-| Issue | Same API call, `.pull_request` field absent | `type=issue`, `number=${ISSUE_NUM}` |
+| 풀 리퀘스트 (PR) | `gh api "repos/$REPO/issues/${ISSUE_NUM}"` 호출 시 `.pull_request` 필드 존재 | `type=pr`, `number=${ISSUE_NUM}` |
+| 이슈 (Issue) | 동일한 API 호출 시, `.pull_request` 필드 없음 | `type=issue`, `number=${ISSUE_NUM}` |
 
-Additional collected context:
+추가로 수집되는 컨텍스트:
 
-* `comment`: Full comment body
-* `author`: Comment author username
-* `comment_id`: Comment ID for reactions
+* `comment`: 전체 댓글 본문
+* `author`: 댓글 작성자 사용자 이름
+* `comment_id`: 리액션을 위한 댓글 ID
 
-Sources: [.github/workflows/sisyphus-agent.yml L230-L261](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/.github/workflows/sisyphus-agent.yml#L230-L261)
+출처: [.github/workflows/sisyphus-agent.yml L230-L261](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/.github/workflows/sisyphus-agent.yml#L230-L261)
 
 ---
 
-## Environment Setup
+## 환경 설정 (Environment Setup)
 
-The workflow constructs a complete oh-my-opencode environment from scratch on each run, ensuring consistent configuration.
+워크플로우는 실행 시마다 처음부터 완전한 oh-my-opencode 환경을 구축하여 일관된 구성을 보장합니다.
 
-### Build and Installation Pipeline
+### 빌드 및 설치 파이프라인
 
 ```mermaid
 flowchart TD
 
-BunInstall["bun install<br>Install dependencies"]
-BunBuild["bun run build<br>Compile TypeScript"]
+BunInstall["bun install<br>의존성 설치"]
+BunBuild["bun run build<br>TypeScript 컴파일"]
 Download["curl -fsSL<br>opencode.ai/install"]
-Fallback["Fallback:<br>--version 1.0.204"]
+Fallback["대체 수단(Fallback):<br>--version 1.0.204"]
 Verify["opencode --version"]
 LocalInstall["bun run dist/cli/index.js<br>install --no-tui"]
-PluginOverride["jq: Replace plugin path<br>with file://$REPO_PATH/src/index.ts"]
+PluginOverride["jq: 플러그인 경로를<br>file://$REPO_PATH/src/index.ts로 교체"]
 
 BunBuild -.-> Download
 Verify -.-> LocalInstall
 
-subgraph subGraph2 ["Plugin Configuration"]
+subgraph subGraph2 ["플러그인 구성"]
     LocalInstall
     PluginOverride
     LocalInstall -.-> PluginOverride
 end
 
-subgraph subGraph1 ["OpenCode Installation"]
+subgraph subGraph1 ["OpenCode 설치"]
     Download
     Fallback
     Verify
@@ -119,36 +119,36 @@ subgraph subGraph1 ["OpenCode Installation"]
     Fallback -.-> Verify
 end
 
-subgraph subGraph0 ["Build Phase"]
+subgraph subGraph0 ["빌드 단계"]
     BunInstall
     BunBuild
     BunInstall -.-> BunBuild
 end
 ```
 
-**Key configuration steps:**
+**주요 구성 단계:**
 
-1. **Build local oh-my-opencode**: Ensures workflow uses latest code from the current commit
-2. **Install OpenCode SDK**: Attempts default installer, falls back to pinned version 1.0.204 if download fails
-3. **Run local install**: Uses built `dist/cli/index.js` with `--no-tui --claude=max20 --chatgpt=no --gemini=no`
-4. **Override plugin path**: Replaces npm package reference with direct file reference to `src/index.ts`
+1. **로컬 oh-my-opencode 빌드**: 워크플로우가 현재 커밋의 최신 코드를 사용하도록 보장합니다.
+2. **OpenCode SDK 설치**: 기본 설치 프로그램을 시도하고, 다운로드 실패 시 고정된 버전인 1.0.204로 대체합니다.
+3. **로컬 설치 실행**: 빌드된 `dist/cli/index.js`를 `--no-tui --claude=max20 --chatgpt=no --gemini=no` 옵션과 함께 사용합니다.
+4. **플러그인 경로 재정의(Override)**: npm 패키지 참조를 `src/index.ts`에 대한 직접 파일 참조로 교체합니다.
 
-Sources: [.github/workflows/sisyphus-agent.yml L72-L113](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/.github/workflows/sisyphus-agent.yml#L72-L113)
+출처: [.github/workflows/sisyphus-agent.yml L72-L113](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/.github/workflows/sisyphus-agent.yml#L72-L113)
 
-### Model Configuration Override
+### 모델 구성 재정의
 
-The workflow configures custom Anthropic models with extended thinking capabilities:
+워크플로우는 확장된 사고 능력(extended thinking capabilities)을 갖춘 커스텀 Anthropic 모델을 구성합니다.
 
 ```mermaid
 flowchart TD
 
-BaseURL["baseURL: ANTHROPIC_BASE_URL<br>Custom API endpoint"]
-APIKey["apiKey: ANTHROPIC_API_KEY<br>Authentication"]
-Opus45["claude-opus-4-5<br>context: 190k, output: 64k<br>effort: high"]
-OpusHigh["claude-opus-4-5-high<br>context: 190k, output: 128k<br>thinking: 64k budget"]
-Sonnet45["claude-sonnet-4-5<br>context: 200k, output: 64k"]
-SonnetHigh["claude-sonnet-4-5-high<br>context: 200k, output: 128k<br>thinking: 64k budget"]
-Haiku45["claude-haiku-4-5<br>context: 200k, output: 64k"]
+BaseURL["baseURL: ANTHROPIC_BASE_URL<br>커스텀 API 엔드포인트"]
+APIKey["apiKey: ANTHROPIC_API_KEY<br>인증"]
+Opus45["claude-opus-4-5<br>컨텍스트: 190k, 출력: 64k<br>effort: high"]
+OpusHigh["claude-opus-4-5-high<br>컨텍스트: 190k, 출력: 128k<br>thinking: 64k 예산"]
+Sonnet45["claude-sonnet-4-5<br>컨텍스트: 200k, 출력: 64k"]
+SonnetHigh["claude-sonnet-4-5-high<br>컨텍스트: 200k, 출력: 128k<br>thinking: 64k 예산"]
+Haiku45["claude-haiku-4-5<br>컨텍스트: 200k, 출력: 64k"]
 
 BaseURL -.-> Opus45
 APIKey -.-> Opus45
@@ -157,7 +157,7 @@ BaseURL -.-> Sonnet45
 BaseURL -.-> SonnetHigh
 BaseURL -.-> Haiku45
 
-subgraph subGraph1 ["Model Definitions"]
+subgraph subGraph1 ["모델 정의"]
     Opus45
     OpusHigh
     Sonnet45
@@ -165,30 +165,30 @@ subgraph subGraph1 ["Model Definitions"]
     Haiku45
 end
 
-subgraph subGraph0 ["Anthropic Provider Configuration"]
+subgraph subGraph0 ["Anthropic 프로바이더 구성"]
     BaseURL
     APIKey
 end
 ```
 
-The configuration uses `jq` to surgically modify `~/.config/opencode/opencode.json`, preserving all other settings while injecting custom models.
+이 구성은 `jq`를 사용하여 `~/.config/opencode/opencode.json`을 정밀하게 수정하며, 다른 모든 설정은 유지하면서 커스텀 모델을 주입합니다.
 
-Sources: [.github/workflows/sisyphus-agent.yml L115-L155](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/.github/workflows/sisyphus-agent.yml#L115-L155)
+출처: [.github/workflows/sisyphus-agent.yml L115-L155](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/.github/workflows/sisyphus-agent.yml#L115-L155)
 
 ---
 
-## Prompt Context Injection
+## 프롬프트 컨텍스트 주입 (Prompt Context Injection)
 
-Sisyphus receives specialized instructions when running in GitHub Actions, fundamentally changing its behavior from interactive console sessions to GitHub comment-based interactions.
+Sisyphus는 GitHub Actions에서 실행될 때 특수한 지침을 받으며, 이는 대화형 콘솔 세션에서 GitHub 댓글 기반 상호작용으로 동작 방식을 근본적으로 변화시킵니다.
 
-### Environment Context Structure
+### 환경 컨텍스트 구조
 
-The workflow injects two context layers:
+워크플로우는 두 개의 컨텍스트 레이어를 주입합니다.
 
-**Layer 1: Standard Environment Context** (always injected)
+**레이어 1: 표준 환경 컨텍스트** (항상 주입됨)
 
 ```
-// Generated by createEnvContext() in src/agents/utils.ts
+// src/agents/utils.ts의 createEnvContext()에 의해 생성됨
 `
 Working directory: ${directory}
 Platform: ${platform}
@@ -199,21 +199,21 @@ Locale: ${locale}
 `
 ```
 
-**Layer 2: GitHub Actions Context** (workflow-specific)
+**레이어 2: GitHub Actions 컨텍스트** (워크플로우 전용)
 
-The workflow appends comprehensive GitHub-specific instructions via the `prompt_append` field in `~/.config/opencode/oh-my-opencode.json`:
+워크플로우는 `~/.config/opencode/oh-my-opencode.json`의 `prompt_append` 필드를 통해 포괄적인 GitHub 전용 지침을 추가합니다.
 
 ```mermaid
 flowchart TD
 
-Identity["Identity:<br>You are sisyphus-dev-ai<br>in GitHub Actions"]
-Output["CRITICAL:<br>GitHub Comments =<br>ONLY Output"]
-Formatting["Comment Formatting:<br>ALWAYS use heredoc<br>for backticks/code"]
-Markdown["GitHub Markdown Rules:<br>3 backticks + language<br>proper closing"]
-Rules["Workflow Rules:<br>bun install first<br>PR for changes<br>acknowledge + report"]
-GitConfig["Git Configuration:<br>user.name: sisyphus-dev-ai<br>user.email: Unsupported markdown: link"]
+Identity["정체성:<br>당신은 GitHub Actions의<br>sisyphus-dev-ai입니다"]
+Output["중요:<br>GitHub 댓글 =<br>유일한 출력 수단"]
+Formatting["댓글 포맷팅:<br>백틱/코드를 위해<br>항상 heredoc 사용"]
+Markdown["GitHub 마크다운 규칙:<br>백틱 3개 + 언어<br>적절한 닫기"]
+Rules["워크플로우 규칙:<br>먼저 bun install 실행<br>변경사항은 PR 생성<br>확인 및 보고"]
+GitConfig["Git 구성:<br>user.name: sisyphus-dev-ai<br>user.email: sisyphus-dev-ai@users.noreply.github.com"]
 
-subgraph subGraph0 ["Prompt Append Sections"]
+subgraph subGraph0 ["프롬프트 추가 섹션"]
     Identity
     Output
     Formatting
@@ -228,53 +228,53 @@ subgraph subGraph0 ["Prompt Append Sections"]
 end
 ```
 
-**Critical behavioral changes:**
+**주요 행동 변화:**
 
-| Standard Session | GitHub Actions Session |
+| 표준 세션 | GitHub Actions 세션 |
 | --- | --- |
-| Output to console visible to user | User CANNOT see console |
-| File edits persist in workspace | Must post results via `gh issue comment` or `gh pr comment` |
-| Interactive responses expected | All communication through GitHub comments |
-| Can use plain backticks in responses | MUST use heredoc syntax for shell safety |
+| 사용자에게 보이는 콘솔로 출력 | 사용자가 콘솔을 볼 수 없음 |
+| 파일 수정사항이 워크스페이스에 유지됨 | `gh issue comment` 또는 `gh pr comment`를 통해 결과를 게시해야 함 |
+| 대화형 응답 기대 | 모든 통신은 GitHub 댓글을 통해 이루어짐 |
+| 응답에 일반 백틱 사용 가능 | 쉘 안전성을 위해 반드시 히어독(heredoc) 구문을 사용해야 함 |
 
-Sources: [.github/workflows/sisyphus-agent.yml L157-L222](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/.github/workflows/sisyphus-agent.yml#L157-L222)
+출처: [.github/workflows/sisyphus-agent.yml L157-L222](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/.github/workflows/sisyphus-agent.yml#L157-L222)
 
  [src/agents/utils.ts L32-L63](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/utils.ts#L32-L63)
 
-### Heredoc Requirement
+### 히어독(Heredoc) 요구 사항
 
-The workflow enforces heredoc syntax for all GitHub comments to prevent shell interpretation issues:
+워크플로우는 쉘 해석 문제를 방지하기 위해 모든 GitHub 댓글에 대해 히어독 구문을 강제합니다.
 
 ```markdown
-# WRONG - backticks disappear due to command substitution
+# 잘못됨 - 명령 치환으로 인해 백틱이 사라짐
 gh issue comment 123 --body "text with `code`"
 
-# CORRECT - backticks preserved via heredoc
+# 올바름 - 히어독을 통해 백틱이 보존됨
 gh issue comment 123 --body "$(cat <<'EOF'
 text with `code`
 EOF
 )"
 ```
 
-This requirement is documented in [.github/workflows/sisyphus-agent.yml L169-L190](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/.github/workflows/sisyphus-agent.yml#L169-L190)
+이 요구 사항은 [.github/workflows/sisyphus-agent.yml L169-L190](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/.github/workflows/sisyphus-agent.yml#L169-L190)에 문서화되어 있습니다.
 
 ---
 
-## Prompt Construction
+## 프롬프트 구성 (Prompt Construction)
 
-The workflow constructs the final prompt by combining static templates with runtime context:
+워크플로우는 정적 템플릿과 런타임 컨텍스트를 결합하여 최종 프롬프트를 구성합니다.
 
 ```mermaid
 flowchart TD
 
-Template["Static Prompt Template<br>(lines 305-322)"]
+Template["정적 프롬프트 템플릿<br>(305-322행)"]
 Author["AUTHOR_PLACEHOLDER<br>→ $COMMENT_AUTHOR"]
 Repo["REPO_PLACEHOLDER<br>→ $REPO_NAME"]
-Type["TYPE_PLACEHOLDER<br>→ pr or issue"]
-Number["NUMBER_PLACEHOLDER<br>→ Issue/PR number"]
+Type["TYPE_PLACEHOLDER<br>→ pr 또는 issue"]
+Number["NUMBER_PLACEHOLDER<br>→ 이슈/PR 번호"]
 Branch["BRANCH_PLACEHOLDER<br>→ $DEFAULT_BRANCH"]
 Comment["COMMENT_PLACEHOLDER<br>→ $USER_COMMENT"]
-FinalPrompt["Final Prompt String"]
+FinalPrompt["최종 프롬프트 문자열"]
 
 Template -.-> Author
 Template -.-> Repo
@@ -289,7 +289,7 @@ Number -.-> FinalPrompt
 Branch -.-> FinalPrompt
 Comment -.-> FinalPrompt
 
-subgraph subGraph0 ["Variable Substitution"]
+subgraph subGraph0 ["변수 치환"]
     Author
     Repo
     Type
@@ -299,7 +299,7 @@ subgraph subGraph0 ["Variable Substitution"]
 end
 ```
 
-**Template structure:**
+**템플릿 구조:**
 
 ```sql
 Your username is @sisyphus-dev-ai, mentioned by @AUTHOR_PLACEHOLDER in REPO_PLACEHOLDER.
@@ -320,111 +320,111 @@ Then investigate and satisfy the request. Only if user requested to you to work 
 When done, report the result to the issue/PR with `gh issue comment NUMBER_PLACEHOLDER` or `gh pr comment NUMBER_PLACEHOLDER`.
 ```
 
-The template explicitly instructs Sisyphus to:
+템플릿은 Sisyphus에게 다음을 명시적으로 지시합니다:
 
-1. Use todo tools for all work tracking
-2. Investigate thoroughly
-3. Create PR to default branch when work is requested
-4. Report completion via GitHub comments
+1. 모든 작업 추적에 할 일(todo) 도구를 사용할 것
+2. 철저히 조사할 것
+3. 작업이 요청되면 기본 브랜치로 PR을 생성할 것
+4. 완료 시 GitHub 댓글을 통해 보고할 것
 
-Sources: [.github/workflows/sisyphus-agent.yml L305-L330](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/.github/workflows/sisyphus-agent.yml#L305-L330)
+출처: [.github/workflows/sisyphus-agent.yml L305-L330](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/.github/workflows/sisyphus-agent.yml#L305-L330)
 
 ---
 
-## Pattern Recognition in Sisyphus
+## Sisyphus의 패턴 인식
 
-Sisyphus's prompt contains specific pattern recognition for GitHub workflow requests:
+Sisyphus의 프롬프트에는 GitHub 워크플로우 요청에 대한 특정 패턴 인식이 포함되어 있습니다.
 
-### Trigger Phrases
+### 트리거 문구
 
-| Phrase Pattern | Interpretation | Expected Outcome |
+| 문구 패턴 | 해석 | 기대 결과 |
 | --- | --- | --- |
-| `@sisyphus look into X` | Full work cycle | Investigate + implement + verify + PR |
-| `look into X and create PR` | Explicit work request | Complete implementation with PR |
-| `investigate Y and make PR` | Explicit work request | Complete implementation with PR |
-| Mentioned in issue comment | Context-dependent | Investigation or full work based on request |
+| `@sisyphus look into X` | 전체 작업 사이클 | 조사 + 구현 + 검증 + PR |
+| `look into X and create PR` | 명시적 작업 요청 | PR을 포함한 전체 구현 |
+| `investigate Y and make PR` | 명시적 작업 요청 | PR을 포함한 전체 구현 |
+| 이슈 댓글에서 멘션됨 | 컨텍스트에 따름 | 요청에 따른 조사 또는 전체 작업 |
 
-**Critical distinction:** In GitHub Actions context, "look into" does NOT mean "just investigate and report back." It means "investigate, understand, implement a solution, and create a PR."
+**중요한 차이점:** GitHub Actions 컨텍스트에서 "look into"는 단순히 "조사하고 보고하라"는 의미가 아닙니다. 이는 "조사하고, 이해하고, 해결책을 구현하고, PR을 생성하라"는 의미입니다.
 
-Sources: [src/agents/sisyphus.ts L264-L296](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/sisyphus.ts#L264-L296)
+출처: [src/agents/sisyphus.ts L264-L296](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/sisyphus.ts#L264-L296)
 
-### Required Workflow Steps
+### 필수 워크플로우 단계
 
 ```mermaid
 flowchart TD
 
-Investigate["Unsupported markdown: list"]
-Implement["Unsupported markdown: list"]
-Verify["Unsupported markdown: list"]
-CreatePR["Unsupported markdown: list"]
+Investigate["1. 조사 (Investigate)"]
+Implement["2. 구현 (Implement)"]
+Verify["3. 검증 (Verify)"]
+CreatePR["4. PR 생성 (Create PR)"]
 
 Investigate -.-> Implement
 Implement -.-> Verify
 Verify -.-> CreatePR
 ```
 
-Each step has specific verification requirements:
+각 단계에는 구체적인 검증 요구 사항이 있습니다.
 
-| Step | Evidence Required |
+| 단계 | 필요한 증거 |
 | --- | --- |
-| Investigate | Root cause identified, scope documented |
-| Implement | `lsp_diagnostics` clean on changed files |
-| Verify | Build passes (exit code 0), tests pass |
-| Create PR | PR created with issue reference, meaningful description |
+| 조사 | 근본 원인 파악, 범위 문서화 |
+| 구현 | 변경된 파일에 대해 `lsp_diagnostics` 결과가 깨끗함 |
+| 검증 | 빌드 성공 (종료 코드 0), 테스트 통과 |
+| PR 생성 | 이슈 참조 및 의미 있는 설명이 포함된 PR 생성 |
 
-Sources: [src/agents/sisyphus.ts L276-L293](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/sisyphus.ts#L276-L293)
+출처: [src/agents/sisyphus.ts L276-L293](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/sisyphus.ts#L276-L293)
 
 ---
 
-## CLI Run Command Execution
+## CLI 실행 명령 실행 (CLI Run Command Execution)
 
-The workflow invokes the oh-my-opencode CLI run command, which manages session lifecycle and completion detection.
+워크플로우는 세션 수명 주기 및 완료 감지를 관리하는 oh-my-opencode CLI 실행 명령을 호출합니다.
 
-### Execution Flow
+### 실행 흐름
 
 ```mermaid
 flowchart TD
 
 Start["bun run dist/cli/index.js run<br>$PROMPT"]
-CreateSession["client.session.create<br>title: 'oh-my-opencode run'"]
-Subscribe["client.event.subscribe<br>Monitor all events"]
-PromptAsync["client.session.promptAsync<br>Send prompt to Sisyphus"]
+CreateSession["client.session.create<br>제목: 'oh-my-opencode run'"]
+Subscribe["client.event.subscribe<br>모든 이벤트 모니터링"]
+PromptAsync["client.session.promptAsync<br>Sisyphus에게 프롬프트 전송"]
 CheckIdle["mainSessionIdle?"]
 CheckError["mainSessionError?"]
-CheckCompletion["checkCompletionConditions<br>Todos + child sessions"]
-WaitMore["Continue polling"]
-ExitSuccess["Exit 0<br>All tasks completed"]
-ExitError["Exit 1<br>Session error"]
+CheckCompletion["checkCompletionConditions<br>할 일 + 자식 세션"]
+WaitMore["폴링 계속"]
+ExitSuccess["종료 코드 0<br>모든 작업 완료"]
+ExitError["종료 코드 1<br>세션 오류"]
 
 Start -.-> CreateSession
 CreateSession -.-> Subscribe
 Subscribe -.-> PromptAsync
 PromptAsync -.-> CheckIdle
-CheckError -.->|"Yes"| ExitError
-CheckCompletion -.->|"Complete"| ExitSuccess
+CheckError -.->|"예"| ExitError
+CheckCompletion -.->|"완료"| ExitSuccess
 
-subgraph subGraph0 ["Polling Loop (500ms interval)"]
+subgraph subGraph0 ["폴링 루프 (500ms 간격)"]
     CheckIdle
     CheckError
     CheckCompletion
     WaitMore
-    CheckIdle -.->|"No"| WaitMore
-    CheckIdle -.->|"Yes"| CheckError
-    CheckError -.->|"No"| CheckCompletion
-    CheckCompletion -.->|"Incomplete"| WaitMore
+    CheckIdle -.->|"아니오"| WaitMore
+    CheckIdle -.->|"예"| CheckError
+    CheckError -.->|"아니오"| CheckCompletion
+    CheckCompletion -.->|"미완료"| WaitMore
     WaitMore -.-> CheckIdle
 end
 ```
 
-The runner uses a 500ms polling interval to check session state, balancing responsiveness with API load.
+러너(Runner)는 500ms 폴링 간격을 사용하여 세션 상태를 확인하며, 응답성과 API 부하 사이의 균형을 맞춥니다.
 
-Sources: [src/cli/run/runner.ts L10-L121](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/run/runner.ts#L10-L121)
+출처: [src/cli/run/runner.ts L10-L121](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/run/runner.ts#L10-L121)
 
  [src/cli/run/events.ts L34-L62](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/run/events.ts#L34-L62)
 
-### Event Processing
+### 이벤트 처리
 
-The CLI monitors multiple event types to track progress:
+CLI는 진행 상황을 추적하기 위해 여러 이벤트 유형을 모니터링합니다.
 
 ```mermaid
 flowchart TD
@@ -436,11 +436,11 @@ MessageUpdated["message.updated"]
 MessagePartUpdated["message.part.updated"]
 ToolExecute["tool.execute"]
 ToolResult["tool.result"]
-IdleFlag["mainSessionIdle<br>boolean flag"]
-ErrorFlag["mainSessionError<br>boolean flag"]
-LastError["lastError<br>error message"]
-LastOutput["lastOutput<br>accumulated text"]
-CurrentTool["currentTool<br>tool name"]
+IdleFlag["mainSessionIdle<br>불리언 플래그"]
+ErrorFlag["mainSessionError<br>불리언 플래그"]
+LastError["lastError<br>오류 메시지"]
+LastOutput["lastOutput<br>누적된 텍스트"]
+CurrentTool["currentTool<br>도구 이름"]
 
 SessionIdle -.-> IdleFlag
 SessionStatus -.-> IdleFlag
@@ -450,7 +450,7 @@ MessageUpdated -.-> LastOutput
 ToolExecute -.-> CurrentTool
 ToolResult -.-> CurrentTool
 
-subgraph subGraph1 ["State Updates"]
+subgraph subGraph1 ["상태 업데이트"]
     IdleFlag
     ErrorFlag
     LastError
@@ -458,7 +458,7 @@ subgraph subGraph1 ["State Updates"]
     CurrentTool
 end
 
-subgraph subGraph0 ["Event Stream"]
+subgraph subGraph0 ["이벤트 스트림"]
     SessionIdle
     SessionStatus
     SessionError
@@ -469,61 +469,61 @@ subgraph subGraph0 ["Event Stream"]
 end
 ```
 
-**Key state transitions:**
+**주요 상태 전환:**
 
-* `session.idle` + `mainSessionIdle=true` → Trigger completion check
-* `session.status` with `type=busy` → Reset `mainSessionIdle=false`
-* `session.error` → Set `mainSessionError=true`, exit with code 1
-* `message.part.updated` → Stream text to stdout in real-time
+* `session.idle` + `mainSessionIdle=true` → 완료 확인 트리거
+* `type=busy`인 `session.status` → `mainSessionIdle=false`로 리셋
+* `session.error` → `mainSessionError=true` 설정, 종료 코드 1로 종료
+* `message.part.updated` → 실시간으로 텍스트를 stdout으로 스트리밍
 
-Sources: [src/cli/run/events.ts L14-L31](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/run/events.ts#L14-L31)
+출처: [src/cli/run/events.ts L14-L31](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/run/events.ts#L14-L31)
 
  [src/cli/run/events.ts L133-L220](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/run/events.ts#L133-L220)
 
 ---
 
-## Completion Detection
+## 완료 감지 (Completion Detection)
 
-The CLI uses a two-tier completion check to ensure all work finishes before exiting.
+CLI는 종료하기 전에 모든 작업이 끝났는지 확인하기 위해 2단계 완료 확인을 사용합니다.
 
-### Completion Criteria
+### 완료 기준
 
 ```mermaid
 flowchart TD
 
-Start["Session idle event"]
-CheckTodos["All todos<br>completed or<br>cancelled?"]
-CheckChildren["All child<br>sessions idle?"]
-CheckGrandchildren["All descendants<br>idle (recursive)?"]
-Complete["Exit 0:<br>All tasks completed"]
-Wait["Continue polling"]
+Start["세션 유휴(idle) 이벤트"]
+CheckTodos["모든 할 일이<br>완료 또는<br>취소되었는가?"]
+CheckChildren["모든 자식<br>세션이 유휴 상태인가?"]
+CheckGrandchildren["모든 후손 세션이<br>유휴 상태인가(재귀)?"]
+Complete["종료 코드 0:<br>모든 작업 완료"]
+Wait["폴링 계속"]
 
 Start -.-> CheckTodos
-CheckTodos -.->|"No"| Wait
-CheckTodos -.->|"Yes"| CheckChildren
-CheckChildren -.->|"No"| Wait
-CheckChildren -.->|"Yes"| CheckGrandchildren
-CheckGrandchildren -.->|"No"| Wait
-CheckGrandchildren -.->|"Yes"| Complete
+CheckTodos -.->|"아니오"| Wait
+CheckTodos -.->|"예"| CheckChildren
+CheckChildren -.->|"아니오"| Wait
+CheckChildren -.->|"예"| CheckGrandchildren
+CheckGrandchildren -.->|"아니오"| Wait
+CheckGrandchildren -.->|"예"| Complete
 ```
 
-**Todo status filtering:**
+**할 일 상태 필터링:**
 
 ```javascript
-// From src/cli/run/completion.ts:25-27
+// src/cli/run/completion.ts:25-27에서 발췌
 const incompleteTodos = todos.filter(
   (t) => t.status !== "completed" && t.status !== "cancelled"
 )
 ```
 
-Only `completed` and `cancelled` todos are considered finished. Todos with status `in_progress`, `pending`, or any other value block completion.
+`completed` 및 `cancelled` 상태의 할 일만 완료된 것으로 간주됩니다. `in_progress`, `pending` 또는 기타 상태의 할 일은 완료를 차단합니다.
 
-**Child session recursion:**
+**자식 세션 재귀 확인:**
 
-The completion check recursively validates all descendant sessions (children, grandchildren, etc.) to ensure background tasks spawned by Sisyphus have finished:
+완료 확인은 Sisyphus에 의해 생성된 백그라운드 작업이 완료되었는지 확인하기 위해 모든 후손 세션(자식, 손자 등)을 재귀적으로 검증합니다.
 
 ```typescript
-// Recursive validation pattern
+// 재귀적 검증 패턴
 async function areAllDescendantsIdle(
   ctx: RunContext,
   sessionID: string,
@@ -534,10 +534,10 @@ async function areAllDescendantsIdle(
   for (const child of children) {
     const status = allStatuses[child.id]
     if (status && status.type !== "idle") {
-      return false  // Child still working
+      return false  // 자식이 여전히 작업 중
     }
     
-    // Recursively check grandchildren
+    // 손자 세션 재귀 확인
     const descendantsIdle = await areAllDescendantsIdle(ctx, child.id, allStatuses)
     if (!descendantsIdle) {
       return false
@@ -548,116 +548,116 @@ async function areAllDescendantsIdle(
 }
 ```
 
-This ensures that parallel background tasks launched via `background_task` (see [Background Task Tools](/code-yeongyu/oh-my-opencode/5.3-background-task-tools)) complete before the workflow exits.
+이를 통해 `background_task`를 통해 실행된 병렬 백그라운드 작업(참조: [백그라운드 작업 도구](/code-yeongyu/oh-my-opencode/5.3-background-task-tools))이 워크플로우 종료 전에 완료되도록 보장합니다.
 
-Sources: [src/cli/run/completion.ts L4-L79](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/run/completion.ts#L4-L79)
+출처: [src/cli/run/completion.ts L4-L79](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/run/completion.ts#L4-L79)
 
-### Exit Codes
+### 종료 코드
 
-| Exit Code | Condition | Meaning |
+| 종료 코드 | 조건 | 의미 |
 | --- | --- | --- |
-| 0 | All todos complete + all sessions idle | Success |
-| 1 | `session.error` event received | API error or internal failure |
-| 1 | Completion check API error | Cannot verify completion status |
-| 130 | SIGINT (Ctrl+C) or timeout | Interrupted by user or timeout |
+| 0 | 모든 할 일 완료 + 모든 세션 유휴 상태 | 성공 |
+| 1 | `session.error` 이벤트 수신 | API 오류 또는 내부 실패 |
+| 1 | 완료 확인 API 오류 | 완료 상태를 확인할 수 없음 |
+| 130 | SIGINT (Ctrl+C) 또는 타임아웃 | 사용자에 의한 중단 또는 타임아웃 |
 
-Sources: [src/cli/run/runner.ts L10-L121](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/run/runner.ts#L10-L121)
+출처: [src/cli/run/runner.ts L10-L121](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/run/runner.ts#L10-L121)
 
  [src/cli/run/events.ts L159-L173](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/cli/run/events.ts#L159-L173)
 
 ---
 
-## Post-Execution Steps
+## 실행 후 단계 (Post-Execution Steps)
 
-After the CLI run completes, the workflow performs cleanup and status updates.
+CLI 실행이 완료된 후, 워크플로우는 정리 및 상태 업데이트를 수행합니다.
 
-### Git Operations
+### Git 작업
 
 ```mermaid
 flowchart TD
 
-CheckDirty["git status<br>--porcelain<br>has changes?"]
+CheckDirty["git status<br>--porcelain<br>변경사항 있음?"]
 GitAdd["git add -A"]
 GitCommit["git commit -m<br>'chore: changes by sisyphus-dev-ai'"]
-CheckBranch["Branch is<br>main or master?"]
+CheckBranch["브랜치가<br>main 또는 master인가?"]
 GitPush["git push origin $BRANCH"]
-Skip["Skip push"]
+Skip["푸시 건너뛰기"]
 
-CheckDirty -.->|"Yes"| GitAdd
-CheckDirty -.->|"No"| Skip
+CheckDirty -.->|"예"| GitAdd
+CheckDirty -.->|"아니오"| Skip
 GitAdd -.-> GitCommit
-GitCommit -.->|"No"| CheckBranch
-CheckBranch -.->|"Yes"| GitPush
+GitCommit -.->|"아니오"| CheckBranch
+CheckBranch -.->|"예"| GitPush
 CheckBranch -.-> Skip
 ```
 
-**Branch protection:**
+**브랜치 보호:**
 
-* Changes are committed with message `"chore: changes by sisyphus-dev-ai"`
-* Push occurs ONLY if branch is not `main` or `master`
-* This forces PRs for all substantive changes, preventing direct commits to protected branches
+* 변경사항은 `"chore: changes by sisyphus-dev-ai"`라는 메시지와 함께 커밋됩니다.
+* 푸시는 브랜치가 `main` 또는 `master`가 아닐 때만 발생합니다.
+* 이는 모든 실질적인 변경사항에 대해 PR을 강제하여 보호된 브랜치에 직접 커밋하는 것을 방지합니다.
 
-Sources: [.github/workflows/sisyphus-agent.yml L335-L348](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/.github/workflows/sisyphus-agent.yml#L335-L348)
+출처: [.github/workflows/sisyphus-agent.yml L335-L348](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/.github/workflows/sisyphus-agent.yml#L335-L348)
 
-### Reaction and Label Updates
+### 리액션 및 라벨 업데이트
 
-The workflow uses GitHub API to provide visual feedback:
+워크플로우는 시각적 피드백을 제공하기 위해 GitHub API를 사용합니다.
 
-**Reactions:**
+**리액션:**
 
-| Phase | Reaction | Purpose |
+| 단계 | 리액션 | 목적 |
 | --- | --- | --- |
-| Start | 👀 (eyes) | Acknowledge receipt |
-| Complete | 👍 (+1) | Signal completion |
+| 시작 | 👀 (eyes) | 수신 확인 |
+| 완료 | 👍 (+1) | 완료 신호 |
 
-The workflow removes the 👀 reaction before adding 👍 to provide clear state progression.
+워크플로우는 명확한 상태 진행을 보여주기 위해 👍를 추가하기 전에 👀 리액션을 제거합니다.
 
-**Labels:**
+**라벨:**
 
-| Label | Color | Description | Applied When |
+| 라벨 | 색상 | 설명 | 적용 시점 |
 | --- | --- | --- | --- |
-| `sisyphus: working` | `#fcf2e1` | Sisyphus is currently working on this | After eyes reaction added |
-| (removed) | - | - | After completion |
+| `sisyphus: working` | `#fcf2e1` | Sisyphus가 현재 작업 중임 | 👀 리액션 추가 후 |
+| (제거됨) | - | - | 완료 후 |
 
-Label operations use `gh` CLI:
+라벨 작업은 `gh` CLI를 사용합니다:
 
-* `gh label create --force` ensures label exists
-* `gh pr edit --add-label` or `gh issue edit --add-label` applies to item
-* `gh pr edit --remove-label` or `gh issue edit --remove-label` cleans up
+* `gh label create --force`는 라벨 존재를 보장합니다.
+* `gh pr edit --add-label` 또는 `gh issue edit --add-label`은 항목에 적용합니다.
+* `gh pr edit --remove-label` 또는 `gh issue edit --remove-label`은 정리합니다.
 
-All operations include `|| true` to prevent failures from blocking workflow completion.
+모든 작업에는 워크플로우 완료가 실패로 인해 차단되지 않도록 `|| true`가 포함됩니다.
 
-Sources: [.github/workflows/sisyphus-agent.yml L263-L376](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/.github/workflows/sisyphus-agent.yml#L263-L376)
+출처: [.github/workflows/sisyphus-agent.yml L263-L376](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/.github/workflows/sisyphus-agent.yml#L263-L376)
 
 ---
 
-## Code Entity Reference
+## 코드 엔티티 참조
 
-### Key Files and Functions
+### 주요 파일 및 함수
 
-| Component | File Path | Key Functions/Steps |
+| 컴포넌트 | 파일 경로 | 주요 함수/단계 |
 | --- | --- | --- |
-| Workflow definition | `.github/workflows/sisyphus-agent.yml` | `agent` job with 11 steps |
-| Environment context | `src/agents/utils.ts:32-63` | `createEnvContext(directory)` |
-| Agent creation | `src/agents/utils.ts:79-112` | `createBuiltinAgents()` with prompt_append merge |
-| Sisyphus workflow | `src/agents/sisyphus.ts:264-296` | GitHub Workflow section in prompt |
-| CLI runner | `src/cli/run/runner.ts:10-121` | `run(options: RunOptions)` |
-| Event processor | `src/cli/run/events.ts:34-62` | `processEvents()` with state updates |
-| Completion check | `src/cli/run/completion.ts:4-79` | `checkCompletionConditions()` |
+| 워크플로우 정의 | `.github/workflows/sisyphus-agent.yml` | 11개 단계가 포함된 `agent` 잡(job) |
+| 환경 컨텍스트 | `src/agents/utils.ts:32-63` | `createEnvContext(directory)` |
+| 에이전트 생성 | `src/agents/utils.ts:79-112` | `prompt_append` 병합이 포함된 `createBuiltinAgents()` |
+| Sisyphus 워크플로우 | `src/agents/sisyphus.ts:264-296` | 프롬프트 내 GitHub 워크플로우 섹션 |
+| CLI 러너 | `src/cli/run/runner.ts:10-121` | `run(options: RunOptions)` |
+| 이벤트 프로세서 | `src/cli/run/events.ts:34-62` | 상태 업데이트가 포함된 `processEvents()` |
+| 완료 확인 | `src/cli/run/completion.ts:4-79` | `checkCompletionConditions()` |
 
-### GitHub Actions Steps
+### GitHub Actions 단계
 
-| Step Name | Lines | Purpose |
+| 단계 이름 | 행 번호 | 목적 |
 | --- | --- | --- |
-| Configure Git as sisyphus-dev-ai | 36-39 | Set git identity |
-| Authenticate gh CLI as sisyphus-dev-ai | 42-45 | Enable gh commands |
-| Build oh-my-opencode | 73-76 | Compile TypeScript |
-| Setup OpenCode with oh-my-opencode | 79-228 | Install + configure all components |
-| Collect Context | 231-261 | Determine issue vs PR, extract metadata |
-| Add eyes reaction | 264-270 | Acknowledge receipt |
-| Add working label | 272-291 | Visual progress indicator |
-| Run oh-my-opencode | 293-332 | Execute Sisyphus with constructed prompt |
-| Push changes | 335-348 | Commit and push if on feature branch |
-| Update reaction and remove label | 350-376 | Signal completion |
+| Configure Git as sisyphus-dev-ai | 36-39 | git 정체성 설정 |
+| Authenticate gh CLI as sisyphus-dev-ai | 42-45 | gh 명령 활성화 |
+| Build oh-my-opencode | 73-76 | TypeScript 컴파일 |
+| Setup OpenCode with oh-my-opencode | 79-228 | 모든 컴포넌트 설치 및 구성 |
+| Collect Context | 231-261 | 이슈 vs PR 판단, 메타데이터 추출 |
+| Add eyes reaction | 264-270 | 수신 확인 |
+| Add working label | 272-291 | 시각적 진행 표시기 |
+| Run oh-my-opencode | 293-332 | 구성된 프롬프트로 Sisyphus 실행 |
+| Push changes | 335-348 | 피처 브랜치인 경우 커밋 및 푸시 |
+| Update reaction and remove label | 350-376 | 완료 신호 |
 
-Sources: [.github/workflows/sisyphus-agent.yml L1-L377](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/.github/workflows/sisyphus-agent.yml#L1-L377)
+출처: [.github/workflows/sisyphus-agent.yml L1-L377](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/.github/workflows/sisyphus-agent.yml#L1-L377)

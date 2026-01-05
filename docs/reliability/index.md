@@ -1,10 +1,10 @@
 ---
 layout: default
-title: Reliability
+title: 신뢰성 (Reliability)
 nav_order: 7
 has_children: true
 ---
 
-# Reliability System
+# 신뢰성 시스템 (Reliability System)
 
-Defense-in-depth reliability features.
+심층 방어(Defense-in-depth) 신뢰성 기능입니다.

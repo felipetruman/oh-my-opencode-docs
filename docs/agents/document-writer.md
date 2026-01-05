@@ -7,7 +7,7 @@ nav_order: 1
 
 # Document Writer
 
-> **Relevant source files**
+> **관련 소스 파일**
 > * [src/agents/document-writer.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts)
 > * [src/agents/explore.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/explore.ts)
 > * [src/agents/frontend-ui-ux-engineer.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/frontend-ui-ux-engineer.ts)
@@ -15,46 +15,46 @@ nav_order: 1
 > * [src/agents/multimodal-looker.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/multimodal-looker.ts)
 > * [src/agents/oracle.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/oracle.ts)
 
-The Document Writer is a specialized subagent responsible for creating technical documentation including README files, API documentation, architecture documentation, and user guides. It executes documentation tasks from ai-todo list plans with strict verification requirements and quality standards.
+Document Writer는 README 파일, API 문서, 아키텍처 문서 및 사용자 가이드를 포함한 기술 문서를 작성하는 전문 서브에이전트(subagent)입니다. 이 에이전트는 엄격한 검증 요구 사항과 품질 표준을 준수하며 ai-todo 리스트 계획에 따른 문서화 작업을 수행합니다.
 
-For information about other specialized agents, see [Specialized Agents](/code-yeongyu/oh-my-opencode/4.2-specialized-agents). For the primary orchestrator that delegates to this agent, see [Sisyphus Orchestrator](/code-yeongyu/oh-my-opencode/4.1-sisyphus-orchestrator).
+다른 전문 에이전트에 대한 정보는 [Specialized Agents](/code-yeongyu/oh-my-opencode/4.2-specialized-agents)를 참조하십시오. 이 에이전트에게 작업을 위임하는 기본 오케스트레이터(orchestrator)에 대해서는 [Sisyphus Orchestrator](/code-yeongyu/oh-my-opencode/4.1-sisyphus-orchestrator)를 참조하십시오.
 
-## Agent Configuration
+## 에이전트 설정 (Agent Configuration)
 
-The Document Writer agent is created via `createDocumentWriterAgent()` and configured as follows:
+Document Writer 에이전트는 `createDocumentWriterAgent()`를 통해 생성되며 다음과 같이 구성됩니다:
 
-| Property | Value | Purpose |
+| 속성 | 값 | 목적 |
 | --- | --- | --- |
-| **Model** | `google/gemini-3-flash-preview` | Fast, cost-effective model for structured writing |
-| **Mode** | `subagent` | Operates as delegated specialist under Sisyphus |
-| **Temperature** | `0.1` (inherited) | Low temperature for consistency |
-| **Tools** | All enabled except `background_task` | Full read/write access, cannot spawn background tasks |
-| **Delegation** | Blocking (synchronous) | Sisyphus waits for completion before proceeding |
+| **Model** | `google/gemini-3-flash-preview` | 구조화된 글쓰기를 위한 빠르고 비용 효율적인 모델 |
+| **Mode** | `subagent` | Sisyphus 아래에서 위임된 전문가로 작동 |
+| **Temperature** | `0.1` (상속됨) | 일관성을 위한 낮은 온도 설정 |
+| **Tools** | `background_task`를 제외한 모든 도구 활성화 | 전체 읽기/쓰기 권한을 가지나, 백그라운드 작업 생성은 불가 |
+| **Delegation** | 블로킹 (동기식) | Sisyphus는 진행하기 전 작업 완료를 대기함 |
 
-**Key Constraint**: The agent cannot spawn background tasks (`background_task: false`), preventing recursive delegation chains.
+**주요 제약 사항**: 에이전트는 백그라운드 작업(`background_task: false`)을 생성할 수 없으며, 이는 재귀적인 위임 체인을 방지합니다.
 
-**Sources**: [src/agents/document-writer.ts L1-L13](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts#L1-L13)
+**출처**: [src/agents/document-writer.ts L1-L13](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts#L1-L13)
 
-### Agent Factory Integration
+### 에이전트 팩토리 통합 (Agent Factory Integration)
 
 ```mermaid
 flowchart TD
 
-Config["Agent Configuration"]
-ModelSelection["Model Selection Logic"]
+Config["에이전트 설정"]
+ModelSelection["모델 선택 로직"]
 DefaultModel["DEFAULT_MODEL<br>google/gemini-3-flash-preview"]
-AgentConfig["AgentConfig object<br>mode: subagent<br>tools config<br>prompt"]
-TodoParsing["Parse ai-todo list<br>Detect doc tasks"]
-TaskDelegation["Task tool with<br>subagent_type: DocumentWriter"]
-BlockingWait["run_in_background: false<br>Wait for completion"]
-CompletionReport["TASK COMPLETION REPORT<br>Files changed<br>Verification results"]
+AgentConfig["AgentConfig 객체<br>mode: subagent<br>도구 설정<br>프롬프트"]
+TodoParsing["ai-todo 리스트 파싱<br>문서 작업 감지"]
+TaskDelegation["subagent_type: DocumentWriter인<br>Task 도구"]
+BlockingWait["run_in_background: false<br>완료 대기"]
+CompletionReport["작업 완료 보고서<br>변경 된 파일<br>검증 결과"]
 
 ModelSelection -.-> DefaultModel
 TaskDelegation -.-> AgentConfig
 AgentConfig -.-> BlockingWait
 BlockingWait -.-> CompletionReport
 
-subgraph SisyphusDelegation ["Sisyphus Orchestration"]
+subgraph SisyphusDelegation ["Sisyphus 위임"]
     TodoParsing
     TaskDelegation
     BlockingWait
@@ -74,89 +74,89 @@ subgraph AgentFactory ["createBuiltinAgents()"]
 end
 ```
 
-**Sources**: [src/agents/document-writer.ts L5-L13](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts#L5-L13)
+**출처**: [src/agents/document-writer.ts L5-L13](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts#L5-L13)
 
-## Core Responsibilities
+## 핵심 책임 (Core Responsibilities)
 
-The Document Writer specializes in four primary documentation categories:
+Document Writer는 네 가지 주요 문서 카테고리를 전문으로 합니다:
 
-### Documentation Types
+### 문서 유형 (Documentation Types)
 
-| Type | Structure | Tone | Focus |
+| 유형 | 구조 | 어조 | 중점 사항 |
 | --- | --- | --- | --- |
-| **README Files** | Title, Description, Installation, Usage, API Reference, Contributing, License | Welcoming but professional | Getting users started quickly with clear examples |
-| **API Documentation** | Endpoint, Method, Parameters, Request/Response examples, Error codes | Technical, precise, comprehensive | Every detail a developer needs to integrate |
-| **Architecture Documentation** | Overview, Components, Data Flow, Dependencies, Design Decisions | Educational, explanatory | Why things are built the way they are |
-| **User Guides** | Introduction, Prerequisites, Step-by-step tutorials, Troubleshooting | Friendly, supportive | Guiding users to success |
+| **README 파일** | 제목, 설명, 설치, 사용법, API 참조, 기여, 라이선스 | 환영하는 분위기이면서도 전문적임 | 명확한 예시를 통해 사용자가 빠르게 시작할 수 있도록 함 |
+| **API 문서** | 엔드포인트, 메서드, 파라미터, 요청/응답 예시, 에러 코드 | 기술적이고 정밀하며 포괄적임 | 개발자가 통합하는 데 필요한 모든 세부 사항 제공 |
+| **아키텍처 문서** | 개요, 구성 요소, 데이터 흐름, 의존성, 설계 결정 | 교육적이고 설명적임 | 시스템이 왜 그렇게 구축되었는지에 대한 이유 설명 |
+| **사용자 가이드** | 서론, 전제 조건, 단계별 튜토리얼, 문제 해결 | 친절하고 지원적임 | 사용자를 성공적인 결과로 안내 |
 
-**Sources**: [src/agents/document-writer.ts L93-L113](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts#L93-L113)
+**출처**: [src/agents/document-writer.ts L93-L113](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts#L93-L113)
 
-## Workflow Process
+## 워크플로우 프로세스 (Workflow Process)
 
-The Document Writer follows a mandatory 7-step workflow enforced through its system prompt:
+Document Writer는 시스템 프롬프트를 통해 강제되는 필수 7단계 워크플로우를 따릅니다:
 
 ```mermaid
 flowchart TD
 
-Step1["Unsupported markdown: list"]
-Step2["Unsupported markdown: list"]
-Step3["Unsupported markdown: list"]
-Step4["Unsupported markdown: list"]
-Step5["Unsupported markdown: list"]
-Step6["Unsupported markdown: list"]
-Step7["Unsupported markdown: list"]
-Parallelism["Use MAXIMUM PARALLELISM<br>Multiple Read/Glob/Grep calls<br>Explore agent delegation"]
-VerifyPass["Verification<br>passed?"]
-Stop["STOP HERE<br>User must invoke again<br>for next task"]
+Step1["지원되지 않는 마크다운: 리스트"]
+Step2["지원되지 않는 마크다운: 리스트"]
+Step3["지원되지 않는 마크다운: 리스트"]
+Step4["지원되지 않는 마크다운: 리스트"]
+Step5["지원되지 않는 마크다운: 리스트"]
+Step6["지원되지 않는 마크다운: 리스트"]
+Step7["지원되지 않는 마크다운: 리스트"]
+Parallelism["최대 병렬성 사용<br>다중 Read/Glob/Grep 호출<br>Explore 에이전트 위임"]
+VerifyPass["검증<br>통과?"]
+Stop["여기서 중단<br>다음 작업을 위해 사용자가<br>다시 호출해야 함"]
 
 Step1 -.-> Step2
 Step2 -.-> Parallelism
 Parallelism -.-> Step3
-Step3 -.->|"No"| Step4
+Step3 -.->|"아니오"| Step4
 Step4 -.-> Step5
-Step5 -.->|"Yes"| VerifyPass
+Step5 -.->|"예"| VerifyPass
 VerifyPass -.-> Step6
 VerifyPass -.-> Step4
 Step6 -.-> Step7
 Step7 -.-> Stop
 ```
 
-**Critical Rules**:
+**중요 규칙**:
 
-* **Execute ONLY ONE checkbox item per invocation** - Single-task constraint prevents scope creep
-* **STOP immediately after completing ONE task** - Forces explicit continuation by Sisyphus
-* **UPDATE checkbox from `[ ]` to `[x]` only after successful completion** - No premature marking
-* **NEVER continue to next task** - User/Sisyphus must invoke again
+* **호출당 단 하나의 체크박스 항목만 실행** - 단일 작업 제약으로 작업 범위 확장(scope creep) 방지
+* **한 가지 작업을 완료한 후 즉시 중단** - Sisyphus에 의한 명시적 지속 호출 강제
+* **성공적으로 완료된 후에만 체크박스를 `[ ]`에서 `[x]`로 업데이트** - 조기 표시 금지
+* **절대 다음 작업으로 계속 진행하지 않음** - 사용자/Sisyphus가 다시 호출해야 함
 
-**Sources**: [src/agents/document-writer.ts L74-L149](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts#L74-L149)
+**출처**: [src/agents/document-writer.ts L74-L149](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts#L74-L149)
 
-### Parallel Exploration Strategy
+### 병렬 탐색 전략 (Parallel Exploration Strategy)
 
-The workflow emphasizes aggressive parallelism during the exploration phase:
+워크플로우는 탐색 단계에서 공격적인 병렬 처리를 강조합니다:
 
-| Operation Type | Strategy | Example Tools |
+| 작업 유형 | 전략 | 예시 도구 |
 | --- | --- | --- |
-| **Codebase Exploration** | Multiple simultaneous read operations | `read()`, `glob()`, `grep()` in single message |
-| **Code Discovery** | Delegate to Explore agent | `task(subagent_type: "Explore")` |
-| **Pattern Analysis** | LSP and AST tools in parallel | `lsp_workspace_symbols()`, `ast_grep_search()` |
+| **코드베이스 탐색** | 다수의 동시 읽기 작업 수행 | 단일 메시지 내 `read()`, `glob()`, `grep()` 사용 |
+| **코드 발견** | Explore 에이전트에게 위임 | `task(subagent_type: "Explore")` |
+| **패턴 분석** | LSP 및 AST 도구 병렬 사용 | `lsp_workspace_symbols()`, `ast_grep_search()` |
 
-The prompt explicitly states: **"USE MAXIMUM PARALLELISM: When exploring codebase (Read, Glob, Grep), make MULTIPLE tool calls in SINGLE message"** and **"EXPLORE AGGRESSIVELY: Use Task tool with `subagent_type=Explore` to find code to document"**.
+프롬프트에는 다음과 같이 명시되어 있습니다: **"최대 병렬성 사용: 코드베이스를 탐색할 때(Read, Glob, Grep), 단일 메시지에서 다중 도구 호출을 수행하십시오"** 및 **"공격적으로 탐색하십시오: 문서화할 코드를 찾기 위해 `subagent_type=Explore`인 Task 도구를 사용하십시오"**.
 
-**Sources**: [src/agents/document-writer.ts L84-L86](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts#L84-L86)
+**출처**: [src/agents/document-writer.ts L84-L86](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts#L84-L86)
 
-## Code of Conduct Principles
+## 행동 강령 원칙 (Code of Conduct Principles)
 
-The Document Writer operates under five core principles embedded in its system prompt:
+Document Writer는 시스템 프롬프트에 내장된 5가지 핵심 원칙에 따라 작동합니다:
 
 ```mermaid
 flowchart TD
 
-P1["Unsupported markdown: list"]
-P2["Unsupported markdown: list"]
-P3["Unsupported markdown: list"]
-P4["Unsupported markdown: list"]
-P5["Unsupported markdown: list"]
-Output["High-Quality<br>Documentation"]
+P1["지원되지 않는 마크다운: 리스트"]
+P2["지원되지 않는 마크다운: 리스트"]
+P3["지원되지 않는 마크다운: 리스트"]
+P4["지원되지 않는 마크다운: 리스트"]
+P5["지원되지 않는 마크다운: 리스트"]
+Output["고품질<br>문서"]
 
 P1 -.-> Output
 P2 -.-> Output
@@ -164,7 +164,7 @@ P3 -.-> Output
 P4 -.-> Output
 P5 -.-> Output
 
-subgraph Principles ["Five Core Principles"]
+subgraph Principles ["5가지 핵심 원칙"]
     P1
     P2
     P3
@@ -173,132 +173,132 @@ subgraph Principles ["Five Core Principles"]
 end
 ```
 
-### Principle 1: Diligence & Integrity
+### 원칙 1: 근면 및 성실 (Diligence & Integrity)
 
-**Non-negotiable requirements**:
+**협상 불가능한 요구 사항**:
 
-* Execute the exact task specified without adding unrelated content
-* Never mark work as complete without proper verification
-* Verify all code examples actually work (don't just copy-paste)
-* Iterate until documentation is right, even if unclear initially
-* Take full responsibility for quality and correctness
+* 관련 없는 내용을 추가하지 않고 지정된 정확한 작업을 수행합니다.
+* 적절한 검증 없이 작업을 완료로 표시하지 않습니다.
+* 모든 코드 예제가 실제로 작동하는지 확인합니다 (단순 복사-붙여넣기 금지).
+* 처음에 불분명하더라도 문서가 올바르게 작성될 때까지 반복합니다.
+* 품질과 정확성에 대해 전적인 책임을 집니다.
 
-**Sources**: [src/agents/document-writer.ts L24-L33](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts#L24-L33)
+**출처**: [src/agents/document-writer.ts L24-L33](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts#L24-L33)
 
-### Principle 4: Verification-Driven Documentation
+### 원칙 4: 검증 주도 문서화 (Verification-Driven Documentation)
 
-**Critical mandate**: *"Documentation without verification is potentially harmful."*
+**중요 명령**: *"검증 없는 문서는 잠재적으로 해롭습니다."*
 
-**Verification requirements**:
+**검증 요구 사항**:
 
-1. **Test every code snippet** - Must be tested and working
-2. **Search for existing docs** - Find and update docs affected by changes
-3. **Run every command documented** - Ensure accuracy
-4. **Handle edge cases** - Document not just happy paths, but error conditions
-5. **Fix the docs, not the reality** - If docs don't match reality, update the docs (or flag code issues)
+1. **모든 코드 스니펫 테스트** - 반드시 테스트되고 작동해야 합니다.
+2. **기존 문서 검색** - 변경 사항의 영향을 받는 문서를 찾아 업데이트합니다.
+3. **문서화된 모든 명령 실행** - 정확성을 보장합니다.
+4. **엣지 케이스 처리** - 정상적인 경로뿐만 아니라 오류 조건도 문서화합니다.
+5. **현실에 맞춰 문서 수정** - 문서가 현실과 일치하지 않으면 문서를 업데이트합니다 (또는 코드 문제를 제기합니다).
 
-**The task is INCOMPLETE until documentation is verified. Period.**
+**문서가 검증될 때까지 작업은 완료된 것이 아닙니다.**
 
-**Sources**: [src/agents/document-writer.ts L52-L62](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts#L52-L62)
+**출처**: [src/agents/document-writer.ts L52-L62](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts#L52-L62)
 
-## Verification System
+## 검증 시스템 (Verification System)
 
-The verification phase is mandatory and must pass before a task can be marked complete:
+검증 단계는 필수이며 작업을 완료로 표시하기 전에 반드시 통과해야 합니다:
 
-| Verification Type | Checks | Failure Action |
+| 검증 유형 | 확인 사항 | 실패 시 조치 |
 | --- | --- | --- |
-| **Code Examples** | All snippets tested and working | Return to step 4 (Execute documentation) |
-| **Installation Instructions** | Setup steps executed if applicable | Fix and re-verify |
-| **Links** | Internal and external links valid | Update links and re-verify |
-| **API Examples** | Request/response verified against actual API | Correct examples and re-verify |
+| **코드 예제** | 모든 스니펫이 테스트되고 작동함 | 4단계(문서화 실행)로 돌아감 |
+| **설치 지침** | 해당되는 경우 설정 단계 실행 확인 | 수정 후 재검증 |
+| **링크** | 내부 및 외부 링크의 유효성 | 링크 업데이트 후 재검증 |
+| **API 예제** | 실제 API와 대조하여 요청/응답 검증 | 예제 수정 후 재검증 |
 
-**Verification Failure Loop**: If verification fails, the agent must **NOT** check the box and must return to step 4 to fix the documentation, then re-verify.
+**검증 실패 루프**: 검증이 실패하면 에이전트는 체크박스를 선택해서는 **안 되며**, 문서를 수정하기 위해 4단계로 돌아간 후 다시 검증해야 합니다.
 
-**Sources**: [src/agents/document-writer.ts L115-L122](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts#L115-L122)
+**출처**: [src/agents/document-writer.ts L115-L122](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts#L115-L122)
 
-### Quality Checklist
+### 품질 체크리스트 (Quality Checklist)
 
-The system prompt includes a built-in quality checklist:
+시스템 프롬프트에는 내장된 품질 체크리스트가 포함되어 있습니다:
 
 ```mermaid
 flowchart TD
 
-CS1["Terminology<br>consistent?"]
-CS2["Formatting<br>consistent?"]
-CS3["Style matches<br>existing docs?"]
-A1["Code examples<br>tested?"]
-A2["API responses<br>verified?"]
-A3["Version numbers<br>current?"]
-CO1["All features<br>documented?"]
-CO2["All parameters<br>explained?"]
-CO3["All error cases<br>covered?"]
-C1["Can new developer<br>understand this?"]
-C2["Are technical terms<br>explained?"]
-C3["Is structure logical<br>and scannable?"]
-Pass["All checks<br>passed?"]
-MarkComplete["Mark task [x]"]
-FixDocs["Fix documentation<br>Re-verify"]
+CS1["용어가<br>일관적인가?"]
+CS2["포맷이<br>일관적인가?"]
+CS3["스타일이 기존<br>문서와 일치하는가?"]
+A1["코드 예제가<br>테스트되었는가?"]
+A2["API 응답이<br>검증되었는가?"]
+A3["버전 번호가<br>최신인가?"]
+CO1["모든 기능이<br>문서화되었는가?"]
+CO2["모든 파라미터가<br>설명되었는가?"]
+CO3["모든 에러 케이스가<br>다뤄졌는가?"]
+C1["새로운 개발자가<br>이해할 수 있는가?"]
+C2["기술 용어가<br>설명되었는가?"]
+C3["구조가 논리적이고<br>훑어보기 쉬운가?"]
+Pass["모든 확인<br>통과?"]
+MarkComplete["작업을 [x]로 표시"]
+FixDocs["문서 수정<br>재검증"]
 
-Pass -.->|"Yes"| MarkComplete
-Pass -.->|"No"| FixDocs
+Pass -.->|"예"| MarkComplete
+Pass -.->|"아니오"| FixDocs
 Clarity -.-> Pass
 Completeness -.-> Pass
 Accuracy -.-> Pass
 Consistency -.-> Pass
 FixDocs -.-> Clarity
 
-subgraph Consistency ["Consistency Checks"]
+subgraph Consistency ["일관성 확인"]
     CS1
     CS2
     CS3
 end
 
-subgraph Accuracy ["Accuracy Checks"]
+subgraph Accuracy ["정확성 확인"]
     A1
     A2
     A3
 end
 
-subgraph Completeness ["Completeness Checks"]
+subgraph Completeness ["완전성 확인"]
     CO1
     CO2
     CO3
 end
 
-subgraph Clarity ["Clarity Checks"]
+subgraph Clarity ["명확성 확인"]
     C1
     C2
     C3
 end
 ```
 
-**Sources**: [src/agents/document-writer.ts L152-L173](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts#L152-L173)
+**출처**: [src/agents/document-writer.ts L152-L173](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts#L152-L173)
 
-## Integration with Todo System
+## Todo 시스템과의 통합 (Integration with Todo System)
 
-The Document Writer is tightly coupled with Sisyphus's todo management system:
+Document Writer는 Sisyphus의 todo 관리 시스템과 긴밀하게 결합되어 있습니다:
 
-### Todo List Processing
+### Todo 리스트 처리 (Todo List Processing)
 
 ```mermaid
 flowchart TD
 
-ExactQuote["EXACT TASK QUOTE<br>from todo list"]
-TaskRef["Reference to specific<br>[ ] checkbox item"]
-CurrentTask["현재 진행 중인 작업:<br>Current task section"]
-TaskList["Task items with [ ] checkboxes"]
-Descriptions["Description hyperlinks<br>to detailed specs"]
-ReadTodo["Read todo list file<br>+ hyperlinked descriptions"]
-ParseContext["Parse execution_context<br>Extract exact task"]
-UpdateCurrent["Update '현재 진행 중인 작업'<br>section with current task"]
-ExecuteTask["Execute documentation"]
-CheckBox["Update [ ] → [x]<br>when complete"]
+ExactQuote["todo 리스트의<br>정확한 작업 인용구"]
+TaskRef["특정 [ ] 체크박스<br>항목 참조"]
+CurrentTask["현재 진행 중인 작업:<br>Current task 섹션"]
+TaskList["[ ] 체크박스가 있는<br>작업 항목들"]
+Descriptions["상세 사양으로 연결되는<br>설명 하이퍼링크"]
+ReadTodo["todo 리스트 파일 및<br>하이퍼링크된 설명 읽기"]
+ParseContext["execution_context 파싱<br>정확한 작업 추출"]
+UpdateCurrent["'현재 진행 중인 작업'<br>섹션을 현재 작업으로 업데이트"]
+ExecuteTask["문서화 실행"]
+CheckBox["완료 시<br>[ ] → [x] 업데이트"]
 
 TodoFile -.-> ReadTodo
 ExecutionContext -.-> ParseContext
 CheckBox -.-> TodoFile
 
-subgraph AgentWorkflow ["Document Writer Workflow"]
+subgraph AgentWorkflow ["Document Writer 워크플로우"]
     ReadTodo
     ParseContext
     UpdateCurrent
@@ -310,94 +310,94 @@ subgraph AgentWorkflow ["Document Writer Workflow"]
     ExecuteTask -.-> CheckBox
 end
 
-subgraph ExecutionContext ["execution_context Parameter"]
+subgraph ExecutionContext ["execution_context 파라미터"]
     ExactQuote
     TaskRef
 end
 
-subgraph TodoFile ["ai-todo List File"]
+subgraph TodoFile ["ai-todo 리스트 파일"]
     CurrentTask
     TaskList
     Descriptions
 end
 ```
 
-**Task Identification**: The agent must find the **EXACT TASK QUOTE** from `execution_context` in the todo list file. This ensures it executes only the intended task.
+**작업 식별**: 에이전트는 todo 리스트 파일의 `execution_context`에서 **정확한 작업 인용구(EXACT TASK QUOTE)**를 찾아야 합니다. 이를 통해 의도된 작업만 실행하도록 보장합니다.
 
-**Single-Task Constraint**: The workflow explicitly prohibits continuing to the next task. After completing one checkbox item, the agent **MUST STOP** and generate a completion report. Sisyphus must invoke the agent again for the next task.
+**단일 작업 제약**: 워크플로우는 다음 작업으로 계속 진행하는 것을 명시적으로 금지합니다. 하나의 체크박스 항목을 완료한 후, 에이전트는 **반드시 중단**하고 완료 보고서를 생성해야 합니다. Sisyphus는 다음 작업을 위해 에이전트를 다시 호출해야 합니다.
 
-**Sources**: [src/agents/document-writer.ts L76-L90](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts#L76-L90)
+**출처**: [src/agents/document-writer.ts L76-L90](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts#L76-L90)
 
-### Completion Report Format
+### 완료 보고서 형식 (Completion Report Format)
 
-After successful execution, the agent generates a structured report:
+성공적으로 실행된 후, 에이전트는 구조화된 보고서를 생성합니다:
 
 ```
 **TASK COMPLETION REPORT**
 ```
 
-COMPLETED TASK: [exact task description]
+COMPLETED TASK: [정확한 작업 설명]
 STATUS: SUCCESS/FAILED/BLOCKED
 
 WHAT WAS DOCUMENTED:
 
-* [Detailed list of all documentation created]
-* [Files created/modified with paths]
+* [작성된 모든 문서의 상세 리스트]
+* [경로를 포함하여 생성/수정된 파일]
 
 FILES CHANGED:
 
-* Created: [list of new files]
-* Modified: [list of modified files]
+* Created: [새 파일 리스트]
+* Modified: [수정된 파일 리스트]
 
 VERIFICATION RESULTS:
 
-* [Code examples tested: X/Y working]
-* [Links checked: X/Y valid]
+* [코드 예제 테스트: X/Y 작동함]
+* [링크 확인: X/Y 유효함]
 
-TIME TAKEN: [duration]
+TIME TAKEN: [소요 시간]
 
 ```
 STOP HERE - DO NOT CONTINUE TO NEXT TASK
 ```
 
-**Sources**: [src/agents/document-writer.ts L127-L148](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts#L127-L148)
+**출처**: [src/agents/document-writer.ts L127-L148](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts#L127-L148)
 
-## Tool Access and Capabilities
+## 도구 액세스 및 기능 (Tool Access and Capabilities)
 
-The Document Writer has differentiated tool access compared to other agents:
+Document Writer는 다른 에이전트와 차별화된 도구 액세스 권한을 가집니다:
 
-### Tool Permissions
+### 도구 권한 (Tool Permissions)
 
-| Tool Category | Access | Rationale |
+| 도구 카테고리 | 액세스 | 근거 |
 | --- | --- | --- |
-| **read** | ✓ Enabled | Read source code and existing docs |
-| **write** | ✓ Enabled | Create and update documentation files |
-| **edit** | ✓ Enabled | Modify existing documentation |
-| **bash** | ✓ Enabled | Run commands to verify examples |
-| **task** | ✓ Enabled | Delegate to Explore agent for code discovery |
-| **background_task** | ✗ Disabled | Prevent recursive delegation |
-| **LSP tools** | ✓ Enabled (inherited) | Navigate code structure |
-| **AST-Grep** | ✓ Enabled (inherited) | Search code patterns |
+| **read** | ✓ 활성화 | 소스 코드 및 기존 문서 읽기 |
+| **write** | ✓ 활성화 | 문서 파일 생성 및 업데이트 |
+| **edit** | ✓ 활성화 | 기존 문서 수정 |
+| **bash** | ✓ 활성화 | 예제 검증을 위한 명령 실행 |
+| **task** | ✓ 활성화 | 코드 발견을 위해 Explore 에이전트에게 위임 |
+| **background_task** | ✗ 비활성화 | 재귀적 위임 방지 |
+| **LSP tools** | ✓ 활성화 (상속됨) | 코드 구조 탐색 |
+| **AST-Grep** | ✓ 활성화 (상속됨) | 코드 패턴 검색 |
 
-**Key Difference**: Unlike Librarian and Explore agents (which have `write: false, edit: false`), the Document Writer has full write access since its job is to create/modify documentation files.
+**주요 차이점**: Librarian 및 Explore 에이전트(`write: false, edit: false`)와 달리, Document Writer는 문서 파일을 생성/수정하는 것이 주 업무이므로 전체 쓰기 권한을 가집니다.
 
-**Sources**: [src/agents/document-writer.ts L13](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts#L13-L13)
+**출처**: [src/agents/document-writer.ts L13](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts#L13-L13)
 
-### Comparison with Other Agents
+### 다른 에이전트와의 비교 (Comparison with Other Agents)
 
 ```mermaid
 flowchart TD
 
-FrontendTools["tools:<br>background_task: false<br>(all other tools enabled)"]
-FrontendRole["Full write access<br>Implements UI/UX"]
-DocTools["tools:<br>background_task: false<br>(write/edit enabled)"]
-DocRole["Full write access<br>Creates documentation"]
-ExploreTools["tools:<br>write: false<br>edit: false<br>background_task: false"]
-ExploreRole["Code search<br>Read-only"]
-LibrarianTools["tools:<br>write: false<br>edit: false<br>background_task: false"]
-LibrarianRole["External research<br>No write access"]
-OracleTools["tools:<br>write: false<br>edit: false<br>task: false<br>background_task: false"]
-OracleRole["Pure advisor<br>Never modifies code"]
+FrontendTools["도구:<br>background_task: false<br>(그 외 모든 도구 활성화)"]
+FrontendRole["전체 쓰기 권한<br>UI/UX 구현"]
+DocTools["도구:<br>background_task: false<br>(write/edit 활성화)"]
+DocRole["전체 쓰기 권한<br>문서 생성"]
+ExploreTools["도구:<br>write: false<br>edit: false<br>background_task: false"]
+ExploreRole["코드 검색<br>읽기 전용"]
+LibrarianTools["도구:<br>write: false<br>edit: false<br>background_task: false"]
+LibrarianRole["외부 조사<br>쓰기 권한 없음"]
+OracleTools["도구:<br>write: false<br>edit: false<br>task: false<br>background_task: false"]
+OracleRole["순수 조언자<br>코드 수정 안 함"]
 
 subgraph Frontend ["Frontend Engineer"]
     FrontendTools
@@ -409,23 +409,23 @@ subgraph DocumentWriter ["Document Writer"]
     DocRole
 end
 
-subgraph Explore ["Explore Agent"]
+subgraph Explore ["Explore 에이전트"]
     ExploreTools
     ExploreRole
 end
 
-subgraph Librarian ["Librarian Agent"]
+subgraph Librarian ["Librarian 에이전트"]
     LibrarianTools
     LibrarianRole
 end
 
-subgraph Oracle ["Oracle Agent"]
+subgraph Oracle ["Oracle 에이전트"]
     OracleTools
     OracleRole
 end
 ```
 
-**Sources**: [src/agents/oracle.ts L79](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/oracle.ts#L79-L79)
+**출처**: [src/agents/oracle.ts L79](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/oracle.ts#L79-L79)
 
  [src/agents/librarian.ts L12](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/librarian.ts#L12-L12)
 
@@ -435,40 +435,40 @@ end
 
  [src/agents/frontend-ui-ux-engineer.ts L13](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/frontend-ui-ux-engineer.ts#L13-L13)
 
-## Delegation Patterns
+## 위임 패턴 (Delegation Patterns)
 
-### When Sisyphus Delegates to Document Writer
+### Sisyphus가 Document Writer에게 위임하는 경우
 
-The Document Writer is invoked via the `task` tool with `subagent_type: "DocumentWriter"`:
+Document Writer는 `subagent_type: "DocumentWriter"`인 `task` 도구를 통해 호출됩니다:
 
-**Trigger Conditions**:
+**트리거 조건**:
 
-1. **ai-todo list contains documentation tasks** - Task descriptions indicate documentation work
-2. **Explicit documentation request** - User asks for README, API docs, or guides
-3. **Post-implementation documentation** - After feature implementation, Sisyphus delegates doc updates
+1. **ai-todo 리스트에 문서화 작업 포함** - 작업 설명이 문서화 작업을 나타내는 경우
+2. **명시적인 문서화 요청** - 사용자가 README, API 문서 또는 가이드를 요청하는 경우
+3. **구현 후 문서화** - 기능 구현 후, Sisyphus가 문서 업데이트를 위임하는 경우
 
-**Delegation Mode**: Always **blocking** (`run_in_background: false`). Sisyphus waits for the Document Writer to complete and report back before proceeding.
+**위임 모드**: 항상 **블로킹(blocking)** 방식(`run_in_background: false`)입니다. Sisyphus는 Document Writer가 완료되고 보고할 때까지 기다린 후 다음 단계로 진행합니다.
 
-**Sources**: [src/agents/document-writer.ts L10](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts#L10-L10)
+**출처**: [src/agents/document-writer.ts L10](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts#L10-L10)
 
-### Document Writer's Delegation to Explore
+### Document Writer의 Explore 위임
 
-The Document Writer can delegate to the Explore agent for code discovery:
+Document Writer는 코드 발견을 위해 Explore 에이전트에게 작업을 위임할 수 있습니다:
 
 ```mermaid
 flowchart TD
 
-STask["Identify doc task in ai-todo"]
+STask["ai-todo에서 문서 작업 식별"]
 SDelegat["task(subagent_type: 'DocumentWriter'<br>run_in_background: false)"]
-DRead["Read todo list<br>Parse execution_context"]
-DExplore["Need to find code<br>to document"]
-DDelegat["task(subagent_type: 'Explore'<br>goal: 'Find X implementation')"]
-DWrite["Write documentation<br>based on findings"]
-DVerify["Verify code examples"]
-EAnalyze["<br>Intent analysis<br>"]
-ESearch["Parallel tool execution<br>LSP + AST + grep"]
+DRead["todo 리스트 읽기<br>execution_context 파싱"]
+DExplore["문서화할 코드<br>찾기 필요"]
+DDelegat["task(subagent_type: 'Explore'<br>goal: 'X 구현 찾기')"]
+DWrite["발견된 내용을 바탕으로<br>문서 작성"]
+DVerify["코드 예제 검증"]
+EAnalyze["<br>의도 분석<br>"]
+ESearch["병렬 도구 실행<br>LSP + AST + grep"]
 EResults["<br>...<br>...<br>"]
-Report["TASK COMPLETION REPORT"]
+Report["작업 완료 보고서"]
 
 SDelegat -.-> DRead
 DDelegat -.-> EAnalyze
@@ -476,7 +476,7 @@ EResults -.-> DWrite
 DVerify -.-> Report
 Report -.-> Sisyphus
 
-subgraph Explore ["Explore Agent Execution"]
+subgraph Explore ["Explore 에이전트 실행"]
     EAnalyze
     ESearch
     EResults
@@ -484,7 +484,7 @@ subgraph Explore ["Explore Agent Execution"]
     ESearch -.-> EResults
 end
 
-subgraph DocumentWriter ["Document Writer Execution"]
+subgraph DocumentWriter ["Document Writer 실행"]
     DRead
     DExplore
     DDelegat
@@ -495,95 +495,95 @@ subgraph DocumentWriter ["Document Writer Execution"]
     DWrite -.-> DVerify
 end
 
-subgraph Sisyphus ["Sisyphus Orchestrator"]
+subgraph Sisyphus ["Sisyphus 오케스트레이터"]
     STask
     SDelegat
     STask -.-> SDelegat
 end
 ```
 
-**Exploration Strategy**: The prompt explicitly states **"EXPLORE AGGRESSIVELY: Use Task tool with `subagent_type=Explore` to find code to document"**.
+**탐색 전략**: 프롬프트에는 **"공격적으로 탐색하십시오: 문서화할 코드를 찾기 위해 `subagent_type=Explore`인 Task 도구를 사용하십시오"**라고 명시되어 있습니다.
 
-**Sources**: [src/agents/document-writer.ts L85-L86](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts#L85-L86)
+**출처**: [src/agents/document-writer.ts L85-L86](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts#L85-L86)
 
-## Documentation Style Guide
+## 문서 스타일 가이드 (Documentation Style Guide)
 
-The agent enforces specific style guidelines embedded in its prompt:
+에이전트는 프롬프트에 내장된 특정 스타일 가이드를 준수합니다:
 
-### Tone Guidelines
+### 어조 가이드라인 (Tone Guidelines)
 
-| Aspect | Rule |
+| 측면 | 규칙 |
 | --- | --- |
-| **Voice** | Professional but approachable |
-| **Directness** | Direct and confident, avoid filler words and hedging |
-| **Grammar** | Use active voice |
-| **Attitude** | No unnecessary caution or qualification |
+| **음성(Voice)** | 전문적이면서도 접근하기 쉬움 |
+| **직접성(Directness)** | 직접적이고 자신감 있게, 불필요한 수식어나 모호한 표현 피하기 |
+| **문법(Grammar)** | 능동태 사용 |
+| **태도(Attitude)** | 불필요한 주의나 단서 조항 배제 |
 
-### Formatting Standards
+### 포맷 표준 (Formatting Standards)
 
-| Element | Standard |
+| 요소 | 표준 |
 | --- | --- |
-| **Headers** | Use for scanability and hierarchy |
-| **Code Blocks** | Always include syntax highlighting |
-| **Structured Data** | Use tables for clarity |
-| **Diagrams** | Add where helpful (mermaid preferred) |
+| **헤더(Headers)** | 훑어보기 쉬운 구조와 계층을 위해 사용 |
+| **코드 블록(Code Blocks)** | 항상 구문 강조(syntax highlighting) 포함 |
+| **구조화된 데이터** | 명확성을 위해 표(table) 사용 |
+| **다이어그램** | 도움이 되는 경우 추가 (Mermaid 선호) |
 
-### Code Example Standards
+### 코드 예제 표준 (Code Example Standards)
 
-| Principle | Implementation |
+| 원칙 | 구현 |
 | --- | --- |
-| **Progressive Complexity** | Start simple, build complexity |
-| **Error Handling** | Include both success and error cases |
-| **Completeness** | Show complete, runnable examples |
-| **Annotations** | Add comments explaining key parts |
+| **점진적 복잡성** | 단순하게 시작하여 점차 복잡도를 높임 |
+| **에러 처리** | 성공 및 에러 케이스 모두 포함 |
+| **완전성** | 완전하고 실행 가능한 예제 제시 |
+| **주석(Annotations)** | 주요 부분을 설명하는 주석 추가 |
 
-**Sources**: [src/agents/document-writer.ts L186-L205](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts#L186-L205)
+**출처**: [src/agents/document-writer.ts L186-L205](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts#L186-L205)
 
-## Integration with Agent System
+## 에이전트 시스템과의 통합 (Integration with Agent System)
 
-### Position in Agent Hierarchy
+### 에이전트 계층 구조에서의 위치 (Position in Agent Hierarchy)
 
 ```mermaid
 flowchart TD
 
-Sisyphus["Sisyphus<br>Claude Opus 4.5<br>Multi-phase workflow<br>Todo management"]
-Oracle["Oracle<br>GPT-5.2<br>Architecture advisor<br>Read-only"]
-Librarian["Librarian<br>Claude Sonnet 4.5<br>External research<br>Read-only"]
-Explore["Explore<br>Grok Code<br>Code search<br>Read-only"]
-Frontend["Frontend<br>Gemini Pro<br>UI/UX implementation<br>Full write access"]
-DocWriter["DocumentWriter<br>Gemini Flash<br>Documentation<br>Full write access"]
-Multimodal["Multimodal<br>Gemini Flash<br>Media analysis<br>Read-only"]
+Sisyphus["Sisyphus<br>Claude Opus 4.5<br>다단계 워크플로우<br>Todo 관리"]
+Oracle["Oracle<br>GPT-5.2<br>아키텍처 조언자<br>읽기 전용"]
+Librarian["Librarian<br>Claude Sonnet 4.5<br>외부 조사<br>읽기 전용"]
+Explore["Explore<br>Grok Code<br>코드 검색<br>읽기 전용"]
+Frontend["Frontend<br>Gemini Pro<br>UI/UX 구현<br>전체 쓰기 권한"]
+DocWriter["DocumentWriter<br>Gemini Flash<br>문서화<br>전체 쓰기 권한"]
+Multimodal["Multimodal<br>Gemini Flash<br>미디어 분석<br>읽기 전용"]
 
-Sisyphus -.->|"Blocking delegationtask(DocumentWriter)"| DocWriter
-Sisyphus -.->|"Research"| Oracle
+Sisyphus -.->|"블로킹 위임<br>task(DocumentWriter)"| DocWriter
+Sisyphus -.->|"조사"| Oracle
 Sisyphus -.->|"UI/UX"| Librarian
-Sisyphus -.->|"Media"| Explore
+Sisyphus -.->|"미디어"| Explore
 Sisyphus -.-> Frontend
-Sisyphus -.->|"Search"| Multimodal
+Sisyphus -.->|"검색"| Multimodal
 
-subgraph Specialists ["Specialized Agents (Subagents)"]
+subgraph Specialists ["전문 에이전트 (서브에이전트)"]
     Oracle
     Librarian
     Explore
     Frontend
     DocWriter
     Multimodal
-    DocWriter -.->|"Code discoverytask(Explore)"| Explore
+    DocWriter -.->|"코드 발견<br>task(Explore)"| Explore
 end
 
-subgraph Primary ["Primary Orchestrator"]
+subgraph Primary ["기본 오케스트레이터"]
     Sisyphus
 end
 ```
 
-**Unique Characteristics**:
+**고유한 특성**:
 
-* **Write Access**: Unlike Oracle, Librarian, and Explore, has full write/edit permissions
-* **Todo Integration**: Deeply integrated with ai-todo system (reads, updates, and marks completion)
-* **Verification Mandate**: Only agent with explicit verification requirements in workflow
-* **Single-Task Constraint**: Must stop after one task, unlike Sisyphus's multi-task orchestration
+* **쓰기 권한**: Oracle, Librarian, Explore와 달리 전체 쓰기/수정 권한을 가집니다.
+* **Todo 통합**: ai-todo 시스템과 깊게 통합되어 있습니다 (읽기, 업데이트 및 완료 표시).
+* **검증 의무**: 워크플로우에 명시적인 검증 요구 사항이 있는 유일한 에이전트입니다.
+* **단일 작업 제약**: Sisyphus의 다중 작업 오케스트레이션과 달리, 하나의 작업을 마친 후 반드시 중단해야 합니다.
 
-**Sources**: [src/agents/document-writer.ts L1-L211](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts#L1-L211)
+**출처**: [src/agents/document-writer.ts L1-L211](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/document-writer.ts#L1-L211)
 
  [src/agents/oracle.ts L1-L91](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/agents/oracle.ts#L1-L91)
 

@@ -1,10 +1,10 @@
 ---
 layout: default
-title: Tools
+title: 도구 (Tools)
 nav_order: 5
 has_children: true
 ---
 
-# Tool System
+# 도구 시스템 (Tool System)
 
-Enhanced development tools including LSP, AST-Grep, and more.
+LSP(Language Server Protocol), AST-Grep 등을 포함한 강화된 개발 도구입니다.

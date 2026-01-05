@@ -1,13 +1,13 @@
 ---
 layout: default
-title: Non Interactive Environment
+title: 비대화형 환경 (Non Interactive Environment)
 parent: Hooks
 nav_order: 1
 ---
 
-# Non-Interactive Environment
+# 비대화형 환경 (Non-Interactive Environment)
 
-> **Relevant source files**
+> **관련 소스 파일**
 > * [src/hooks/non-interactive-env/constants.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/non-interactive-env/constants.ts)
 > * [src/hooks/non-interactive-env/detector.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/non-interactive-env/detector.ts)
 > * [src/hooks/non-interactive-env/index.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/non-interactive-env/index.ts)
@@ -15,102 +15,102 @@ nav_order: 1
 > * [src/hooks/todo-continuation-enforcer.test.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/todo-continuation-enforcer.test.ts)
 > * [src/hooks/todo-continuation-enforcer.ts](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/todo-continuation-enforcer.ts)
 
-This document explains the non-interactive environment hook, which prevents bash commands from hanging on user input by automatically injecting environment variables and detecting banned interactive commands. This reliability measure is critical for CI/CD environments and automated agent execution where no human can respond to interactive prompts.
+이 문서는 사용자 입력으로 인해 bash 명령어가 대기 상태(hang)에 빠지는 것을 방지하기 위해 환경 변수를 자동으로 주입하고 금지된 대화형 명령어를 감지하는 비대화형 환경 훅(non-interactive environment hook)에 대해 설명합니다. 이러한 안정성 조치는 사람이 대화형 프롬프트에 응답할 수 없는 CI/CD 환경 및 자동화된 에이전트 실행에 있어 매우 중요합니다.
 
-For the broader reliability architecture, see [Reliability System](../reliability/). For other bash-related hooks, see [Other Hooks](/code-yeongyu/oh-my-opencode/7.7-other-hooks).
+더 광범위한 안정성 아키텍처에 대해서는 [안정성 시스템(Reliability System)](../reliability/)을 참조하십시오. 기타 bash 관련 훅에 대해서는 [기타 훅(Other Hooks)](/code-yeongyu/oh-my-opencode/7.7-other-hooks)을 참조하십시오.
 
-## Purpose and Scope
+## 목적 및 범위 (Purpose and Scope)
 
-The non-interactive environment hook (`createNonInteractiveEnvHook`) intercepts every `bash` tool execution and modifies the environment to prevent commands from waiting for user input. This is essential when oh-my-opencode runs in:
+비대화형 환경 훅(`createNonInteractiveEnvHook`)은 모든 `bash` 도구 실행을 가로채고 환경을 수정하여 명령어가 사용자 입력을 기다리지 않도록 합니다. 이는 oh-my-opencode가 다음과 같은 환경에서 실행될 때 필수적입니다:
 
-* GitHub Actions workflows (Sisyphus Agent)
-* CLI `run` command with `OPENCODE_RUN=true`
-* Any CI/CD environment with `CI=true`
-* Non-TTY environments (piped output, headless execution)
+* GitHub Actions 워크플로우 (Sisyphus Agent)
+* `OPENCODE_RUN=true` 설정이 된 CLI `run` 명령어
+* `CI=true` 설정이 된 모든 CI/CD 환경
+* Non-TTY 환경 (파이프 출력, 헤드리스 실행)
 
-Without this hook, commands like `git commit` (without `-m`), `apt-get install` (without `-y`), or interactive editors (`vim`, `nano`) would hang indefinitely, causing the entire session to stall.
+이 훅이 없으면 `-m` 옵션이 없는 `git commit`, `-y` 옵션이 없는 `apt-get install`, 또는 대화형 에디터(`vim`, `nano`)와 같은 명령어들이 무기한 대기 상태에 빠져 전체 세션이 중단될 수 있습니다.
 
-**Sources:** [src/hooks/non-interactive-env/index.ts L1-L53](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/non-interactive-env/index.ts#L1-L53)
+**출처:** [src/hooks/non-interactive-env/index.ts L1-L53](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/non-interactive-env/index.ts#L1-L53)
 
  [src/hooks/non-interactive-env/detector.ts L1-L19](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/non-interactive-env/detector.ts#L1-L19)
 
-## Architecture Overview
+## 아키텍처 개요 (Architecture Overview)
 
-The hook operates in the `tool.execute.before` phase, intercepting bash commands before they reach the OpenCode SDK. It modifies the execution environment and optionally adds warning messages for problematic commands.
+이 훅은 `tool.execute.before` 단계에서 작동하며, bash 명령어가 OpenCode SDK에 도달하기 전에 가로챕니다. 실행 환경을 수정하고, 문제가 될 수 있는 명령어에 대해 선택적으로 경고 메시지를 추가합니다.
 
-**Hook Execution Flow**
+**훅 실행 흐름**
 
 ```mermaid
 flowchart TD
 
-AgentCall["Agent calls bash tool<br>command, env"]
-HookTrigger["tool.execute.before event<br>input: tool, sessionID, callID<br>output: args, message"]
+AgentCall["에이전트가 bash 도구 호출<br>명령어, 환경 변수"]
+HookTrigger["tool.execute.before 이벤트<br>입력: tool, sessionID, callID<br>출력: args, message"]
 ToolCheck["tool === 'bash'?"]
-InjectEnv["Inject NON_INTERACTIVE_ENV<br>11 environment variables"]
-DetectBanned["detectBannedCommand()<br>Regex pattern matching"]
-HasBanned["Banned command<br>detected?"]
-AddWarning["Set output.message<br>⚠️ Warning: ... may hang"]
-Execute["Execute bash with modified env<br>OpenCode SDK"]
+InjectEnv["NON_INTERACTIVE_ENV 주입<br>11개의 환경 변수"]
+DetectBanned["detectBannedCommand()<br>정규식 패턴 매칭"]
+HasBanned["금지된 명령어<br>감지됨?"]
+AddWarning["output.message 설정<br>⚠️ 경고: ... 대기 상태에 빠질 수 있음"]
+Execute["수정된 환경으로 bash 실행<br>OpenCode SDK"]
 
 AgentCall -.-> HookTrigger
 HookTrigger -.-> ToolCheck
-ToolCheck -.->|"No"| Execute
-ToolCheck -.->|"Yes"| InjectEnv
+ToolCheck -.->|"아니오"| Execute
+ToolCheck -.->|"예"| InjectEnv
 InjectEnv -.-> DetectBanned
 DetectBanned -.-> HasBanned
-HasBanned -.->|"No"| Execute
-HasBanned -.->|"Yes"| AddWarning
+HasBanned -.->|"아니오"| Execute
+HasBanned -.->|"예"| AddWarning
 AddWarning -.-> Execute
 ```
 
-**Sources:** [src/hooks/non-interactive-env/index.ts L22-L53](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/non-interactive-env/index.ts#L22-L53)
+**출처:** [src/hooks/non-interactive-env/index.ts L22-L53](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/non-interactive-env/index.ts#L22-L53)
 
-## Environment Variable Injection
+## 환경 변수 주입 (Environment Variable Injection)
 
-The hook injects 11 environment variables into every bash execution, ensuring common tools and package managers operate non-interactively.
+이 훅은 모든 bash 실행에 11개의 환경 변수를 주입하여, 일반적인 도구와 패키지 관리자가 비대화형으로 작동하도록 보장합니다.
 
-### NON_INTERACTIVE_ENV Variables
+### NON_INTERACTIVE_ENV 변수
 
-| Variable | Value | Purpose |
+| 변수 | 값 | 목적 |
 | --- | --- | --- |
-| `CI` | `"true"` | Universal CI indicator (npm, pip, git detect this) |
-| `DEBIAN_FRONTEND` | `"noninteractive"` | Prevent apt-get/dpkg interactive prompts |
-| `GIT_TERMINAL_PROMPT` | `"0"` | Disable git credential prompts |
-| `GCM_INTERACTIVE` | `"never"` | Git Credential Manager non-interactive mode |
-| `HOMEBREW_NO_AUTO_UPDATE` | `"1"` | Skip Homebrew auto-update prompts |
-| `GIT_EDITOR` | `"true"` | Block git rebase/commit editors (true = no-op) |
-| `EDITOR` | `"true"` | Block system editor invocations |
-| `VISUAL` | `"true"` | Block visual editor fallback |
-| `GIT_SEQUENCE_EDITOR` | `"true"` | Block git rebase -i editor |
-| `GIT_PAGER` | `"cat"` | Replace less/more with cat (no pagination) |
-| `PAGER` | `"cat"` | Replace system pager |
-| `npm_config_yes` | `"true"` | npm auto-confirm prompts |
-| `PIP_NO_INPUT` | `"1"` | Python pip non-interactive mode |
-| `YARN_ENABLE_IMMUTABLE_INSTALLS` | `"false"` | Allow yarn to proceed without lockfile |
+| `CI` | `"true"` | 범용 CI 표시기 (npm, pip, git이 이를 감지함) |
+| `DEBIAN_FRONTEND` | `"noninteractive"` | apt-get/dpkg 대화형 프롬프트 방지 |
+| `GIT_TERMINAL_PROMPT` | `"0"` | git 자격 증명 프롬프트 비활성화 |
+| `GCM_INTERACTIVE` | `"never"` | Git Credential Manager 비대화형 모드 |
+| `HOMEBREW_NO_AUTO_UPDATE` | `"1"` | Homebrew 자동 업데이트 프롬프트 건너뛰기 |
+| `GIT_EDITOR` | `"true"` | git rebase/commit 에디터 차단 (true = 아무 작업도 하지 않음) |
+| `EDITOR` | `"true"` | 시스템 에디터 호출 차단 |
+| `VISUAL` | `"true"` | 비주얼 에디터 폴백 차단 |
+| `GIT_SEQUENCE_EDITOR` | `"true"` | git rebase -i 에디터 차단 |
+| `GIT_PAGER` | `"cat"` | less/more를 cat으로 대체 (페이지 매김 없음) |
+| `PAGER` | `"cat"` | 시스템 페이저(pager) 대체 |
+| `npm_config_yes` | `"true"` | npm 자동 확인 프롬프트 |
+| `PIP_NO_INPUT` | `"1"` | Python pip 비대화형 모드 |
+| `YARN_ENABLE_IMMUTABLE_INSTALLS` | `"false"` | lockfile 없이 yarn 진행 허용 |
 
-**Implementation:**
+**구현:**
 
-```
-// Merge environment variables before execution
+```javascript
+// 실행 전 환경 변수 병합
 output.args.env = {
   ...(output.args.env as Record<string, string> | undefined),
   ...NON_INTERACTIVE_ENV,
 }
 ```
 
-This preserves any environment variables the agent explicitly sets while adding the non-interactive defaults.
+이는 에이전트가 명시적으로 설정한 환경 변수를 보존하면서 비대화형 기본값을 추가합니다.
 
-**Sources:** [src/hooks/non-interactive-env/constants.ts L3-L23](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/non-interactive-env/constants.ts#L3-L23)
+**출처:** [src/hooks/non-interactive-env/constants.ts L3-L23](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/non-interactive-env/constants.ts#L3-L23)
 
  [src/hooks/non-interactive-env/index.ts L37-L40](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/non-interactive-env/index.ts#L37-L40)
 
-## Banned Command Detection
+## 금지된 명령어 감지 (Banned Command Detection)
 
-The hook detects interactive commands that will always hang and adds a warning message to the tool execution. The agent sees the warning but the command still executes (allowing the agent to learn from the failure).
+이 훅은 항상 대기 상태에 빠지는 대화형 명령어를 감지하고 도구 실행에 경고 메시지를 추가합니다. 에이전트는 경고를 보게 되지만 명령어는 여전히 실행됩니다 (에이전트가 실패로부터 학습할 수 있도록 함).
 
-### Banned Commands
+### 금지된 명령어
 
-**Banned Command Categories**
+**금지된 명령어 카테고리**
 
 ```mermaid
 flowchart TD
@@ -126,7 +126,7 @@ emacs["emacs"]
 less["less"]
 more["more"]
 man["man"]
-BannedPattern["BANNED_COMMAND_PATTERNS<br>Regex: \bcommand\b"]
+BannedPattern["BANNED_COMMAND_PATTERNS<br>정규식: \bcommand\b"]
 
 vim -.-> BannedPattern
 nano -.-> BannedPattern
@@ -136,34 +136,34 @@ less -.-> BannedPattern
 more -.-> BannedPattern
 man -.-> BannedPattern
 
-subgraph subGraph1 ["Pagers (Always block)"]
+subgraph subGraph1 ["페이저 (항상 차단)"]
     less
     more
     man
 end
 
-subgraph subGraph0 ["Editors (Always block)"]
+subgraph subGraph0 ["에디터 (항상 차단)"]
     vim
     nano
     vi
     emacs
 end
 
-subgraph subGraph3 ["Interactive Git"]
+subgraph subGraph3 ["대화형 Git"]
     gitaddp
     gitrebasei
 end
 
-subgraph subGraph2 ["REPLs (Without flags)"]
+subgraph subGraph2 ["REPL (플래그 없는 경우)"]
     python
     node
 end
 ```
 
-**Detection Logic:**
+**감지 로직:**
 
 ```javascript
-// Build regex patterns from command list
+// 명령어 목록에서 정규식 패턴 생성
 const BANNED_COMMAND_PATTERNS = SHELL_COMMAND_PATTERNS.banned
   .filter((cmd) => !cmd.includes("("))
   .map((cmd) => new RegExp(`\\b${cmd}\\b`))
@@ -178,58 +178,58 @@ function detectBannedCommand(command: string): string | undefined {
 }
 ```
 
-When detected, the hook adds: `⚠️ Warning: 'vim' is an interactive command that may hang in non-interactive environments.`
+감지되면 훅은 다음을 추가합니다: `⚠️ Warning: 'vim' is an interactive command that may hang in non-interactive environments.`
 
-**Sources:** [src/hooks/non-interactive-env/constants.ts L54-L59](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/non-interactive-env/constants.ts#L54-L59)
+**출처:** [src/hooks/non-interactive-env/constants.ts L54-L59](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/non-interactive-env/constants.ts#L54-L59)
 
  [src/hooks/non-interactive-env/index.ts L9-L20](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/non-interactive-env/index.ts#L9-L20)
 
  [src/hooks/non-interactive-env/index.ts L42-L45](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/non-interactive-env/index.ts#L42-L45)
 
-## Shell Command Patterns
+## 쉘 명령어 패턴 (Shell Command Patterns)
 
-The constants file documents good and bad patterns for common tools, serving as reference for agents and developers.
+상수(constants) 파일은 일반적인 도구에 대한 좋은 패턴과 나쁜 패턴을 기록하여 에이전트와 개발자를 위한 참조 역할을 합니다.
 
-### Package Manager Patterns
+### 패키지 관리자 패턴
 
-| Tool | Bad Pattern | Good Pattern |
+| 도구 | 나쁜 패턴 (Bad Pattern) | 좋은 패턴 (Good Pattern) |
 | --- | --- | --- |
 | npm | `npm init` | `npm init -y` |
-| npm | `npm install` (with prompts) | `npm install --yes` |
+| npm | `npm install` (프롬프트 포함) | `npm install --yes` |
 | apt | `apt-get install pkg` | `apt-get install -y pkg` |
 | apt | - | `DEBIAN_FRONTEND=noninteractive apt-get install pkg` |
-| pip | `pip install pkg` (with prompts) | `pip install --no-input pkg` |
+| pip | `pip install pkg` (프롬프트 포함) | `pip install --no-input pkg` |
 | pip | - | `PIP_NO_INPUT=1 pip install pkg` |
 
-### Git Operation Patterns
+### Git 작업 패턴
 
-| Bad Pattern | Good Pattern |
+| 나쁜 패턴 (Bad Pattern) | 좋은 패턴 (Good Pattern) |
 | --- | --- |
 | `git commit` | `git commit -m 'msg'` |
 | `git merge branch` | `git merge --no-edit branch` |
 | `git add -p` | `git add .` |
 | `git rebase -i` | `git rebase --no-edit` |
 
-### System Command Patterns
+### 시스템 명령어 패턴
 
-| Bad Pattern | Good Pattern |
+| 나쁜 패턴 (Bad Pattern) | 좋은 패턴 (Good Pattern) |
 | --- | --- |
-| `rm file` (prompts) | `rm -f file` |
-| `cp a b` (prompts) | `cp -f a b` |
+| `rm file` (프롬프트 발생) | `rm -f file` |
+| `cp a b` (프롬프트 발생) | `cp -f a b` |
 | `ssh host` | `ssh -o BatchMode=yes host` |
-| `unzip file.zip` (prompts) | `unzip -o file.zip` |
+| `unzip file.zip` (프롬프트 발생) | `unzip -o file.zip` |
 
-### Workarounds for Scripts Requiring Input
+### 입력이 필요한 스크립트에 대한 해결 방법
 
-When a script absolutely requires interactive input, agents can use these techniques:
+스크립트가 반드시 대화형 입력을 요구하는 경우, 에이전트는 다음과 같은 기술을 사용할 수 있습니다:
 
-**Pipe yes into script:**
+**스크립트에 yes 파이프 연결:**
 
 ```
 yes | ./script.sh
 ```
 
-**Heredoc for multiple inputs:**
+**여러 입력을 위한 Heredoc 사용:**
 
 ```
 ./script.sh <<EOF
@@ -238,55 +238,55 @@ option2
 EOF
 ```
 
-**Prefer configuration files:**
-Instead of using `expect` or similar tools, agents should look for config file options or environment variable alternatives.
+**설정 파일 선호:**
+`expect`나 유사한 도구를 사용하는 대신, 에이전트는 설정 파일 옵션이나 환경 변수 대안을 찾아야 합니다.
 
-**Sources:** [src/hooks/non-interactive-env/constants.ts L29-L69](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/non-interactive-env/constants.ts#L29-L69)
+**출처:** [src/hooks/non-interactive-env/constants.ts L29-L69](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/non-interactive-env/constants.ts#L29-L69)
 
-## Non-Interactive Detection
+## 비대화형 감지 (Non-Interactive Detection)
 
-The system determines whether to apply non-interactive mode using `isNonInteractive()`, which checks multiple environment indicators.
+시스템은 여러 환경 지표를 확인하는 `isNonInteractive()`를 사용하여 비대화형 모드 적용 여부를 결정합니다.
 
-**Detection Decision Tree**
+**비대화형 감지 결정 트리**
 
 ```mermaid
 flowchart TD
 
 Start["isNonInteractive()"]
-CheckCI["CI === 'true'<br>or CI === '1'?"]
-CheckOpenCode["OPENCODE_RUN === 'true' or<br>OPENCODE_NON_INTERACTIVE?"]
+CheckCI["CI === 'true'<br>또는 CI === '1'?"]
+CheckOpenCode["OPENCODE_RUN === 'true' 또는<br>OPENCODE_NON_INTERACTIVE?"]
 CheckGitHub["GITHUB_ACTIONS<br>=== 'true'?"]
 CheckTTY["process.stdout.isTTY<br>!== true?"]
-ReturnTrue["return true<br>Apply non-interactive mode"]
-ReturnFalse["return false<br>Allow interactive mode"]
+ReturnTrue["true 반환<br>비대화형 모드 적용"]
+ReturnFalse["false 반환<br>대화형 모드 허용"]
 
 Start -.-> CheckCI
-CheckCI -.->|"Yes"| ReturnTrue
-CheckCI -.->|"No"| CheckOpenCode
-CheckOpenCode -.->|"Yes"| ReturnTrue
-CheckOpenCode -.->|"No"| CheckGitHub
-CheckGitHub -.->|"Yes"| ReturnTrue
-CheckGitHub -.->|"No"| CheckTTY
-CheckTTY -.->|"Yes"| ReturnTrue
-CheckTTY -.->|"No"| ReturnFalse
+CheckCI -.->|"예"| ReturnTrue
+CheckCI -.->|"아니오"| CheckOpenCode
+CheckOpenCode -.->|"예"| ReturnTrue
+CheckOpenCode -.->|"아니오"| CheckGitHub
+CheckGitHub -.->|"예"| ReturnTrue
+CheckGitHub -.->|"아니오"| CheckTTY
+CheckTTY -.->|"예"| ReturnTrue
+CheckTTY -.->|"아니오"| ReturnFalse
 ```
 
-**Key Detection Methods:**
+**주요 감지 방법:**
 
-1. **CI Environment**: Standard `CI` variable (Jenkins, Travis, CircleCI, etc.)
-2. **OpenCode Run Mode**: CLI `run` command sets `OPENCODE_RUN=true`
-3. **GitHub Actions**: Explicit `GITHUB_ACTIONS=true` check
-4. **TTY Detection**: If stdout is not a terminal, assume non-interactive
+1. **CI 환경**: 표준 `CI` 변수 (Jenkins, Travis, CircleCI 등)
+2. **OpenCode 실행 모드**: CLI `run` 명령어는 `OPENCODE_RUN=true`를 설정함
+3. **GitHub Actions**: 명시적인 `GITHUB_ACTIONS=true` 확인
+4. **TTY 감지**: stdout이 터미널이 아닌 경우 비대화형으로 간주
 
-This multi-layered detection ensures the hook activates in all CI/CD contexts while remaining disabled during local interactive development.
+이러한 다층적 감지는 로컬 대화형 개발 중에는 비활성 상태를 유지하면서 모든 CI/CD 컨텍스트에서 훅이 활성화되도록 보장합니다.
 
-**Sources:** [src/hooks/non-interactive-env/detector.ts L1-L19](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/non-interactive-env/detector.ts#L1-L19)
+**출처:** [src/hooks/non-interactive-env/detector.ts L1-L19](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/non-interactive-env/detector.ts#L1-L19)
 
-## Integration with Hook System
+## 훅 시스템과의 통합 (Integration with Hook System)
 
-The non-interactive environment hook integrates into the plugin's hook registry as part of the reliability layer.
+비대화형 환경 훅은 안정성 계층의 일부로 플러그인의 훅 레지스트리에 통합됩니다.
 
-**Hook Registration**
+**훅 등록**
 
 ```mermaid
 flowchart TD
@@ -301,7 +301,7 @@ CreateHook -.-> HookObj
 HookObj -.-> Register
 ```
 
-The hook returns a single handler:
+이 훅은 단일 핸들러를 반환합니다:
 
 ```javascript
 export function createNonInteractiveEnvHook(_ctx: PluginInput) {
@@ -310,109 +310,109 @@ export function createNonInteractiveEnvHook(_ctx: PluginInput) {
       input: { tool: string; sessionID: string; callID: string },
       output: { args: Record<string, unknown>; message?: string }
     ): Promise<void> => {
-      // Implementation
+      // 구현 내용
     }
   }
 }
 ```
 
-**Key characteristics:**
+**주요 특징:**
 
-* **Early interception**: `tool.execute.before` runs before OpenCode SDK executes the tool
-* **Mutation allowed**: The hook modifies `output.args.env` directly
-* **Warning injection**: The hook can set `output.message` to display warnings to the agent
-* **Tool-specific**: Only activates for `bash` tool
+* **조기 가로채기**: `tool.execute.before`는 OpenCode SDK가 도구를 실행하기 전에 실행됩니다.
+* **변이(Mutation) 허용**: 훅이 `output.args.env`를 직접 수정합니다.
+* **경고 주입**: 훅이 `output.message`를 설정하여 에이전트에게 경고를 표시할 수 있습니다.
+* **도구 특정적**: `bash` 도구에 대해서만 활성화됩니다.
 
-**Sources:** [src/hooks/non-interactive-env/index.ts L22-L53](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/non-interactive-env/index.ts#L22-L53)
+**출처:** [src/hooks/non-interactive-env/index.ts L22-L53](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/non-interactive-env/index.ts#L22-L53)
 
-## Configuration
+## 설정 (Configuration)
 
-The hook supports optional configuration via the `oh-my-opencode.json` config file:
+이 훅은 `oh-my-opencode.json` 설정 파일을 통한 선택적 구성을 지원합니다:
 
-```
+```json
 interface NonInteractiveEnvConfig {
   disabled?: boolean
 }
 ```
 
-When `disabled: true`, the hook is not registered. This is primarily for debugging scenarios where interactive commands are intentionally needed.
+`disabled: true`인 경우 훅이 등록되지 않습니다. 이는 주로 대화형 명령어가 의도적으로 필요한 디버깅 시나리오를 위한 것입니다.
 
-**Default behavior:** Always enabled unless explicitly disabled in configuration.
+**기본 동작:** 설정에서 명시적으로 비활성화하지 않는 한 항상 활성화됩니다.
 
-**Sources:** [src/hooks/non-interactive-env/types.ts L1-L3](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/non-interactive-env/types.ts#L1-L3)
+**출처:** [src/hooks/non-interactive-env/types.ts L1-L3](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/non-interactive-env/types.ts#L1-L3)
 
-## Interaction with Background Tasks
+## 백그라운드 작업과의 상호작용 (Interaction with Background Tasks)
 
-The non-interactive environment hook works seamlessly with background tasks spawned via `background_task` tool. Each background task is a separate session with its own bash executions, and the hook applies to all of them:
+비대화형 환경 훅은 `background_task` 도구를 통해 생성된 백그라운드 작업과 원활하게 작동합니다. 각 백그라운드 작업은 자체 bash 실행을 가진 별도의 세션이며, 훅은 이들 모두에 적용됩니다:
 
-* **Main session bash**: Gets non-interactive env
-* **Background task bash**: Gets non-interactive env
-* **Sisyphus Agent (GitHub Actions)**: Gets non-interactive env
+* **메인 세션 bash**: 비대화형 환경 적용
+* **백그라운드 작업 bash**: 비대화형 환경 적용
+* **Sisyphus 에이전트 (GitHub Actions)**: 비대화형 환경 적용
 
-This ensures consistent behavior across all execution contexts, preventing any session from hanging on user input.
+이를 통해 모든 실행 컨텍스트에서 일관된 동작을 보장하고, 어떤 세션도 사용자 입력으로 인해 대기 상태에 빠지지 않도록 합니다.
 
-**Sources:** [src/hooks/non-interactive-env/index.ts L1-L53](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/non-interactive-env/index.ts#L1-L53)
+**출처:** [src/hooks/non-interactive-env/index.ts L1-L53](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/non-interactive-env/index.ts#L1-L53)
 
-## Usage Examples
+## 사용 예시 (Usage Examples)
 
-### Example 1: Git Operations
+### 예제 1: Git 작업
 
-**Without hook (would hang):**
+**훅이 없는 경우 (대기 상태 발생):**
 
 ```markdown
 git commit
-# Waits for editor to provide commit message
+# 에디터가 커밋 메시지를 입력받기 위해 대기함
 ```
 
-**With hook (succeeds):**
+**훅이 있는 경우 (성공):**
 
-* Agent runs: `git commit`
-* Hook injects: `GIT_EDITOR=true`
-* Result: Git uses `true` as editor (no-op), agent sees error about missing message
-* Agent learns to use: `git commit -m "fix: update config"`
+* 에이전트 실행: `git commit`
+* 훅 주입: `GIT_EDITOR=true`
+* 결과: Git이 `true`를 에디터로 사용(아무 작업 안 함), 에이전트는 메시지 누락에 대한 오류를 확인
+* 에이전트 학습 결과: `git commit -m "fix: update config"` 사용
 
-### Example 2: Package Installation
+### 예제 2: 패키지 설치
 
-**Without hook (would hang):**
+**훅이 없는 경우 (대기 상태 발생):**
 
 ```markdown
 apt-get install nginx
-# Prompts "Do you want to continue? [Y/n]"
+# "Do you want to continue? [Y/n]" 프롬프트 발생
 ```
 
-**With hook (succeeds):**
+**훅이 있는 경우 (성공):**
 
-* Agent runs: `apt-get install nginx`
-* Hook injects: `DEBIAN_FRONTEND=noninteractive`
-* Result: apt-get auto-confirms, installation proceeds
+* 에이전트 실행: `apt-get install nginx`
+* 훅 주입: `DEBIAN_FRONTEND=noninteractive`
+* 결과: apt-get이 자동 확인하고 설치를 진행함
 
-### Example 3: Banned Command Detection
+### 예제 3: 금지된 명령어 감지
 
-**Agent attempts:**
+**에이전트 시도:**
 
 ```
 vim config.yaml
 ```
 
-**Hook response:**
+**훅 응답:**
 
-* Warning message: `⚠️ Warning: 'vim' is an interactive command that may hang in non-interactive environments.`
-* Command still executes (will hang or fail)
-* Agent sees the failure and learns to use: `echo "key: value" >> config.yaml`
+* 경고 메시지: `⚠️ Warning: 'vim' is an interactive command that may hang in non-interactive environments.`
+* 명령어는 여전히 실행됨 (대기 상태에 빠지거나 실패함)
+* 에이전트는 실패를 확인하고 다음을 사용하도록 학습함: `echo "key: value" >> config.yaml`
 
-**Sources:** [src/hooks/non-interactive-env/constants.ts L29-L69](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/non-interactive-env/constants.ts#L29-L69)
+**출처:** [src/hooks/non-interactive-env/constants.ts L29-L69](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/non-interactive-env/constants.ts#L29-L69)
 
  [src/hooks/non-interactive-env/index.ts L42-L45](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/non-interactive-env/index.ts#L42-L45)
 
-## Relationship to Other Reliability Hooks
+## 다른 안정성 훅과의 관계 (Relationship to Other Reliability Hooks)
 
-The non-interactive environment hook is one of several prevention-layer hooks:
+비대화형 환경 훅은 여러 예방 계층(prevention-layer) 훅 중 하나입니다:
 
-* **Non-Interactive Env**: Prevents bash hangs (this page)
-* **Message Validator** ([7.2](/code-yeongyu/oh-my-opencode/7.2-message-validation)): Prevents API compliance errors
-* **Comment Checker** ([7.7](/code-yeongyu/oh-my-opencode/7.7-other-hooks)): Warns about TODO comments in code
-* **Session Recovery** ([7.1](/code-yeongyu/oh-my-opencode/7.1-session-recovery)): Recovers from errors after they occur
+* **비대화형 환경 (Non-Interactive Env)**: bash 대기 상태 방지 (이 페이지)
+* **메시지 검증기 (Message Validator)** ([7.2](/code-yeongyu/oh-my-opencode/7.2-message-validation)): API 준수 오류 방지
+* **주석 체크 (Comment Checker)** ([7.7](/code-yeongyu/oh-my-opencode/7.7-other-hooks)): 코드 내 TODO 주석에 대해 경고
+* **세션 복구 (Session Recovery)** ([7.1](/code-yeongyu/oh-my-opencode/7.1-session-recovery)): 오류 발생 후 복구
 
-Together, these hooks implement defense-in-depth: prevention reduces errors, and recovery handles what slips through.
+이러한 훅들은 함께 심층 방어(defense-in-depth)를 구현합니다. 예방은 오류를 줄이고, 복구는 예방을 통과한 오류를 처리합니다.
 
-**Sources:** [src/hooks/non-interactive-env/index.ts L1-L53](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/non-interactive-env/index.ts#L1-L53)
+**출처:** [src/hooks/non-interactive-env/index.ts L1-L53](https://github.com/code-yeongyu/oh-my-opencode/blob/b92cd6ab/src/hooks/non-interactive-env/index.ts#L1-L53)
