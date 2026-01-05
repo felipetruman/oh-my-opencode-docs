@@ -1,7 +1,7 @@
 # Site settings
 title: Oh My OpenCode
 description: AI Agent Orchestration Plugin for OpenCode - Multi-agent workflows, parallel execution, and production-grade reliability
-baseurl: "" # Change to "/repo-name" if hosting at github.io/repo-name
+baseurl: "/oh-my-opencode-docs"
 url: ""
 
 # Theme
